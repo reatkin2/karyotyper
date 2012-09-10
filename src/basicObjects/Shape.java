@@ -158,24 +158,24 @@ public class Shape {
     	return shapeX[posX.x][posX.y];
     }
     public void setPos(int x, int y){
-        shapeX[x][y]=true;
         if(!shapeX[x][y])
         	pixelCount++;
+    	shapeX[x][y]=true;
     }
     public void setPixel(Point xy,boolean newValue){
-    	shapeX[xy.x][xy.y]=newValue;
     	if(!newValue&&shapeX[xy.x][xy.y]){
     		this.pixelCount--;
     	}
     	else if(newValue&&!shapeX[xy.x][xy.y]){
     		this.pixelCount++;
     	}
+    	shapeX[xy.x][xy.y]=newValue;
 
     }
     public void setPosNot(int x, int y){
-        shapeX[x][y]=false;
         if(shapeX[x][y])
         	pixelCount--;
+    	shapeX[x][y]=false;
     }
     public void setPoint(int x, int y){
         setScreenCordinate(x,y);
@@ -428,15 +428,16 @@ public class Shape {
         //LinkedList<Shape> allShapes=new LinkedList<Shape>();//create a linked list to store shapes in
     	LinkedList<Point> removeEdgePointsHorizantal=new LinkedList<Point>();
     	LinkedList<Point> removeEdgePointsVertical=new LinkedList<Point>();
-    	LinkedList<Point> skeleton=new LinkedList<Point>();
+    	this.skeleton=new LinkedList<Point>();
     	Shape temp=new Shape(this);
     	Point pointRightEdge=new Point(0,0);
     	int objectWidth=0;
     	boolean inObject=false;
     	boolean beforeObjectEdge=true;
     	int lastPixelCount=temp.getPixelCount();
-    	
-        while(skeleton.size()>0&&lastPixelCount==temp.getPixelCount()){
+    	int lastSkeletonCount=-1;
+        while(skeleton.size()>lastSkeletonCount){
+        	lastSkeletonCount=skeleton.size();
         	lastPixelCount=temp.getPixelCount();
 	        for(int i=0;i<temp.getSize().x;i++){//loop width
 	            for(int j=0;j<temp.getSize().y;j++){//loop height
@@ -452,7 +453,10 @@ public class Shape {
 	    			else{
 	    				if(inObject){
 	    					if(objectWidth<=2){
-	    						skeleton.add(removeEdgePointsHorizantal.pop());
+	    						Point tempPoint=removeEdgePointsHorizantal.pop();
+	    						if(!skeleton.contains(tempPoint)){
+	    							skeleton.add(tempPoint);
+	    						}
 	    					}
 	    					removeEdgePointsHorizantal.push(pointRightEdge);
 	    					pointRightEdge=new Point(0,0);
@@ -464,7 +468,10 @@ public class Shape {
 	            }
 	            if(inObject){
 					if(objectWidth<=2){
-						skeleton.add(removeEdgePointsHorizantal.pop());
+						Point tempPoint=removeEdgePointsHorizantal.pop();
+						if(!skeleton.contains(tempPoint)){
+							skeleton.add(tempPoint);
+						}
 					}
 					inObject=false;
 					beforeObjectEdge=true;
@@ -489,7 +496,10 @@ public class Shape {
 	    			else{
 	    				if(inObject){
 	    					if(objectWidth<=2){
-	    						skeleton.add(removeEdgePointsVertical.pop());
+	    						Point tempPoint=removeEdgePointsVertical.pop();
+	    						if(!skeleton.contains(tempPoint)){
+	    							skeleton.add(tempPoint);
+	    						}
 	    					}
 	    					removeEdgePointsVertical.push(pointRightEdge);
 	    					pointRightEdge=new Point(0,0);
@@ -501,7 +511,10 @@ public class Shape {
 	            }
 	            if(inObject){
 					if(objectWidth<=2){
-						skeleton.add(removeEdgePointsVertical.pop());
+						Point tempPoint=removeEdgePointsVertical.pop();
+						if(!skeleton.contains(tempPoint)){
+							skeleton.add(tempPoint);
+						}
 					}
 					inObject=false;
 					beforeObjectEdge=true;
@@ -523,7 +536,6 @@ public class Shape {
 	        }
 	        //temp.shapeOut();
         }
-        this.skeleton=skeleton;
         return skeleton;
     }    
 

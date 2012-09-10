@@ -3,7 +3,9 @@ package Target;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 
@@ -36,8 +38,14 @@ public class TargetImage {
     private int mins;
     private int secs;
     private double lensFieldOfView = 70.7508;
+    private double []grayScale=new double[256];
+    private String filenameX;
 	public TargetImage(String filename,double feetPerDegreeLatLongX){
 		img = null;
+		this.filenameX=filename;
+		for(int i=0;i<grayScale.length;i++){
+			grayScale[i]=0;
+		}
 		this.feetPerDegreeLatLong=feetPerDegreeLatLongX;
 		try {
 			//image metadata reader
@@ -91,6 +99,9 @@ public class TargetImage {
 	        //image pixel reader
 	        img = ImageIO.read(new File(filename));
 	        System.out.println("Image Height: "+img.getHeight()+" Width: "+img.getWidth());
+	        //this.computeScale();
+	        //this.graphScale();
+	        
 	        
 		} catch (IOException e) {
 			System.out.println(e);
@@ -145,9 +156,8 @@ public class TargetImage {
 
 		}
 		if(getSkeleton){
-			LinkedList<Point> skeleton=targetShape.getSkeltonPoints();
-			for(int i=0;i<skeleton.size();i++){
-				tempImg.setRGB(skeleton.get(i).x-targetShape.getScreenCordinate().x, skeleton.get(i).y-targetShape.getScreenCordinate().y, (Color.RED).getRGB());
+			for(int i=0;i<targetShape.getSkeltonPoints().size();i++){
+				tempImg.setRGB(targetShape.getSkeltonPoints().get(i).x, targetShape.getSkeltonPoints().get(i).y, (new Color(255,0,0,255)).getRGB());
 			}
 		}
 					
@@ -249,7 +259,49 @@ public class TargetImage {
 	public void setSecs(int secs) {
 		this.secs = secs;
 	}
-
+	public void computeScale(){
+		Color tempColor=new Color(0,0,0);
+		for(int i=100;i<this.getImgWidth();i++){
+			for(int j=100;j<this.getImgHeight();j++){
+				tempColor=this.getColorAt(i,j);
+				double tempGreyPixel=(.299*tempColor.getRed())+(.587*tempColor.getGreen())+(.114*tempColor.getBlue());
+				this.grayScale[(int)Math.round(tempGreyPixel)]++;
+				
+			}
+		}
+	}
+	public void graphScale(){
+		 try{
+			  // Create file 
+			  FileWriter fstream = new FileWriter("GrayScale.txt",true);
+			  BufferedWriter out = new BufferedWriter(fstream);
+			  String buffer="";
+			  for(int i=0;i<this.grayScale.length;i++){//out.write("Hello Java");
+				  buffer+=""+this.grayScale[i]+",";
+			  }
+			  out.write(buffer);
+//			  for(int j=255;j>0;j--){
+//				  buffer="";
+//				  for(int i=0;i<this.grayScale.length;i++){//out.write("Hello Java");
+//					  if((this.grayScale[i]/740000)*255>j){
+//						  buffer+='M';
+//					  }
+//					  else{
+//						  buffer+='_';
+//					  }
+//				  }
+//				  out.write(buffer);
+//			  }
+			  out.write("\n");
+			  
+			  //Close the output stream
+			  out.close();
+			  }catch (Exception e){//Catch exception if any
+			  System.err.println("Error: " + e.getMessage());
+			  }
+			  
+			
+	}
 
 
 }

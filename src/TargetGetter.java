@@ -16,9 +16,15 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
+
+import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageWriteParam;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.FileImageOutputStream;
 
 
 public class TargetGetter {
@@ -61,6 +67,7 @@ public class TargetGetter {
     private int firstColorCountMax;
     private int firstColorCountMin;
     private int textImageRotationCount;
+    private int colorThreshold;
     //private Color imgAvgColor;
     private int firstPassCount;
     private int removedCount;
@@ -75,6 +82,7 @@ public class TargetGetter {
 		this.targetImgBorderSize=35;//target image border in pixels
 		this.distanceToIncludeTargets=120;//70feet
 		textImageRotationCount=20;
+		this.colorThreshold=245;
 		this.imageFolderPath=jpegPath;
 		this.imageQue=new LinkedList<String>();
 		start=System.currentTimeMillis();
@@ -117,8 +125,11 @@ public class TargetGetter {
 			img = new TargetImage(filename,TargetGetter.feetPerDegreeLatLong);
 	        screenChecked=new boolean[img.getImgWidth()][img.getImgHeight()];
 	        this.spotNext=new boolean[img.getImgWidth()][img.getImgHeight()];
-	        flightPath.addPoint(img);
-	        flightPath.writePath("flightPath");
+			img.computeScale();
+			img.graphScale();
+
+	        //flightPath.addPoint(img);
+	       // flightPath.writePath("flightPath");
         	//this.pixelCountAGL=(int)Math.round(((this.aboveGroundLevel*-18.14736)+3918.95752));
 //        	this.maxPixelCount=img.getPixelCountAGL()+1200;
 //        	this.minPixelCount=img.getPixelCountAGL()-1300;
@@ -197,7 +208,7 @@ public class TargetGetter {
 				        		//System.out.println("Checking color at pixel:"+(xyCor.x+aroundDot.getPos(i).x)+","+(xyCor.y+aroundDot.getPos(i).y));
 				        		//if the pixel at the position aroundDot matches the color
 				        		Color temp=img.getColorAt(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y);
-				        		if(PixelColor.isTargeTColor2(temp)){//was isTargeTColor2(this.imgAvgColor,temp)
+				        		if(PixelColor.isBackGroundColor(temp, this.colorThreshold)){//was isTargeTColor2(this.imgAvgColor,temp)
 					        		this.colorAverage=averageColor(temp);
 					    			screenChecked[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]=true;
 					        		this.currPixelCount++;
@@ -539,7 +550,7 @@ public class TargetGetter {
 	    			color1=img.getColorAt(r,j);//get pixel color from point
 	        		this.colorAverage=new Color(color1.getRed(),color1.getGreen(),color1.getBlue());
 	        		colorCount=1;
-	        		if(PixelColor.isTargeTColor2( color1)){//was isTargeTColor2(this.imgAvgColor, color1)
+	        		if(PixelColor.isBackGroundColor( color1,this.colorThreshold)){//was isTargeTColor2(this.imgAvgColor, color1)
 		        		temp=getShape(600,color1,r,j,temp);
 		//    			HORSE.mouseMove(r,j);
 		//    			HORSE.delay(1);
@@ -656,7 +667,7 @@ public class TargetGetter {
 //    				tempPop.setText(textImg.getText());
     				//tempPop.trySetText(tryText.getText());
     				shapeList.addShape(tempPop);
-    				writeTargetImage(tempPop);
+    				//writeTargetImage(tempPop);
     				targetNimgCount++;
 //    				this.googleEarthIt();
 //    				shapeList.writeTurnInDoc("",this.imageFolderPath);
@@ -827,10 +838,21 @@ public class TargetGetter {
 //			BufferedImage tempImg=getTextImage(targetText);
 //			tempImg=this.makeRotatedImage(tempImg);
 			//BufferedImage tempImg2=new BufferedImage( 
-			BufferedImage tempImg=img.getSubImage(tempShape,true);//,targetImgBorderSize);//30pixel border
+			Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
+			ImageWriter writer = (ImageWriter)iter.next();
+			ImageWriteParam iwp = writer.getDefaultWriteParam();
+			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+			iwp.setCompressionQuality(1);   // an integer between 0 and 1
+			// 1 specifies minimum compression and maximum quality
 			File curDir=new File(".");
-			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/"+tempShape.getTitle().substring(tempShape.getTitle().indexOf("ima"),tempShape.getTitle().indexOf(".jpg"))+"_"+(tempShape.getTargetNimageID())+".jpg");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
-		    ImageIO.write(tempImg, "jpg", outputfile);
+			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/"+tempShape.getTitle().substring(tempShape.getTitle().indexOf("ima"),tempShape.getTitle().indexOf(".JPG"))+"_"+(tempShape.getTargetNimageID())+".jpg");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
+			FileImageOutputStream output = new FileImageOutputStream(outputfile);
+			writer.setOutput(output);
+			BufferedImage tempImg=img.getSubImage(tempShape,true);//,targetImgBorderSize);//30pixel border
+			IIOImage image = new IIOImage(tempImg, null, null);
+			writer.write(null, image, iwp);
+			writer.dispose();
+		    //ImageIO.write(tempImg, "jpg", outputfile);
 		} catch (IOException e) {
 		    System.out.println(e);
 		}

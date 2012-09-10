@@ -167,15 +167,20 @@ public class PixelColor {
 //			||(newPixel.getGreen()>200&&newPixel.getBlue()>200&&newPixel.getRed()>200)){
 //		return true;
 
-    public static boolean isTargeTColor2(Color newPixel){// was isTargeTColor2(Color original,Color newPixel)
+    public static boolean isBackGroundColor(Color newPixel,int threshold){// was isTargeTColor2(Color original,Color newPixel)
 //    	double red=original.getRed()/115.0;
 //    	double green=original.getGreen()/130.0;
 //    	double blue=original.getBlue()/80.0;
 //    	int redBlueDiff=Math.abs(newPixel.getRed()-newPixel.getBlue());
-    	if((newPixel.getTransparency()==0)||(newPixel.getRed()>250&& newPixel.getGreen()>250&& newPixel.getBlue()>250)){
-    		return true;
-        		
-        }
+//    	if((newPixel.getTransparency()==0)||(newPixel.getRed()>250&& newPixel.getGreen()>250&& newPixel.getBlue()>250)){
+//    		return true;
+//        		
+//        }
+		double tempGreyPixel=(.299*newPixel.getRed())+(.587*newPixel.getGreen())+(.114*newPixel.getBlue());
+		if(tempGreyPixel>threshold){
+			return true;
+		}
+
     	return false;
     }
     public static boolean isTargeTColorDepreciated(Color original,Color newPixel){
