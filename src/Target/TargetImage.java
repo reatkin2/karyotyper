@@ -40,8 +40,10 @@ public class TargetImage {
     private double lensFieldOfView = 70.7508;
     private double []grayScale=new double[256];
     private String filenameX;
+    private LinkedList<Integer> chromosomeWidth;
 	public TargetImage(String filename,double feetPerDegreeLatLongX){
 		img = null;
+		chromosomeWidth=new LinkedList<Integer>();
 		this.filenameX=filename;
 		for(int i=0;i<grayScale.length;i++){
 			grayScale[i]=0;
@@ -150,7 +152,7 @@ public class TargetImage {
 				if(targetShape.getValue(i-targetShape.getScreenCordinate().x, j-targetShape.getScreenCordinate().y))
 				tempImg.setRGB(i-targetShape.getScreenCordinate().x, j-targetShape.getScreenCordinate().y, img.getRGB(i,j));
 				else{
-					tempImg.setRGB(i-targetShape.getScreenCordinate().x, j-targetShape.getScreenCordinate().y, (Color.BLACK).getRGB());
+					tempImg.setRGB(i-targetShape.getScreenCordinate().x, j-targetShape.getScreenCordinate().y, (Color.WHITE).getRGB());
 				}
 			}
 
@@ -204,6 +206,9 @@ public class TargetImage {
 	}
 	public double getHeading() {
 		return heading;
+	}
+	public void addWidth(int width){
+		this.chromosomeWidth.add(width);
 	}
     public LatLongPoint calcPointLatLongs(Point shapeCordinates){
     	Point centerPoint = new Point ( img.getWidth()/2, img.getHeight()/2 );
@@ -301,6 +306,13 @@ public class TargetImage {
 			  }
 			  
 			
+	}
+	public void writeChromosomesWidth() {
+		// TODO Auto-generated method stub
+		System.out.print("Widths for this image: ");
+		for(int i=0;i<this.chromosomeWidth.size();i++){
+			System.out.print(this.chromosomeWidth.get(i)+",");
+		}
 	}
 
 

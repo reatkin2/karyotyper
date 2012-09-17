@@ -19,4 +19,5 @@ public class AroundPixel {
 	public Point getPos(int pos){
 		return aroundDot[pos];
 	}
+
 }
