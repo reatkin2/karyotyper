@@ -1,0 +1,14 @@
+.svn/
+shapeData/
+*.jpg
+*.png
+ncsuARC*.txt
+bin/*.class
+bin/Target
+bin/TargetText
+bin/Color
+bin/basicObjects
+GetTargets.jar
+*.pyc
+tags
+*.swp
