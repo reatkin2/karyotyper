@@ -82,6 +82,7 @@ public class RunTargetGetter extends JFrame{
 							RunTargetGetter.currentStatus.setText("Finding Chromosomes in slide image: "+filename);
 						}
 						frame.targetsFound+=test2.findBackground(filename);
+						frame.targetsFound=test2.findChromosomes(filename, frame.targetsFound);
 						imgCount.setText(frame.targetsFound+" Chromosomes found in "+(++frame.imgCounter)+" slides read so far.");
 						if(!RunTargetGetter.currentStatus.getText().contains("Finishing")){
 							RunTargetGetter.currentStatus.setText("Waiting for images");

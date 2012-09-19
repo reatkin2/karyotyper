@@ -25,7 +25,7 @@ public class Shape {
     private int pixelCount;
     private int sides;
     private LinkedList<Point> skeleton;
-    private LinkedList<Integer> chromosomeWidth;
+    private int chromosomeWidth[];
     private int biggestIncreaseSkeletonAtWidthCount;
     private int most2LeastRemovedAtWidthCount;
     private boolean removeThisShape;
@@ -77,7 +77,9 @@ public class Shape {
     	distanceFromEdgeMatrix=null;
         biggestIncreaseSkeletonAtWidthCount=-1;
         most2LeastRemovedAtWidthCount=1;
-        chromosomeWidth=new LinkedList<Integer>();
+        chromosomeWidth=new int[2];
+        chromosomeWidth[0]=-1;
+        chromosomeWidth[1]=-1;
         removeThisShape=true;
 
     	initArray();
@@ -155,8 +157,8 @@ public class Shape {
 	public int getPixelCount(){
 		return pixelCount;
 	}
-	public LinkedList<Integer> getWidths(){
-		return this.chromosomeWidth;
+	public int getWidths(int pos){
+		return this.chromosomeWidth[pos];
 	}
 	public boolean getPos(int x,int y){
         return shapeX[x][y];        
@@ -214,6 +216,9 @@ public class Shape {
     	if(xy.y<0)
     		xy.y=0;
     	this.screenCordinate.setLocation(xy.x,xy.y);
+    }
+    public void setMedialAxis(LinkedList<Point> tempMedialAxis){
+    	this.skeleton=tempMedialAxis;
     }
     public Point getSize(){
 		return shapeSize;
@@ -301,9 +306,9 @@ public class Shape {
               }
             }
           }
-        for(int i=0;i<copyShape.chromosomeWidth.size();i++){
-        	this.chromosomeWidth.add(copyShape.chromosomeWidth.get(i));
-        }
+        this.chromosomeWidth[0]=copyShape.chromosomeWidth[0];
+        this.chromosomeWidth[1]=copyShape.chromosomeWidth[1];
+        
         this.shapeSize=new Point(copyShape.shapeSize);
     }
     public void shapeOut(){
@@ -619,16 +624,14 @@ public class Shape {
 //	        temp.shapeOut();
 //	        temp.matrixOut(this.distanceFromEdgeMatrix);
         }
-        this.chromosomeWidth.add(this.biggestIncreaseSkeletonAtWidthCount);
-        this.chromosomeWidth.add(this.most2LeastRemovedAtWidthCount);
+        this.chromosomeWidth[0]=this.biggestIncreaseSkeletonAtWidthCount;
+        this.chromosomeWidth[1]=this.most2LeastRemovedAtWidthCount;
         return skeleton;
     }    
 	public void writeShapeWidths() {
 		// TODO Auto-generated method stub
-		System.out.print("Widths for this image: ");
-		for(int i=0;i<this.chromosomeWidth.size();i++){
-			System.out.print(this.chromosomeWidth.get(i)+",");
-		}
+		System.out.print("Widths for this image: "+this.chromosomeWidth[0]+","+this.chromosomeWidth[0]);
+
 	}
 
 

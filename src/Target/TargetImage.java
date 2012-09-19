@@ -41,8 +41,10 @@ public class TargetImage {
     private double []grayScale=new double[256];
     private String filenameX;
     private LinkedList<Integer> chromosomeWidth;
+    private double averageWidth;
 	public TargetImage(String filename,double feetPerDegreeLatLongX){
 		img = null;
+		averageWidth=-1;
 		chromosomeWidth=new LinkedList<Integer>();
 		this.filenameX=filename;
 		for(int i=0;i<grayScale.length;i++){
@@ -208,7 +210,15 @@ public class TargetImage {
 		return heading;
 	}
 	public void addWidth(int width){
+		this.calcNewAvg(width);
 		this.chromosomeWidth.add(width);
+	}
+	public double calcFinalAverage(){
+		this.recalcAvgWidth();
+		return this.averageWidth;
+	}
+	public double getAverage(){
+		return this.averageWidth;
 	}
     public LatLongPoint calcPointLatLongs(Point shapeCordinates){
     	Point centerPoint = new Point ( img.getWidth()/2, img.getHeight()/2 );
@@ -313,6 +323,31 @@ public class TargetImage {
 		for(int i=0;i<this.chromosomeWidth.size();i++){
 			System.out.print(this.chromosomeWidth.get(i)+",");
 		}
+	}
+	public void calcNewAvg(int newWidth){
+		if(this.chromosomeWidth.isEmpty()){
+			this.averageWidth=newWidth;
+		}
+		else{
+			this.averageWidth=(((this.averageWidth*this.chromosomeWidth.size())+newWidth)/(this.chromosomeWidth.size()+1));
+		}
+	}
+	public void recalcAvgWidth(){
+		double temp=-1;
+		LinkedList<Integer> goodWidths=new LinkedList<Integer>();
+		if(this.chromosomeWidth.size()>2){
+			for(int i=0;i<this.chromosomeWidth.size();i++){
+				if(Math.abs(this.averageWidth-((double)this.chromosomeWidth.get(i)))<3){
+					goodWidths.add(this.chromosomeWidth.get(i));
+				}
+			}
+
+			for(int i=0;i<goodWidths.size();i++){
+				temp=temp+goodWidths.get(i);			
+			}
+			this.averageWidth=temp/goodWidths.size();
+		}
+		System.out.println("AverageWidth: "+this.averageWidth);
 	}
 
 

@@ -28,8 +28,9 @@ import javax.imageio.stream.FileImageOutputStream;
 
 
 public class TargetGetter {
-    public TargetArray shapeList;
-    public TargetArray partShapeList;
+    //public TargetArray shapeList;
+    //public TargetArray partShapeList;
+    public LinkedList<TargetShape> shapeList;
     private FlightPath flightPath;
     /*
      * aroundot is an array of 8 points that is a x,y difference from the center point pixel
@@ -164,9 +165,10 @@ public class TargetGetter {
 		}
 	}
 	public void loadFiles(){
-		shapeList=new TargetArray(TargetGetter.feetPerDegreeLatLong,this.distanceToIncludeTargets);//load all identified shapes
+		//shapeList=new TargetArray(TargetGetter.feetPerDegreeLatLong,this.distanceToIncludeTargets);//load all identified shapes
+		shapeList=new LinkedList<TargetShape>();
 		//shapeList.loadShapeArray("shapeData/woodShapeList.shp");//load newly identified shapes
-		this.partShapeList=new TargetArray(TargetGetter.feetPerDegreeLatLong,this.distanceToIncludeTargets);
+		//this.partShapeList=new TargetArray(TargetGetter.feetPerDegreeLatLong,this.distanceToIncludeTargets);
 	}	
     /**
      *gets all connected matching colored pixels and returns shape
@@ -535,9 +537,6 @@ public class TargetGetter {
     	this.firstPassCount=0;
     	this.removedCount=0;
         LinkedList<TargetShape> tempShapeList=new LinkedList<TargetShape>();
-    	int[] removeShapeList=new int[100000];
-    	int removeListCount=0;
-    	int targetNimgCount=0;
     	int shapeNum=0;
     	this.loadNewImage(filename);
     	this.initScreenChecked();
@@ -666,9 +665,9 @@ public class TargetGetter {
     				//tryText.tryWriteTargetTextImage(tempPop);
 //    				tempPop.setText(textImg.getText());
     				//tempPop.trySetText(tryText.getText());
-    				shapeList.addShape(tempPop);
+    				//shapeList.addShape(tempPop);
     				//writeTargetImage(tempPop);
-    				targetNimgCount++;
+    				//targetNimgCount++;
 //    				this.googleEarthIt();
 //    				shapeList.writeTurnInDoc("",this.imageFolderPath);
 //    		    	shapeList.writeTurnInDocFalsePos("",this.imageFolderPath);
@@ -677,10 +676,12 @@ public class TargetGetter {
 //    		}
 		}
 		System.out.println("FirstPass: "+this.firstPassCount+"   Removed: "+this.removedCount);
-		return findChromosomes(filename,shapeNum,targetNimgCount);
+
+		return shapeNum;
+	
 
     }
-    public int findChromosomes(String filename,int shapeNum,int targetNimgCount){
+    public int findChromosomes(String filename,int shapeNum){
     	this.firstPassCount=0;
     	this.removedCount=0;
         LinkedList<TargetShape> tempShapeList=new LinkedList<TargetShape>();
@@ -813,13 +814,18 @@ public class TargetGetter {
     				//tryText.tryWriteTargetTextImage(tempPop);
 //    				tempPop.setText(textImg.getText());
     				//tempPop.trySetText(tryText.getText());
-    				shapeList.addShape(tempPop);
+    				shapeList.add(tempPop);
      				tempPop.getSkeleton(img);
-     				if(((tempPop.getWidths().get(0)>=4&&tempPop.getWidths().get(0)<15)
-     							||(tempPop.getWidths().get(1)>=4&&tempPop.getWidths().get(1)<15))){
+     				img.addWidth(tempPop.getWidths(0));
+     				img.addWidth(tempPop.getWidths(1));
+     				//MedialAxisGraph tempGraph=new MedialAxisGraph(tempPop.getSkeltonPoints());
+     				//tempGraph.removeSegments(minLength, maxLength)
+     				//tempPop.setMedialAxis(tempGraph.getMedialAxis());
+     				if(((tempPop.getWidths(0)>=4&&tempPop.getWidths(0)<15)
+     							||(tempPop.getWidths(1)>=4&&tempPop.getWidths(1)<15))){
      					if((tempPop.getPixelCount()<this.firstPixelMax)
-     							||(tempPop.getWidths().get(0)<10&&tempPop.getWidths().get(1)<10)){
-	     					if(!((tempPop.getWidths().get(0)>15||tempPop.getWidths().get(1)>15))){
+     							||(tempPop.getWidths(0)<10&&tempPop.getWidths(1)<10)){
+	     					if(!((tempPop.getWidths(0)>15||tempPop.getWidths(1)>15))){
 	     						tempPop.setkeepThisShape();
 	     					}
      					}
@@ -833,7 +839,7 @@ public class TargetGetter {
      				else{
      					writeRemovedImage(tempPop);
      				}
-       				targetNimgCount++;
+       				//targetNimgCount++;
 //    				this.googleEarthIt();
 //    				shapeList.writeTurnInDoc("",this.imageFolderPath);
 //    		    	shapeList.writeTurnInDocFalsePos("",this.imageFolderPath);
@@ -842,7 +848,9 @@ public class TargetGetter {
 //    		}
 		}
 		System.out.println("FirstPass: "+this.firstPassCount+"   Removed: "+this.removedCount);
-		return targetNimgCount;
+		double avgChromosomewidth=img.calcFinalAverage();
+		System.out.println("Width: "+avgChromosomewidth);
+		return shapeNum;//targetNimgCount;
 
     }
 
@@ -866,7 +874,7 @@ public class TargetGetter {
 			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Keep/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempShape.getTargetNimageID())+".jpg");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
 			FileImageOutputStream output = new FileImageOutputStream(outputfile);
 			writer.setOutput(output);
-			BufferedImage tempImg=img.getSubImage(tempShape,false);//,targetImgBorderSize);//30pixel border
+			BufferedImage tempImg=img.getSubImage(tempShape,true);//,targetImgBorderSize);//30pixel border
 			IIOImage image = new IIOImage(tempImg, null, null);
 			writer.write(null, image, iwp);
 			writer.dispose();
@@ -1006,8 +1014,8 @@ public class TargetGetter {
     	//shapeList.writeArrayRock("shapeData/rockShapeList.shp");
         //save new found unidentified shapes in woodShapeList
     	//shapeList.writeShapesByLoc("shapeData/woodShapeList"+(today.getTime()%1000));
-    	shapeList.writeArrayAGLDataByLoc("shapeData/targetData",this.imageFolderPath);
-    	shapeList.writeNonTargetArrayAGLDataByLoc("shapeData/targetFalsePos",this.imageFolderPath);
+    	//shapeList.writeArrayAGLDataByLoc("shapeData/targetData",this.imageFolderPath);
+    	//shapeList.writeNonTargetArrayAGLDataByLoc("shapeData/targetFalsePos",this.imageFolderPath);
         //save new found unidentified site shapes to woodSiteList
     	//img.flush();
     	try{
@@ -1029,10 +1037,10 @@ public class TargetGetter {
     	//shapeList.writeArrayRock("shapeData/rockShapeList.shp");
         //save new found unidentified shapes in woodShapeList
     	//shapeList.writeShapesByLoc("shapeData/woodShapeList"+(today.getTime()%1000));
-    	shapeList.writeArrayAGLDataByLoc("shapeData/targetData",this.imageFolderPath);
-    	shapeList.writeNonTargetArrayAGLDataByLoc("shapeData/targetFalsePos",this.imageFolderPath);
-    	shapeList.writeTurnInDoc("",this.imageFolderPath);
-    	shapeList.writeTurnInDocFalsePos("",this.imageFolderPath);
+    	//shapeList.writeArrayAGLDataByLoc("shapeData/targetData",this.imageFolderPath);
+    	//shapeList.writeNonTargetArrayAGLDataByLoc("shapeData/targetFalsePos",this.imageFolderPath);
+    	//shapeList.writeTurnInDoc("",this.imageFolderPath);
+    	//shapeList.writeTurnInDocFalsePos("",this.imageFolderPath);
         //save new found unidentified site shapes to woodSiteList
     	//img.flush();
     	
