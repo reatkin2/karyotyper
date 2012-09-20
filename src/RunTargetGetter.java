@@ -83,6 +83,11 @@ public class RunTargetGetter extends JFrame{
 						}
 						frame.targetsFound+=test2.findBackground(filename);
 						frame.targetsFound=test2.findChromosomes(filename, frame.targetsFound);
+						test2.printChromosomes();
+	     				//MedialAxisGraph tempGraph=new MedialAxisGraph(tempPop.getSkeltonPoints());
+	     				//tempGraph.removeSegments(minLength, maxLength)
+	     				//tempPop.setMedialAxis(tempGraph.getMedialAxis());
+
 						imgCount.setText(frame.targetsFound+" Chromosomes found in "+(++frame.imgCounter)+" slides read so far.");
 						if(!RunTargetGetter.currentStatus.getText().contains("Finishing")){
 							RunTargetGetter.currentStatus.setText("Waiting for images");
@@ -99,6 +104,7 @@ public class RunTargetGetter extends JFrame{
 					
 				}
 			}
+			
 			test2.exit();
 			frame.dispose();
 		}

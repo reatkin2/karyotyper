@@ -818,9 +818,6 @@ public class TargetGetter {
      				tempPop.getSkeleton(img);
      				img.addWidth(tempPop.getWidths(0));
      				img.addWidth(tempPop.getWidths(1));
-     				//MedialAxisGraph tempGraph=new MedialAxisGraph(tempPop.getSkeltonPoints());
-     				//tempGraph.removeSegments(minLength, maxLength)
-     				//tempPop.setMedialAxis(tempGraph.getMedialAxis());
      				if(((tempPop.getWidths(0)>=4&&tempPop.getWidths(0)<15)
      							||(tempPop.getWidths(1)>=4&&tempPop.getWidths(1)<15))){
      					if((tempPop.getPixelCount()<this.firstPixelMax)
@@ -830,15 +827,9 @@ public class TargetGetter {
 	     					}
      					}
      				}
-     				tempPop.shapeOut();
+     				//tempPop.shapeOut();
      				System.out.println("Image: "+tempPop.getTitle()+" Count: "+tempPop.getTargetNimageID());
      				tempPop.writeShapeWidths();
-     				if(tempPop.checkKeepThisShape()){
-     					writeTargetImage(tempPop);
-     				}
-     				else{
-     					writeRemovedImage(tempPop);
-     				}
        				//targetNimgCount++;
 //    				this.googleEarthIt();
 //    				shapeList.writeTurnInDoc("",this.imageFolderPath);
@@ -849,11 +840,26 @@ public class TargetGetter {
 		}
 		System.out.println("FirstPass: "+this.firstPassCount+"   Removed: "+this.removedCount);
 		double avgChromosomewidth=img.calcFinalAverage();
+		
 		System.out.println("Width: "+avgChromosomewidth);
 		return shapeNum;//targetNimgCount;
 
     }
-
+    public void printChromosomes(){
+    		for(int i=0;i<this.shapeList.size();i++){
+    			TargetShape tempShape=this.shapeList.get(i);
+				MedialAxisGraph tempGraph=new MedialAxisGraph(tempShape.getSkeltonPoints());
+				tempGraph.removeSegments((int)Math.round((img.getAverage()*2)), -1);
+				tempShape.setMedialAxis(tempGraph.getMedialAxis());
+ 				if(tempShape.checkKeepThisShape()){
+ 					writeTargetImage(tempShape);
+ 				}
+ 				else{
+ 					writeRemovedImage(tempShape);
+ 				}
+    		}
+    		this.shapeList=new LinkedList<TargetShape>();
+    }
     public void writeTargetImage(TargetShape tempShape){
 		try {
 		    // retrieve image

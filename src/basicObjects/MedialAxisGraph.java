@@ -14,6 +14,7 @@ public class MedialAxisGraph {
 			for(int i=0;i<medialAxis.size();i++){
 				Vertex tempVertex=new Vertex(medialAxis.get(i));
 				if(!axisGraph.contains(tempVertex)){
+					axisGraph.add(tempVertex);
 					for(int j=0;j<axisGraph.size();j++){
 						if(tempVertex.checkAdjacent(axisGraph.get(j))){
 							tempVertex.addChild(axisGraph.get(j));
@@ -42,11 +43,12 @@ public class MedialAxisGraph {
 					&&!segment.contains(segment.get(pos).getChildren().get(i))){
 				segment.add(segment.get(pos).getChildren().get(i));
 				addedCount++;
-				LinkedList<Vertex> temp=getSegment(segment,pos+addedCount);
-				if(temp.size()>0){
-					addedCount+=temp.size();
-					segment.addAll(temp);
-				}
+				//LinkedList<Vertex> temp=
+				getSegment(segment,pos+addedCount);
+//				if(temp.size()>0){
+//					addedCount+=temp.size();
+//					segment.addAll(temp);
+//				}
 			}
 		}
 		return segment;
@@ -70,7 +72,7 @@ public class MedialAxisGraph {
 	}
 	private void removeSingleSegment(LinkedList<Vertex> removeList){
 		for(int i=0;i<removeList.size();i++){
-			this.axisGraph.remove(removeList.get(0));
+			this.axisGraph.remove(removeList.get(i));
 		}
 	}
 	public LinkedList<Point> getMedialAxis(){
