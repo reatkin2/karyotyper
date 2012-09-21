@@ -1,35 +1,31 @@
 
-import Color.ColorBuckets;
-import Color.PixelColor;
-import Target.TargetArray;
-import Target.TargetImage;
-import Target.TargetShape;
-import TargetText.TextImage;
-import basicObjects.*;
-
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
-import javax.imageio.IIOImage;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageWriteParam;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.FileImageOutputStream;
+
+import Color.ColorBuckets;
+import Color.PixelColor;
+import Target.TargetImage;
+import Target.TargetShape;
+import basicObjects.AroundPixel;
+import basicObjects.FlightPath;
+import basicObjects.MedialAxisGraph;
+import basicObjects.PixelPoint;
+import basicObjects.Shape;
+
+import com.drew.imaging.jpeg.JpegProcessingException;
 
 
 public class TargetGetter {
-    //public TargetArray shapeList;
-    //public TargetArray partShapeList;
     public LinkedList<TargetShape> shapeList;
     private FlightPath flightPath;
     /*
@@ -47,10 +43,7 @@ public class TargetGetter {
     private LinkedList<String> imageQue;
     private	TargetImage img;
     private int distanceToIncludeTargets;
-    //private int maxPixelCount;
-//    private int minPixelCount;
     private double maxLength;
-//    private double minLength;
     private double minWidth;
     private double minHeight;
     private int allowedColorDiff;
@@ -69,15 +62,12 @@ public class TargetGetter {
     private int firstColorCountMin;
     private int textImageRotationCount;
     private int colorThreshold;
-    //private Color imgAvgColor;
     private int firstPassCount;
     private int removedCount;
     private long start;
     private static final double feetPerDegreeLatLong=364169.55420532933;//at lat 38.14;//at lat 38.14
-   // private int awayFromEdge;
     private boolean onImgEdge;
 	public TargetGetter(String jpegPath){
-		//super();
 		flightPath=new FlightPath();
 		aroundDot=new AroundPixel();
 		this.targetImgBorderSize=35;//target image border in pixels
@@ -88,24 +78,14 @@ public class TargetGetter {
 		this.imageQue=new LinkedList<String>();
 		start=System.currentTimeMillis();
 		this.onImgEdge=false;
-		//this.awayFromEdge=2;//10 in feet
 		this.targetExcludeDistance=80;//80 in feet
-		this.firstPixelMax=11000;//4000
-		this.firstPixelMin=30;//270
-	    //this.maxPixelCount=12000;//1800
-//	    this.minPixelCount=500;//500
-	    //this.maxLength=11;//11 foot
-	    this.maxLength=13;//11 foot
-	    //this.minLength=3;//3foot
-	    //this.minWidth=4.3;
+		this.firstPixelMax=11000;
+		this.firstPixelMin=30;
+	    this.maxLength=13;
 	    this.minWidth=2.5;
-	    //this.minHeight=2.8;
 	    this.minHeight=2.5;
-	    //this.firstLengthMax=15;//20feet
 	    this.firstLengthMax=20;//20feet
-	    //this.firstLengthMin=2.8;//31 foot
 	    this.firstLengthMin=2.5;//31 foot
-	    //this.allowedColorDiff=70;//70
 	    this.allowedColorDiff=70;//70
 	    this.pixelSpace=3;//7
 	    this.maxColorNShape=190;//60
@@ -114,13 +94,9 @@ public class TargetGetter {
 	    this.firstColorCountMin=11;//13
 	    colorAverage=new Color(0,0,0);
 	    this.colorCount=0;
-        //screenChecked=new boolean[super.resolution.x][super.resolution.y];
 		loadFiles();
 		currPixelCount=0;
 		img = null;
-		//loadNewImage(filename);
-        //initScreenChecked();
-
 	}
 	public void loadNewImage(String filename){
 			img = new TargetImage(filename,TargetGetter.feetPerDegreeLatLong);
@@ -128,33 +104,13 @@ public class TargetGetter {
 	        this.spotNext=new boolean[img.getImgWidth()][img.getImgHeight()];
 			img.computeScale();
 			img.graphScale();
-
-	        //flightPath.addPoint(img);
-	       // flightPath.writePath("flightPath");
-        	//this.pixelCountAGL=(int)Math.round(((this.aboveGroundLevel*-18.14736)+3918.95752));
-//        	this.maxPixelCount=img.getPixelCountAGL()+1200;
-//        	this.minPixelCount=img.getPixelCountAGL()-1300;
 	}
 	public void initScreenChecked(){
-//		Color temp;
-//		int red=0;
-//		int green=0;
-//		int blue=0;
-//		int count=0;
 		for(int i=0;i<screenChecked.length;i++){
 			for(int j=0;j<screenChecked[0].length;j++){
 				this.screenChecked[i][j]=false;
-//				if(i%5==0&&j%5==0){
-//	        		temp=this.convertPixel(img.getRGB(i,j));
-//	        		red+=temp.getRed();
-//	        		green+=temp.getGreen();
-//	        		blue+=temp.getBlue();	
-//	        		count++;
-//				}
 			}
 		}
-//		this.imgAvgColor=new Color((red/count) , (green/count) , (blue/count));
-//		System.out.println("avgColor= "+this.imgAvgColor.getRed()+","+this.imgAvgColor.getGreen()+","+this.imgAvgColor.getBlue());
 	}
 
 	public void initSpotNext(){
@@ -165,10 +121,7 @@ public class TargetGetter {
 		}
 	}
 	public void loadFiles(){
-		//shapeList=new TargetArray(TargetGetter.feetPerDegreeLatLong,this.distanceToIncludeTargets);//load all identified shapes
 		shapeList=new LinkedList<TargetShape>();
-		//shapeList.loadShapeArray("shapeData/woodShapeList.shp");//load newly identified shapes
-		//this.partShapeList=new TargetArray(TargetGetter.feetPerDegreeLatLong,this.distanceToIncludeTargets);
 	}	
     /**
      *gets all connected matching colored pixels and returns shape
@@ -187,55 +140,50 @@ public class TargetGetter {
 		colorLeft=new Color(0,0,0);
 		Point canvasDiff=new Point(xyCanvas.x-xyCor.x,xyCanvas.y-xyCor.y);
 		this.initSpotNext();
-		//Color orignalColor=new Color(colorOItem.getRed(),colorOItem.getGreen(),colorOItem.getBlue());
-			foundList.add(new PixelPoint(xyCor,colorOItem,colorLeft));
-			while(!foundList.isEmpty()){
-				PixelPoint curr=foundList.pop();
-				colorOItem=new Color(curr.getPrevColor().getRed(),curr.getPrevColor().getGreen(),curr.getPrevColor().getBlue());
-				xyCor=new Point(curr.getImgPoint());
-				colorLeft=new Color(curr.getColorLeft().getRed(),curr.getColorLeft().getGreen(),curr.getColorLeft().getBlue());
-				
-			//if((colorLeft.getRed()+colorLeft.getGreen()+colorLeft.getBlue())>(600-this.allowedColorDiff)){
-		    	for(int i=0; i<8;i++){//loop 8 times once for every position around the center pixel
-		    		/*
-		    		 *if the spot to be checked is inside of the bounds 
-		    		 *and if the pixel is inside the visible resolution of the screen
-		    		 */
-		    			if(xyCor.x+aroundDot.getPos(i).x<img.getImgWidth()&&xyCor.y+aroundDot.getPos(i).y<img.getImgHeight()
-			            		&&xyCor.x>0&&xyCor.y>0){
-		    	    		if(!screenChecked[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]){
-			        		//if the spot to be checked value is -5 meaning it hasnt been checked yet
-				        	if(!bounds.contains(new Point(xyCor.x+canvasDiff.x+aroundDot.getPos(i).x,xyCor.y+canvasDiff.y+aroundDot.getPos(i).y))
-				        			||canvas[xyCor.x+canvasDiff.x+aroundDot.getPos(i).x][xyCor.y+canvasDiff.y+aroundDot.getPos(i).y]==-5){
-				        		//System.out.println("Checking color at pixel:"+(xyCor.x+aroundDot.getPos(i).x)+","+(xyCor.y+aroundDot.getPos(i).y));
-				        		//if the pixel at the position aroundDot matches the color
-				        		Color temp=img.getColorAt(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y);
-				        		if(PixelColor.isBackGroundColor(temp, this.colorThreshold)){//was isTargeTColor2(this.imgAvgColor,temp)
-					        		this.colorAverage=averageColor(temp);
-					    			screenChecked[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]=true;
-					        		this.currPixelCount++;
-				        			//paint the canvas at the respectful position on 2d canvas to the shapeID number
-					        		if(bounds.contains(new Point(xyCor.x+canvasDiff.x+aroundDot.getPos(i).x,xyCor.y+canvasDiff.y+aroundDot.getPos(i).y))){
-					        				canvas[xyCor.x+canvasDiff.x+aroundDot.getPos(i).x][xyCor.y+canvasDiff.y+aroundDot.getPos(i).y]=shapeID;
-					        		}
-				        			//recursively call this method with the new position on screen and on 2d canvas to be checked around
-				     		        //getMatchingPixel(bounds,temp,new Point(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y),new Point(xyCanvas.x+aroundDot.getPos(i).x,xyCanvas.y+aroundDot.getPos(i).y),canvas,shapeID,colorLeft);
-									if(!this.spotNext[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]){
-										foundList.add(new PixelPoint(new Point(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y),temp,colorLeft));
-										this.spotNext[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]=true;
-									}
+		foundList.add(new PixelPoint(xyCor,colorOItem,colorLeft));
+		while(!foundList.isEmpty()){
+			PixelPoint curr=foundList.pop();
+			colorOItem=new Color(curr.getPrevColor().getRed(),curr.getPrevColor().getGreen(),curr.getPrevColor().getBlue());
+			xyCor=new Point(curr.getImgPoint());
+			colorLeft=new Color(curr.getColorLeft().getRed(),curr.getColorLeft().getGreen(),curr.getColorLeft().getBlue());
+			
+	    	for(int i=0; i<8;i++){//loop 8 times once for every position around the center pixel
+	    		/*
+	    		 *if the spot to be checked is inside of the bounds 
+	    		 *and if the pixel is inside the visible resolution of the screen
+	    		 */
+	    			if(xyCor.x+aroundDot.getPos(i).x<img.getImgWidth()&&xyCor.y+aroundDot.getPos(i).y<img.getImgHeight()
+		            		&&xyCor.x>0&&xyCor.y>0){
+	    	    		if(!screenChecked[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]){
+		        		//if the spot to be checked value is -5 meaning it hasnt been checked yet
+			        	if(!bounds.contains(new Point(xyCor.x+canvasDiff.x+aroundDot.getPos(i).x,xyCor.y+canvasDiff.y+aroundDot.getPos(i).y))
+			        			||canvas[xyCor.x+canvasDiff.x+aroundDot.getPos(i).x][xyCor.y+canvasDiff.y+aroundDot.getPos(i).y]==-5){
+			        		//if the pixel at the position aroundDot matches the color
+			        		Color temp=img.getColorAt(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y);
+			        		if(PixelColor.isBackGroundColor(temp, this.colorThreshold)){//was isTargeTColor2(this.imgAvgColor,temp)
+				        		this.colorAverage=averageColor(temp);
+				    			screenChecked[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]=true;
+				        		this.currPixelCount++;
+			        			//paint the canvas at the respectful position on 2d canvas to the shapeID number
+				        		if(bounds.contains(new Point(xyCor.x+canvasDiff.x+aroundDot.getPos(i).x,xyCor.y+canvasDiff.y+aroundDot.getPos(i).y))){
+				        				canvas[xyCor.x+canvasDiff.x+aroundDot.getPos(i).x][xyCor.y+canvasDiff.y+aroundDot.getPos(i).y]=shapeID;
 				        		}
-				        		
-				        	}
-				        }
-			    	}
-		    		else{
-		    			this.onImgEdge=true;
-		    		}
+								if(!this.spotNext[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]){
+									foundList.add(new PixelPoint(new Point(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y),temp,colorLeft));
+									this.spotNext[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]=true;
+								}
+			        		}
+			        		
+			        	}
+			        }
 		    	}
-			}
-			return canvas;
-	    }
+	    		else{
+	    			this.onImgEdge=true;
+	    		}
+	    	}
+		}
+		return canvas;
+	}
     /**
      *gets all connected matching colored pixels and returns shape
      * on the 2d integer array -canvas- painted by the number -shapeID-
@@ -261,7 +209,6 @@ public class TargetGetter {
 				xyCor=new Point(curr.getImgPoint());
 				colorLeft=new Color(curr.getColorLeft().getRed(),curr.getColorLeft().getGreen(),curr.getColorLeft().getBlue());
 				
-			//if((colorLeft.getRed()+colorLeft.getGreen()+colorLeft.getBlue())>(600-this.allowedColorDiff)){
 			if(colorLeft.getRed()<2){
 		    	for(int i=0; i<8;i++){//loop 8 times once for every position around the center pixel
 		    		/*
@@ -274,7 +221,6 @@ public class TargetGetter {
 			        		//if the spot to be checked value is -5 meaning it hasnt been checked yet
 				        	if(!bounds.contains(new Point(xyCor.x+canvasDiff.x+aroundDot.getPos(i).x,xyCor.y+canvasDiff.y+aroundDot.getPos(i).y))
 				        			||canvas[xyCor.x+canvasDiff.x+aroundDot.getPos(i).x][xyCor.y+canvasDiff.y+aroundDot.getPos(i).y]==-5){
-				        		//System.out.println("Checking color at pixel:"+(xyCor.x+aroundDot.getPos(i).x)+","+(xyCor.y+aroundDot.getPos(i).y));
 				        		//if the pixel at the position aroundDot matches the color
 				        		Color temp=img.getColorAt(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y);
 					        		this.colorAverage=averageColor(temp);
@@ -284,8 +230,6 @@ public class TargetGetter {
 					        		if(bounds.contains(new Point(xyCor.x+canvasDiff.x+aroundDot.getPos(i).x,xyCor.y+canvasDiff.y+aroundDot.getPos(i).y))){
 					        				canvas[xyCor.x+canvasDiff.x+aroundDot.getPos(i).x][xyCor.y+canvasDiff.y+aroundDot.getPos(i).y]=shapeID;
 					        		}
-				        			//recursively call this method with the new position on screen and on 2d canvas to be checked around
-				     		        //getMatchingPixel(bounds,temp,new Point(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y),new Point(xyCanvas.x+aroundDot.getPos(i).x,xyCanvas.y+aroundDot.getPos(i).y),canvas,shapeID,colorLeft);
 									if(!this.spotNext[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]){
 										foundList.add(new PixelPoint(new Point(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y),temp,colorLeft));
 										this.spotNext[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]=true;
@@ -301,63 +245,8 @@ public class TargetGetter {
 			}
 			return canvas;
 	    }
-//    private int[][] getMatchingPixel(Rectangle bounds,Color colorOItem,Point xyCor,Point xyCanvas,int[][] canvas,int shapeID,Color colorLeft){
-//		if((colorLeft.getRed()+colorLeft.getGreen()+colorLeft.getBlue())>(600-this.allowedColorDiff)){
-//
-//	    	for(int i=0; i<8;i++){//loop 8 times once for every position around the center pixel
-//	    		/*
-//	    		 *if the spot to be checked is inside of the bounds 
-//	    		 *and if the pixel is inside the visible resolution of the screen
-//	    		 */
-//	    			if(this.currPixelCount<this.maxPixelCount+20&&bounds.contains(new Point(xyCanvas.x+aroundDot.getPos(i).x,xyCanvas.y+aroundDot.getPos(i).y))
-//		            		&&xyCor.x+aroundDot.getPos(i).x<img.getWidth()&&xyCor.y+aroundDot.getPos(i).y<img.getHeight()
-//		            		&&xyCor.x>0&&xyCor.y>0){
-//	    	    		if(!screenChecked[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]){
-//		        		//if the spot to be checked value is -5 meaning it hasnt been checked yet
-//			        	if(canvas[xyCanvas.x+aroundDot.getPos(i).x][xyCanvas.y+aroundDot.getPos(i).y]==-5){
-//			        		//System.out.println("Checking color at pixel:"+(xyCor.x+aroundDot.getPos(i).x)+","+(xyCor.y+aroundDot.getPos(i).y));
-//			        		//if the pixel at the position aroundDot matches the color
-//			        		Color temp=this.convertPixel(img.getRGB(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y));
-//			        		if(IsColor.isTargeTColor2(colorOItem,temp)){
-//				        		this.colorAverage=averageColor(temp);
-//				    			screenChecked[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]=true;
-//				        		this.currPixelCount++;
-//			        			//paint the canvas at the respectful position on 2d canvas to the shapeID number
-//			        			canvas[xyCanvas.x+aroundDot.getPos(i).x][xyCanvas.y+aroundDot.getPos(i).y]=shapeID;
-//			        			//recursively call this method with the new position on screen and on 2d canvas to be checked around
-//			     		        getMatchingPixel(bounds,temp,new Point(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y),new Point(xyCanvas.x+aroundDot.getPos(i).x,xyCanvas.y+aroundDot.getPos(i).y),canvas,shapeID,colorLeft);
-//			        		}
-//			        		else{
-//				        		int red=colorLeft.getRed()-Math.abs(colorOItem.getRed()-temp.getRed());
-//				        		int green=colorLeft.getGreen()-Math.abs(colorOItem.getGreen()-temp.getGreen());
-//				        		int blue=colorLeft.getBlue()-Math.abs(colorOItem.getBlue()-temp.getBlue());
-//				        		if(red<=0||green<=0||blue<=0){
-//				        			red=0;
-//				        			green=0;
-//				        			blue=0;
-//				        		}
-//				        		colorLeft=new Color(red,green,blue);
-//				        		this.currPixelCount++;
-//			        			//paint the canvas at the respectful position on 2d canvas to the shapeID number
-//			        			canvas[xyCanvas.x+aroundDot.getPos(i).x][xyCanvas.y+aroundDot.getPos(i).y]=shapeID;
-//			        			//recursively call this method with the new position on screen and on 2d canvas to be checked around
-//			      		        getMatchingPixel(bounds,colorOItem,new Point(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y),new Point(xyCanvas.x+aroundDot.getPos(i).x,xyCanvas.y+aroundDot.getPos(i).y),canvas,shapeID,colorLeft);
-//			        		}
-//			        		
-//			        	}
-//			        }
-//		    	}
-//	    	}
-//		}
-//	    return canvas;//return the 2d integer canvas
-//
-//    }
-    private short[][] getMatchingPixelExtra(Rectangle bounds,Color colorOItem,Point xyCor,Point xyCanvas,short[][] canvas,short shapeID,Color colorLeft){
-//    	if(count>7){
-//    		if(match/count<0.70){
-//    			return canvas;
-//    		}
-//    	}
+
+	private short[][] getMatchingPixelExtra(Rectangle bounds,Color colorOItem,Point xyCor,Point xyCanvas,short[][] canvas,short shapeID,Color colorLeft){
 		if((colorLeft.getRed()+colorLeft.getGreen()+colorLeft.getBlue())>(600-this.allowedColorDiff)){
 
 	    	for(int i=0; i<8;i++){//loop 8 times once for every position around the center pixel
@@ -368,45 +257,34 @@ public class TargetGetter {
 	    			if(this.currPixelCount<this.firstPixelMax&&bounds.contains(new Point((xyCanvas.x+aroundDot.getPos(i).x-1),(xyCanvas.y+aroundDot.getPos(i).y-1)))
 		            		&&xyCor.x+aroundDot.getPos(i).x<img.getImgWidth()&&xyCor.y+aroundDot.getPos(i).y<img.getImgHeight()
 		            		&&xyCor.x>0&&xyCor.y>0&&canvas.length<xyCanvas.x+aroundDot.getPos(i).x&&canvas[0].length<xyCanvas.y+aroundDot.getPos(i).y){
-	    	    		//if(!screenChecked[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]){
 		        		//if the spot to be checked value is -5 meaning it hasnt been checked yet
 			        	if(canvas[xyCanvas.x+aroundDot.getPos(i).x][xyCanvas.y+aroundDot.getPos(i).y]==-5){
-			        		//System.out.println("Checking color at pixel:"+(xyCor.x+aroundDot.getPos(i).x)+","+(xyCor.y+aroundDot.getPos(i).y));
 			        		//if the pixel at the position aroundDot matches the color
 			        		Color temp=img.getColorAt(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y);
 			        		myBuckets.dropNBucket(temp);
 			        		if(PixelColor.isTargeTColorX(colorOItem,temp)){
-				    			//screenChecked[xyCor.x+aroundDot.getPos(i).x][xyCor.y+aroundDot.getPos(i).y]=true;
 				        		this.currPixelCount++;
-			        			//HORSE.mouseMove(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y);
-			        			//HORSE.delay(1);
 			        			//paint the canvas at the respectful position on 2d canvas to the shapeID number
 			        			canvas[xyCanvas.x+aroundDot.getPos(i).x][xyCanvas.y+aroundDot.getPos(i).y]=shapeID;
-			        	    	//System.out.println(" check:"+xyCanvas.x+","+xyCanvas.y+"@"+xyCor.x+","+xyCor.y);
 			        			//recursively call this method with the new position on screen and on 2d canvas to be checked around
 			     		        getMatchingPixelExtra(bounds,temp,new Point(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y),new Point(xyCanvas.x+aroundDot.getPos(i).x,xyCanvas.y+aroundDot.getPos(i).y),canvas,shapeID,colorLeft);
+		        		}
+		        		else{
+			        		int red=colorLeft.getRed()-Math.abs(colorOItem.getRed()-temp.getRed());
+			        		int green=colorLeft.getGreen()-Math.abs(colorOItem.getGreen()-temp.getGreen());
+			        		int blue=colorLeft.getBlue()-Math.abs(colorOItem.getBlue()-temp.getBlue());
+			        		if(red<=0||green<=0||blue<=0){
+			        			red=0;
+			        			green=0;
+			        			blue=0;
 			        		}
-			        		else{
-				        		int red=colorLeft.getRed()-Math.abs(colorOItem.getRed()-temp.getRed());
-				        		int green=colorLeft.getGreen()-Math.abs(colorOItem.getGreen()-temp.getGreen());
-				        		int blue=colorLeft.getBlue()-Math.abs(colorOItem.getBlue()-temp.getBlue());
-				        		if(red<=0||green<=0||blue<=0){
-				        			red=0;
-				        			green=0;
-				        			blue=0;
-				        		}
-				        		colorLeft=new Color(red,green,blue);
-				        		this.currPixelCount++;
-			        			//HORSE.mouseMove(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y);
-			        			//HORSE.delay(1);
-			        			//paint the canvas at the respectful position on 2d canvas to the shapeID number
-			        			canvas[xyCanvas.x+aroundDot.getPos(i).x][xyCanvas.y+aroundDot.getPos(i).y]=shapeID;
-			        	    	//System.out.println(" check:"+xyCanvas.x+","+xyCanvas.y+"@"+xyCor.x+","+xyCor.y);
-			        			//recursively call this method with the new position on screen and on 2d canvas to be checked around
-			      		        getMatchingPixelExtra(bounds,colorOItem,new Point(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y),new Point(xyCanvas.x+aroundDot.getPos(i).x,xyCanvas.y+aroundDot.getPos(i).y),canvas,shapeID,colorLeft);
-			        		}
-			        		
-			        //	}
+			        		colorLeft=new Color(red,green,blue);
+			        		this.currPixelCount++;
+		        			//paint the canvas at the respectful position on 2d canvas to the shapeID number
+		        			canvas[xyCanvas.x+aroundDot.getPos(i).x][xyCanvas.y+aroundDot.getPos(i).y]=shapeID;
+		        			//recursively call this method with the new position on screen and on 2d canvas to be checked around
+		      		        getMatchingPixelExtra(bounds,colorOItem,new Point(xyCor.x+aroundDot.getPos(i).x,xyCor.y+aroundDot.getPos(i).y),new Point(xyCanvas.x+aroundDot.getPos(i).x,xyCanvas.y+aroundDot.getPos(i).y),canvas,shapeID,colorLeft);
+		        		}
 			        }
 		    	}
 	    	}
@@ -503,72 +381,17 @@ public class TargetGetter {
     	for(int r=pixelSpace;r<img.getImgWidth()-pixelSpace;r+=pixelSpace){
     		for(int j=pixelSpace;j<img.getImgHeight()-pixelSpace;j+=pixelSpace){
 	    		if(!screenChecked[r][j]){
-	    			
 	    			color1=img.getColorAt(r,j);//get pixel color from point
 	        		this.colorAverage=new Color(color1.getRed(),color1.getGreen(),color1.getBlue());
 	        		colorCount=1;
 	        		if(PixelColor.isBackGroundColor( color1,this.colorThreshold)){//was isTargeTColor2(this.imgAvgColor, color1)
 		        		temp=getShape(600,color1,r,j,temp);
-		//    			HORSE.mouseMove(r,j);
-		//    			HORSE.delay(1);
-//		        		if(temp!=null&&temp.getSize().x<(this.firstLengthMax*img.getPixelsPerFoot())
-//			    				&&temp.getSize().y<(this.firstLengthMax*img.getPixelsPerFoot())
-//			    				&&temp.getSize().x>(this.firstLengthMin*img.getPixelsPerFoot())
-//			    				&&temp.getSize().y>(this.firstLengthMin*img.getPixelsPerFoot())
-//			    				&&(((double)temp.getPixelCount())/(((double)temp.getSize().x)*((double)temp.getSize().y)))>.33){
 		        		if(temp!=null){//newly added for chromosomes
 		        			temp=new TargetShape(temp);
 		            		temp.setColor(this.colorAverage);
 			        		temp.setTargetNiamgeID(shapeNum++);
 			        		temp.setTitle(filename);
-//			        		temp.setAGL(img.getAboveGroundLevelFeet());
-//			        		temp.setMetaData(img.getMetaData());
-//		            		TargetShape temp2=new TargetShape(temp);
-////		        			TargetShape tempTrimmed=new Shape(tempPop);
-////		        			tempTrimmed.trimShape(4);
-////		        			short targetText[][]=this.getInsideShape(new Rectangle(tempTrimmed.getScreenCordinate().x,tempTrimmed.getScreenCordinate().y,tempTrimmed.getSize().x,tempTrimmed.getSize().y),tempTrimmed);
-////		        			BufferedImage tempImg=getTextImage(targetText);
-//
-//		        			//shapeList.addShape(this.getInShape(new Rectangle(temp.getScreenCordinate().x,temp.getScreenCordinate().y,temp.getSize().x,temp.getSize().y),temp),true);
-//	//        				temp2.trimShape(this.trimAmount);
-//		            		myBuckets=new ColorBuckets();
-//		            		LinkedList<Shape> thisShapeList=this.getAllShape(new Rectangle(temp2.getScreenCordinate().x,temp2.getScreenCordinate().y,temp2.getSize().x,temp2.getSize().y),temp2,false);
-//	//        				TargetShape temp3=new Shape(temp);
-//	//        				temp3.trimShape(4);
-////		            		LinkedList<Shape> thisShapeList2=this.getAllShape(new Rectangle(temp3.getScreenCordinate().x,temp3.getScreenCordinate().y,temp3.getSize().x,temp3.getSize().y),temp3,true);
-//		            		temp.setBuckets(myBuckets);
-//		            		temp.setColorCount(thisShapeList.size());
-//                            temp.setSizex(temp2.getSize().x/img.getPixelsPerFoot());
-//                            temp.setSizey(temp2.getSize().y/img.getPixelsPerFoot());
-//		            		System.out.println();
-//		            		System.out.println("ColorNShape: "+thisShapeList.size());
-//		            		System.out.println(temp2.getSize().x+","+temp2.getSize().y);		            		
-//		            		System.out.println("Loc: "+temp2.getScreenCordinate().x+","+temp2.getScreenCordinate().y);
-//		            		System.out.println("size: "+(temp2.getSize().x/img.getPixelsPerFoot())+","+(temp2.getSize().y/img.getPixelsPerFoot()));
-//		            		System.out.println("pixelC: "+temp2.getPixelCount());
-//		            		//this.writeTargetImage(temp2, targetNimgCount++);
-//		            		if(thisShapeList.size()<this.firstColorCountMax
-//	        				&&thisShapeList.size()>this.firstColorCountMin){
-//		        				//TargetShape temp3=new Shape(temp);
-//		        				//temp3.trimShape(8);
-//			            		//LinkedList<Shape> thisShapeList2=this.getAllShape(new Rectangle(temp3.getScreenCordinate().x,temp3.getScreenCordinate().y,temp3.getSize().x,temp3.getSize().y),temp3,true);
-//		        				//temp3.shapeOut();
-//		        				if(tempShapeList.isEmpty()){
-//		        					tempShapeList.add(temp);
-//		        				}
-//		        				else{
-//		        					for(int i=0;i<tempShapeList.size();i++){
-//		        						if(tempShapeList.get(i).getScreenCordinate().distance(temp.getScreenCordinate())<(this.targetExcludeDistance*img.getPixelsPerFoot())){//I made wrong changes here about heading and distance should be right now andrew
-//		        							removeShapeList[removeListCount++]=tempShapeList.get(i).getTargetNimageID();
-//		        							removeShapeList[removeListCount++]=temp.getTargetNimageID();
-//		        						}
-//		        						
-//		        					}
-		        					tempShapeList.add(temp);
-//		        				}
-//		            		}
-//		        			
-//		        		}
+		        			tempShapeList.add(temp);
 		        		}
 	        		}
 	        	}
@@ -578,60 +401,11 @@ public class TargetGetter {
 			TargetShape tempPop=tempShapeList.pop();
 			int id=tempPop.getTargetNimageID();
 			boolean add = true;
-//			for(int i=0;i<removeListCount;i++){
-//				if(id==removeShapeList[i]){
-//					add=false;
-//				}
-//			}
-//			if(!add){
-//				this.removedCount++;
-//			}
-//    		if(tempPop.getColorCount()>this.minColorNShape
-//    				&&tempPop.getColorCount()<this.maxColorNShape){
-//
-//				if(add//&&tempPop.getPixelCount()<this.maxPixelCount&&tempPop.getPixelCount()>this.minPixelCount
-//	    				&&tempPop.getSize().x<(this.maxLength*img.getPixelsPerFoot())
-//	    				&&tempPop.getSize().y<(this.maxLength*img.getPixelsPerFoot())
-//	    				&&		((tempPop.getSize().y>(this.minWidth*img.getPixelsPerFoot())
-//	    									&&(tempPop.getSize().x>(this.minHeight*img.getPixelsPerFoot())))
-//	    						||((tempPop.getSize().x>(this.minWidth*img.getPixelsPerFoot())
-//	    									&&(tempPop.getSize().y>(this.minHeight*img.getPixelsPerFoot())))))
-//	    				){
-					
-//	    				&&tempPop.getScreenCordinate().x>(this.awayFromEdge*img.getPixelsPerFoot())
-//	    				&&tempPop.getScreenCordinate().y>(this.awayFromEdge*img.getPixelsPerFoot())
-//	    				&&tempPop.getScreenCordinate().x<(img.getImgWidth()-(this.awayFromEdge*img.getPixelsPerFoot()))
-//	    				&&tempPop.getScreenCordinate().y<(img.getImgHeight()-(this.awayFromEdge*img.getPixelsPerFoot()))
-					
-    				//System.out.print("AGL= "+this.aboveGroundLevel+","+"PixelCount= "+tempPop.getPixelCount());
-					//tempPop.shapeOut();
-					System.out.println();
-            		System.out.println("Loc: "+tempPop.getScreenCordinate().x+","+tempPop.getScreenCordinate().y);
-            		System.out.println("size: "+(tempPop.getSize().x/img.getPixelsPerFoot())+","+(tempPop.getSize().y/img.getPixelsPerFoot()));
-            		System.out.println("pixelC: "+tempPop.getPixelCount());
-					System.out.println(tempPop.getTitle());
-    				//System.out.println((tempPop.getPixelCount()-img.getPixelCountAGL())+","+tempPop.getPixelCount()+","+img.getPixelCountAGL()+","+tempPop.getSize().x+","+tempPop.getSize().y);
-    				//tempPop.setTargetImg(img);
-//    				LatLongPoint tempCor=new LatLongPoint(0,0);
-//    				tempCor=img.calcPointLatLongs(tempPop.getSCcenter());
-//    				tempPop.setTargetLatLong(tempCor.getLat(),tempCor.getLong());
-//    				tempPop.setImgLatLong(img.getImgLat(), img.getImgLong());
-//    				TextImage textImg=new TextImage(img,this.textImageRotationCount);
-    				//TextImage tryText=new TextImage(img,this.textImageRotationCount);
-//    				tempPop.setImgHeading(img.getHeading());
-//    				textImg.writeTextImage(tempPop);
-    				//tryText.tryWriteTargetTextImage(tempPop);
-//    				tempPop.setText(textImg.getText());
-    				//tempPop.trySetText(tryText.getText());
-    				//shapeList.addShape(tempPop);
-    				//writeTargetImage(tempPop);
-    				//targetNimgCount++;
-//    				this.googleEarthIt();
-//    				shapeList.writeTurnInDoc("",this.imageFolderPath);
-//    		    	shapeList.writeTurnInDocFalsePos("",this.imageFolderPath);
-
-//				}
-//    		}
+			System.out.println();
+       		System.out.println("Loc: "+tempPop.getScreenCordinate().x+","+tempPop.getScreenCordinate().y);
+       		System.out.println("size: "+(tempPop.getSize().x/img.getPixelsPerFoot())+","+(tempPop.getSize().y/img.getPixelsPerFoot()));
+       		System.out.println("pixelC: "+tempPop.getPixelCount());
+       		System.out.println(tempPop.getTitle());
 		}
 		System.out.println("FirstPass: "+this.firstPassCount+"   Removed: "+this.removedCount);
 
@@ -645,10 +419,6 @@ public class TargetGetter {
         LinkedList<TargetShape> tempShapeList=new LinkedList<TargetShape>();
     	int[] removeShapeList=new int[100000];
     	int removeListCount=0;
-    	//int targetNimgCount=0;
-    	//int shapeNum=0;
-    	//this.loadNewImage(filename);
-    	//this.initScreenChecked();
         Color color1=new Color(0,0,0);//color that will be used to store pixel color to check
     	TargetShape temp=new TargetShape(shapeNum);
     	for(int r=pixelSpace+1;r<img.getImgWidth()-pixelSpace;r+=pixelSpace){//made plus one change chromosomes
@@ -681,19 +451,6 @@ public class TargetGetter {
             		System.out.println("size: "+(tempPop.getSize().x/img.getPixelsPerFoot())+","+(tempPop.getSize().y/img.getPixelsPerFoot()));
             		System.out.println("pixelC: "+tempPop.getPixelCount());
 					System.out.println(tempPop.getTitle());
-    				//System.out.println((tempPop.getPixelCount()-img.getPixelCountAGL())+","+tempPop.getPixelCount()+","+img.getPixelCountAGL()+","+tempPop.getSize().x+","+tempPop.getSize().y);
-    				//tempPop.setTargetImg(img);
-//    				LatLongPoint tempCor=new LatLongPoint(0,0);
-//    				tempCor=img.calcPointLatLongs(tempPop.getSCcenter());
-//    				tempPop.setTargetLatLong(tempCor.getLat(),tempCor.getLong());
-//    				tempPop.setImgLatLong(img.getImgLat(), img.getImgLong());
-//    				TextImage textImg=new TextImage(img,this.textImageRotationCount);
-    				//TextImage tryText=new TextImage(img,this.textImageRotationCount);
-//    				tempPop.setImgHeading(img.getHeading());
-//    				textImg.writeTextImage(tempPop);
-    				//tryText.tryWriteTargetTextImage(tempPop);
-//    				tempPop.setText(textImg.getText());
-    				//tempPop.trySetText(tryText.getText());
     				shapeList.add(tempPop);
      				tempPop.getSkeleton(img);
      				img.addWidth(tempPop.getWidths(0));
@@ -707,14 +464,8 @@ public class TargetGetter {
 	     					}
      					}
      				}
-     				//tempPop.shapeOut();
      				System.out.println("Image: "+tempPop.getTitle()+" Count: "+tempPop.getTargetNimageID());
      				tempPop.writeShapeWidths();
-       				//targetNimgCount++;
-//    				this.googleEarthIt();
-//    				shapeList.writeTurnInDoc("",this.imageFolderPath);
-//    		    	shapeList.writeTurnInDocFalsePos("",this.imageFolderPath);
-
 		}
 		System.out.println("FirstPass: "+this.firstPassCount+"   Removed: "+this.removedCount);
 		double avgChromosomewidth=img.calcFinalAverage();
@@ -723,12 +474,11 @@ public class TargetGetter {
 		return shapeNum;//targetNimgCount;
 
     }
+    
     public void printChromosomes(){
     		for(int i=0;i<this.shapeList.size();i++){
     			TargetShape tempShape=this.shapeList.get(i);
 				MedialAxisGraph tempGraph=new MedialAxisGraph(tempShape.getSkeltonPoints());
-//				tempGraph.removeSegments((int)Math.round((img.getAverage())), -1);
-//				tempShape.setMedialAxis(tempGraph.getMedialAxis());
 				tempShape.setMedialAxis(tempGraph.trimMedialAxis((int)Math.round(img.getAverage()*.7), tempShape.getSkeltonPoints(), tempShape));
  				if(tempShape.checkKeepThisShape()){
  					writeTargetImage(tempShape);
@@ -739,66 +489,27 @@ public class TargetGetter {
     		}
     		this.shapeList=new LinkedList<TargetShape>();
     }
+    
     public void writeTargetImage(TargetShape tempShape){
 		try {
-		    // retrieve image
-//			TargetShape tempTrimmed=new Shape(tempPop);
-//			tempTrimmed.trimShape(4);
-//			short targetText[][]=this.getInsideShape(new Rectangle(tempTrimmed.getScreenCordinate().x,tempTrimmed.getScreenCordinate().y,tempTrimmed.getSize().x,tempTrimmed.getSize().y),tempTrimmed);
-//			BufferedImage tempImg=getTextImage(targetText);
-//			tempImg=this.makeRotatedImage(tempImg);
-			//BufferedImage tempImg2=new BufferedImage( 
-			//Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
-
-//			Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
-//			ImageWriter writer = (ImageWriter)iter.next();
-//			ImageWriteParam iwp = writer.getDefaultWriteParam();
-//			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-//			iwp.setCompressionQuality(1);   // an integer between 0 and 1
-			// 1 specifies minimum compression and maximum quality
 			File curDir=new File(".");
 			String imageName=new File(tempShape.getTitle()).getName();
 			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Keep/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempShape.getTargetNimageID())+".png");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
-//			FileImageOutputStream output = new FileImageOutputStream(outputfile);
-//			writer.setOutput(output);
 			BufferedImage tempImg=img.getSubImage(tempShape,true);//,targetImgBorderSize);//30pixel border
-//			IIOImage image = new IIOImage(tempImg, null, null);
-//			writer.write(null, image, iwp);
-//			writer.dispose();
 		    ImageIO.write(tempImg, "png", outputfile);
-		    //ImageIO.write(tempImg, "jpg", outputfile);
 		} catch (IOException e) {
 		    System.out.println(e);
 		}
 
     }
+    
     public void writeRemovedImage(TargetShape tempShape){
 		try {
-		    // retrieve image
-//			TargetShape tempTrimmed=new Shape(tempPop);
-//			tempTrimmed.trimShape(4);
-//			short targetText[][]=this.getInsideShape(new Rectangle(tempTrimmed.getScreenCordinate().x,tempTrimmed.getScreenCordinate().y,tempTrimmed.getSize().x,tempTrimmed.getSize().y),tempTrimmed);
-//			BufferedImage tempImg=getTextImage(targetText);
-//			tempImg=this.makeRotatedImage(tempImg);
-			//BufferedImage tempImg2=new BufferedImage( 
-			
-//			Iterator iter = ImageIO.getImageWritersByFormatName("png");
-//			ImageWriter writer = (ImageWriter)iter.next();
-//			ImageWriteParam iwp = writer.getDefaultWriteParam();
-//			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-//			iwp.setCompressionQuality(1);   // an integer between 0 and 1
-			// 1 specifies minimum compression and maximum quality
 			File curDir=new File(".");
 			String imageName=new File(tempShape.getTitle()).getName();
 			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Removed/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempShape.getTargetNimageID())+".png");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
-//			FileImageOutputStream output = new FileImageOutputStream(outputfile);
-//			writer.setOutput(output);
 			BufferedImage tempImg=img.getSubImage(tempShape,false);//,targetImgBorderSize);//30pixel border
 		    ImageIO.write(tempImg, "png", outputfile);
-//			IIOImage image = new IIOImage(tempImg, null, null);
-//			writer.write(null, image, iwp);
-//			writer.dispose();
-		    //ImageIO.write(tempImg, "jpg", outputfile);
 		} catch (IOException e) {
 		    System.out.println(e);
 		}
@@ -895,50 +606,15 @@ public class TargetGetter {
         */
     }
 
-    public void googleEarthIt(){
-    	
-    	//use the current time to mark files as unique file name
-    	//Date today=new Date();
-    	System.out.println("Minutes:Secs "+(((System.currentTimeMillis()-start)/60000)/60)+":"+((System.currentTimeMillis()-start)/1000));
-    	//save identified shapes to rockShapeList
-    	//shapeList.writeArrayRock("shapeData/rockShapeList.shp");
-        //save new found unidentified shapes in woodShapeList
-    	//shapeList.writeShapesByLoc("shapeData/woodShapeList"+(today.getTime()%1000));
-    	//shapeList.writeArrayAGLDataByLoc("shapeData/targetData",this.imageFolderPath);
-    	//shapeList.writeNonTargetArrayAGLDataByLoc("shapeData/targetFalsePos",this.imageFolderPath);
-        //save new found unidentified site shapes to woodSiteList
-    	//img.flush();
-    	try{
-    		//File dir1 = new File(".");
-    		//Runtime.getRuntime().exec(this.googleEarthPath+" "+dir1.getCanonicalPath()+"/shapeData/targetData.kml", null);
-
-    	}
-    	catch(Exception e){
-    		System.out.println(e);
-    	}
-    }
-
     public void exit(){
     	
     	//use the current time to mark files as unique file name
     	//Date today=new Date();
     	System.out.println("Minutes:Secs "+(((System.currentTimeMillis()-start)/60000)/60)+":"+((System.currentTimeMillis()-start)/1000));
-    	//save identified shapes to rockShapeList
-    	//shapeList.writeArrayRock("shapeData/rockShapeList.shp");
-        //save new found unidentified shapes in woodShapeList
-    	//shapeList.writeShapesByLoc("shapeData/woodShapeList"+(today.getTime()%1000));
-    	//shapeList.writeArrayAGLDataByLoc("shapeData/targetData",this.imageFolderPath);
-    	//shapeList.writeNonTargetArrayAGLDataByLoc("shapeData/targetFalsePos",this.imageFolderPath);
-    	//shapeList.writeTurnInDoc("",this.imageFolderPath);
-    	//shapeList.writeTurnInDocFalsePos("",this.imageFolderPath);
-        //save new found unidentified site shapes to woodSiteList
-    	//img.flush();
     	
     	try{
         	File dir1 = new File(".");
         	System.out.println("Working directory is: "+dir1.getAbsolutePath());
-       		//File dir1 = new File(".");
-    		//Runtime.getRuntime().exec(this.googleEarthPath+" "+dir1.getCanonicalPath()+"\\shapeData\\targetData.kml", null);
     	}
     	catch(Exception e){
     		System.out.println(e);
@@ -970,31 +646,22 @@ public class TargetGetter {
 	    		System.out.println(e);
 	    		waitTillFileIsReady(filename);
 	    	}
-//	        sleepTime *= 2; // Multiply sleep time by 2 (not really exponential but will do the trick)
-//	        if(sleepTime > 30000){ 
-//	            // Set a maximum sleep time to ensure we are not sleeping forever :)
-//	            sleepTime = 30000;
-//	        }
 	    }
 	    return true;
     }
     public String getNewFiles(String path){
     	// Directory path here
-    	  //LinkedList<String> imageFiles=new LinkedList<String>();
-    	  //String path = "."; 
+    	//LinkedList<String> imageFiles=new LinkedList<String>();
+    	//String path = "."; 
     	boolean foundFile=false;
-    	  File folder = new File(path);
-    	  //System.out.println(path);
-    	  File[] listOfFiles = folder.listFiles(); 
-    	 
-    	  for (int i = 0; i < listOfFiles.length; i++) 
-    	  {
-    	 
-    	   if (listOfFiles[i].isFile()) 
-    	   {
-    		   String file = listOfFiles[i].getName();
-    	       if (file.endsWith(".jpg") || file.endsWith(".JPG"))
-    	       {
+    	File folder = new File(path);
+    	//System.out.println(path);
+    	File[] listOfFiles = folder.listFiles(); 
+    	for (int i = 0; i < listOfFiles.length; i++) 
+    	{
+    	if (listOfFiles[i].isFile()) {
+    		String file = listOfFiles[i].getName();
+    		if (file.endsWith(".jpg") || file.endsWith(".JPG")) {
     	    	   if(imageQue.size()==0){
    	    			   imageQue.add(file);
 	    			   this.imageQue.add(file);
