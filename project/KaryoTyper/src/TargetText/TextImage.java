@@ -3,8 +3,6 @@ package TargetText;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -14,14 +12,10 @@ import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 
-import basicObjects.AroundPixel;
-
-
+import Color.PixelColor;
 import Target.TargetImage;
 import Target.TargetShape;
-
-import Color.ColorBuckets;
-import Color.PixelColor;
+import basicObjects.AroundPixel;
 
 //import Shape.Shape;
 
@@ -84,50 +78,6 @@ public class TextImage {
 		} catch (IOException e) {
 		    System.out.println(e);
 		}
-    }
-    private BufferedImage rotate(BufferedImage tempImg,double d){
-    	AffineTransform tx = new AffineTransform();
-    	//tx.scale(scalex, scaley);
-    	//tx.shear(shiftx, shifty);
-    	//tx.translate(x, y);
-    	tx.rotate(d*0.0174532925, tempImg.getWidth()/2, tempImg.getHeight()/2);
-
-    	AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
-    	return op.filter(tempImg, null);
-    }
-    private BufferedImage makeRotatedImage(BufferedImage imgBase){
-		BufferedImage tempImg=new BufferedImage(imgBase.getWidth()*this.rotationCount,imgBase.getHeight(),BufferedImage.TYPE_USHORT_GRAY);
-		for(int k=0;k<rotationCount;k++){
-			BufferedImage rotatedImg;
-			if(k==0){
-				rotatedImg=imgBase;
-			}
-			else{
-				rotatedImg=rotate(imgBase,(k*(360/this.rotationCount)));
-			}
-			for(int i=(k*imgBase.getWidth());i<((k*imgBase.getWidth())+imgBase.getWidth());i++){
-				for(int j=0;j<imgBase.getHeight();j++){
-					if(rotatedImg.getHeight()>j&&rotatedImg.getWidth()>(i-(k*imgBase.getWidth()))){
-						if((rotatedImg.getRGB(i-(k*imgBase.getWidth()),j))!=0x00000000){
-							if((rotatedImg.getRGB(i-(k*imgBase.getWidth()),j))==(Color.RED).getRGB()){
-								tempImg.setRGB(i,j, (Color.BLACK).getRGB());//rotatedImg.getRGB(i-(k*imgBase.getWidth()),j)
-							}
-							else{
-								tempImg.setRGB(i, j,(Color.WHITE).getRGB());
-							}
-						}
-						else{
-							tempImg.setRGB(i, j,(Color.WHITE).getRGB());
-						}
-					}
-					else{
-						tempImg.setRGB(i, j,(Color.WHITE).getRGB());
-					}
-				}
-
-			}
-		}
-		return tempImg;
     }
     private BufferedImage tryTextTarget(TargetShape testShape){
 		BufferedImage tempImg=new BufferedImage(testShape.getSize().x,testShape.getSize().y,BufferedImage.TYPE_4BYTE_ABGR);
@@ -295,9 +245,6 @@ public class TextImage {
             		if(canvas[i][j]==removeEdgeColors.get(l)){
             			canvas[i][j]=-8;
             		}
-            	}
-            	if(canvas[i][j]!=-8&&canvas[i][j]<foundColors.size()){
-            		myText.getBuckets().dropNBucket(foundColors.get((int)canvas[i][j]));
             	}
             }
         }

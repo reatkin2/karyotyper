@@ -2,28 +2,19 @@ package Target;
 
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.util.LinkedList;
 
 import TargetText.TargetText;
-import basicObjects.LatLongPoint;
 import basicObjects.Shape;
-
-
-import Color.ColorBuckets;
 
 public class TargetShape extends Shape {
 	private TargetText myText;
 	private TargetText tryText;
 	private double imgHeading;
     private int targetNimageID;
-    private ColorBuckets myBuckets;
     private String metaData;
     private Color colorOShape;
     private int colorCount;
     private double aboveGroundLevel;
-    private LatLongPoint latLongs;
-    private LatLongPoint imglatLongs;
     private TargetShape next;
     private double sizex;
     private double sizey;
@@ -55,12 +46,9 @@ public class TargetShape extends Shape {
 
     private void initTarget(){
     	this.metaData="";
-    	this.imglatLongs=new LatLongPoint(0,0);
-    	this.latLongs=new LatLongPoint(0,0);
     	colorOShape=new Color(0,0,0);
     	this.colorCount=0;
     	this.aboveGroundLevel=0;
-    	myBuckets= new ColorBuckets();
     	myText=new TargetText();
     	tryText=new TargetText();
     	next=null;
@@ -143,9 +131,6 @@ public class TargetShape extends Shape {
     public void setMetaData(String data){
     	this.metaData=data;
     }
-    public void setBuckets(ColorBuckets newBuckets){
-    	myBuckets=newBuckets;
-    }
     public int getColorCount(){
     	return this.colorCount;
     }
@@ -163,32 +148,6 @@ public class TargetShape extends Shape {
     }
     public void setAGL(double agl){
     	this.aboveGroundLevel=agl;
-    }
-    public double getLat(){
-    	return this.latLongs.getLat();
-    }
-    public double getLong(){
-    	return this.latLongs.getLong();
-    }
-    public void setTargetLatLong(double Lat,double Long){
-    	this.latLongs.setLat(Lat);
-    	this.latLongs.setLong(Long);
-    }
-    public double getImgLat(){
-    	return this.imglatLongs.getLat();
-    }
-    public double getImgLong(){
-    	return this.imglatLongs.getLong();
-    }
-    public LatLongPoint getTargetLatLong(){
-    	return this.latLongs;
-    }
-    public void setImgLatLong(double Lat,double Long){
-    	this.imglatLongs.setLat(Lat);
-    	this.imglatLongs.setLong(Long);
-    }
-    public ColorBuckets getBuckets(){
-    	return myBuckets;
     }
     public TargetShape getNext(){
         return next;
@@ -223,13 +182,10 @@ public class TargetShape extends Shape {
 
     public void copyTarget(TargetShape copyTarget){
     	this.metaData=copyTarget.getMetaData();
-    	this.imglatLongs.setLocation(copyTarget.getImgLong(),copyTarget.getImgLat());
-    	this.latLongs.setLocation(copyTarget.getLong(),copyTarget.getLat());
     	this.aboveGroundLevel=copyTarget.getAGL();
     	this.colorCount=copyTarget.getColorCount();
     	this.targetNimageID=copyTarget.getTargetNimageID();
     	colorOShape=copyTarget.getColor();
-    	this.myBuckets=copyTarget.getBuckets();
     	this.imgHeading=copyTarget.imgHeading;
     	this.myText=copyTarget.myText;
     	//this.myBuckets.copyBuckets(copyShape.myBuckets.getBucketArray());

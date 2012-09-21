@@ -1,15 +1,12 @@
 package TargetText;
 
-import Color.ColorBuckets;
 
 public class TargetText {
 	private String targetChar;
 	private int textConfidence;
 	private int textAngle;
 	private double orientation;
-	private ColorBuckets textBuckets;
 	public TargetText(){
-		textBuckets=new ColorBuckets();
     	this.targetChar="";
     	this.textConfidence=-1;
     	this.orientation=-1;
@@ -20,9 +17,6 @@ public class TargetText {
 	public void setTargetChar(String targetchar){
 		this.targetChar=targetchar;
 	}
-    public ColorBuckets getBuckets(){
-    	return this.textBuckets;
-    }
 	public void setTextConfidence(int textconfidence){
 		this.textConfidence=textconfidence;
 	}

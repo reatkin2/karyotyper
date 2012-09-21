@@ -9,7 +9,6 @@ import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 
-import Color.ColorBuckets;
 import Color.PixelColor;
 import Target.TargetImage;
 import Target.TargetShape;
@@ -37,7 +36,6 @@ public class TargetGetter {
 	private int pixelSpace;
 	private Color colorAverage;
 	private int colorCount;
-	private ColorBuckets myBuckets;
 	private int firstPixelMax;
 	private int firstPixelMin;
 	private int colorThreshold;
@@ -321,7 +319,6 @@ public class TargetGetter {
 						Color temp = img.getColorAt(xyCor.x
 								+ aroundDot.getPos(i).x, xyCor.y
 								+ aroundDot.getPos(i).y);
-						myBuckets.dropNBucket(temp);
 						if (PixelColor.isTargeTColorX(colorOItem, temp)) {
 							this.currPixelCount++;
 							// paint the canvas at the respectful position on 2d
@@ -409,36 +406,25 @@ public class TargetGetter {
 				&& i < this.screenChecked[0].length; i++) {// loop thru the y
 															// bounds
 			for (int j = bounds.x; (j <= bounds.x + bounds.width - 1)
-					// loop thru the x bounds
+			// loop thru the x bounds
 					&& i < this.screenChecked.length; j++) {
 				// if the spot hasn't been checked yet
 				if (canvas[j - bounds.x][i - bounds.y] == -5
 						&& inThisShape.getValue(j - bounds.x, i - bounds.y)) {
 					Color temp = img.getColorAt(j, i);// get the color of the
 														// spot
-					myBuckets.dropNBucket(temp);
 					if (foundColors.isEmpty()) {// if list is empty
 						foundColors.add(temp);// add first color
 						paintColor = (short) ++k;// increment k to 1
-					} else if (containsColor(temp, foundColors) >= 0) {// if we
-																		// already
-																		// have
-																		// this
-																		// color
-						paintColor = (short) (containsColor(temp, foundColors) + 1);// set
-																					// paintColor
-																					// to
-																					// color
-																					// we
-																					// already
-																					// have
+						// if we already have this color
+					} else if (containsColor(temp, foundColors) >= 0) {
+						// set paintColor to color we already have
+						paintColor = (short) (containsColor(temp, foundColors) + 1);
 					} else {// if we got a new color
 						foundColors.add(temp);// add the color
 						paintColor = (short) ++k;// increment k
 					}
-					// paint current canvas spot to paintColor
-					// our paint
-					// number
+					// paint current canvas spot to paintColor our paint number
 					canvas[j - bounds.x][i - bounds.y] = paintColor;
 					/*
 					 * add all connected matching color pixels in bonds to the
@@ -512,7 +498,8 @@ public class TargetGetter {
 					if (PixelColor
 							.isBackGroundColor(color1, this.colorThreshold)) {
 						temp = getShape(600, color1, r, j, temp);
-						if (temp != null) {// newly added for chromosomes
+						// newly added for chromosomes
+						if (temp != null) {
 							temp = new TargetShape(temp);
 							temp.setColor(this.colorAverage);
 							temp.setTargetNiamgeID(shapeNum++);

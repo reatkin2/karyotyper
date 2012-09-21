@@ -16,7 +16,6 @@ public class TestShape {
 			shapeNum=test2.findChromosomes(filename, shapeNum);
 			TargetShape testShape=test2.shapeList.get(0);
 			test2.shapeList.get(0).shapeOut();
-			
 		}
 	}
 
