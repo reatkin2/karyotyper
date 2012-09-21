@@ -1,15 +1,15 @@
-.svn/
-shapeData/
+# These are all output from running or editing
+*.pyc
+*.swp
 *.jpg
 *.png
-ncsuARC*.txt
-bin/*.class
-bin/Target
-bin/TargetText
-bin/Color
-bin/basicObjects
-GetTargets.jar
-*.pyc
-tags
-*.swp
+*.class
+bin/*
 GrayScale.txt
+
+# Required repo for input
+shapeData/
+
+# In case a nested SVN repo is here
+.svn/
+tags
