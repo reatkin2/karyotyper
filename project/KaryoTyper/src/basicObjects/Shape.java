@@ -25,7 +25,7 @@ public class Shape {
     private int pixelCount;
     private int sides;
     private LinkedList<Point> skeleton;
-    private LinkedList<Integer> chromosomeWidth;
+    private int chromosomeWidth[];
     private int biggestIncreaseSkeletonAtWidthCount;
     private int most2LeastRemovedAtWidthCount;
     private boolean removeThisShape;
@@ -77,7 +77,9 @@ public class Shape {
     	distanceFromEdgeMatrix=null;
         biggestIncreaseSkeletonAtWidthCount=-1;
         most2LeastRemovedAtWidthCount=1;
-        chromosomeWidth=new LinkedList<Integer>();
+        chromosomeWidth=new int[2];
+        chromosomeWidth[0]=-1;
+        chromosomeWidth[1]=-1;
         removeThisShape=true;
 
     	initArray();
@@ -155,8 +157,8 @@ public class Shape {
 	public int getPixelCount(){
 		return pixelCount;
 	}
-	public LinkedList<Integer> getWidths(){
-		return this.chromosomeWidth;
+	public int getWidths(int pos){
+		return this.chromosomeWidth[pos];
 	}
 	public boolean getPos(int x,int y){
         return shapeX[x][y];        
@@ -214,6 +216,9 @@ public class Shape {
     	if(xy.y<0)
     		xy.y=0;
     	this.screenCordinate.setLocation(xy.x,xy.y);
+    }
+    public void setMedialAxis(LinkedList<Point> tempMedialAxis){
+    	this.skeleton=tempMedialAxis;
     }
     public Point getSize(){
 		return shapeSize;
@@ -301,9 +306,9 @@ public class Shape {
               }
             }
           }
-        for(int i=0;i<copyShape.chromosomeWidth.size();i++){
-        	this.chromosomeWidth.add(copyShape.chromosomeWidth.get(i));
-        }
+        this.chromosomeWidth[0]=copyShape.chromosomeWidth[0];
+        this.chromosomeWidth[1]=copyShape.chromosomeWidth[1];
+        
         this.shapeSize=new Point(copyShape.shapeSize);
     }
     public void shapeOut(){
@@ -478,6 +483,7 @@ public class Shape {
     	LinkedList<Point> removeEdgePointsHorizantal=new LinkedList<Point>();
     	LinkedList<Point> removeEdgePointsVertical=new LinkedList<Point>();
     	this.skeleton=new LinkedList<Point>();
+    	LinkedList<Point> addThisRound=new LinkedList<Point>();
     	Shape temp=new Shape(this);
     	this.distanceFromEdgeMatrix=new int[temp.getSize().x][temp.getSize().y];
     	for(int i=0;i<distanceFromEdgeMatrix.length;i++){
@@ -516,6 +522,7 @@ public class Shape {
 	    						Point tempPoint=removeEdgePointsHorizantal.pop();
 	    						if(!skeleton.contains(tempPoint)){
 	    							skeleton.add(tempPoint);
+	    							addThisRound.add(tempPoint);
 	    						}
 	    					}
 	    					removeEdgePointsHorizantal.push(pointRightEdge);
@@ -531,6 +538,7 @@ public class Shape {
 						Point tempPoint=removeEdgePointsHorizantal.pop();
 						if(!skeleton.contains(tempPoint)){
 							skeleton.add(tempPoint);
+							addThisRound.add(tempPoint);
 						}
 					}
 					inObject=false;
@@ -559,6 +567,7 @@ public class Shape {
 	    						Point tempPoint=removeEdgePointsVertical.pop();
 	    						if(!skeleton.contains(tempPoint)){
 	    							skeleton.add(tempPoint);
+	    							addThisRound.add(tempPoint);
 	    						}
 	    					}
 	    					removeEdgePointsVertical.push(pointRightEdge);
@@ -574,6 +583,7 @@ public class Shape {
 						Point tempPoint=removeEdgePointsVertical.pop();
 						if(!skeleton.contains(tempPoint)){
 							skeleton.add(tempPoint);
+							addThisRound.add(tempPoint);
 						}
 					}
 					inObject=false;
@@ -584,8 +594,7 @@ public class Shape {
 	            objectWidth=0;
 	        }
 	        //remove skeleton points from the list, identified by be duplicate in this list
-
-	        while(!removeEdgePointsVertical.isEmpty()){
+		    while(!removeEdgePointsVertical.isEmpty()){
 	        	Point removePoint=removeEdgePointsVertical.pop();
 	        	temp.setPixel(removePoint,false);
 	        	if(distanceFromEdgeMatrix[removePoint.x][removePoint.y]==-5){
@@ -616,20 +625,59 @@ public class Shape {
 	        skeletonSizeLastTime=skeleton.size();
 	        removedLastTime=lastPixelCount-temp.getPixelCount();
 	        distanceFromEdgeCount++;
-//	        temp.shapeOut();
+	   //     temp.shapeOut();
 //	        temp.matrixOut(this.distanceFromEdgeMatrix);
         }
-        this.chromosomeWidth.add(this.biggestIncreaseSkeletonAtWidthCount);
-        this.chromosomeWidth.add(this.most2LeastRemovedAtWidthCount);
+        for(int i=0;i<skeleton.size();i++){
+        	int mostCenteredConnection=0;
+        	int connections=0;
+        	Point tempPoint=skeleton.get(i);
+        	Point addPoint=new Point(-1,-1);
+        	Point connectionPoint=new Point(-1,-1);
+        	for(int j=0;j<8;j++){
+    			Point tempAround=aroundPixel.getPoint(j,tempPoint);
+        		if(tempAround.x>=0
+        				&&tempAround.x<this.shapeSize.x
+        				&&tempAround.y>=0
+        				&&tempAround.y<this.shapeSize.y){
+	        		if(distanceFromEdgeMatrix[tempAround.x][tempAround.y]>=distanceFromEdgeMatrix[tempPoint.x][tempPoint.y]){
+	        			if(distanceFromEdgeMatrix[tempAround.x][tempAround.y]>mostCenteredConnection&&!skeleton.contains(tempAround)){
+	        				mostCenteredConnection=distanceFromEdgeMatrix[tempAround.x][tempAround.y];
+	        				addPoint=new Point(tempAround.x,tempAround.y);
+	        			}
+	        		}
+	        		if(skeleton.contains(tempAround)){
+	        			connections++;
+	        			connectionPoint=new Point(tempAround.x,tempAround.y);
+	        		}
+
+        		}
+        	}
+        	if(connections<2&&distanceFromEdgeMatrix[tempPoint.x][tempPoint.y]!=0){
+        		if(addPoint.x>=0&&addPoint.distance(connectionPoint)>1){
+        			skeleton.add(addPoint);
+        		}
+        	}
+
+
+        }
+        for(int i=0;i<skeleton.size();i++){
+        	temp.setPixel(skeleton.get(i), true);
+        }
+        temp.matrixOut(this.distanceFromEdgeMatrix);
+    //    temp.shapeOut();
+        this.chromosomeWidth[0]=this.biggestIncreaseSkeletonAtWidthCount;
+        this.chromosomeWidth[1]=this.most2LeastRemovedAtWidthCount;
+        writeShapeWidths();
         return skeleton;
     }    
 	public void writeShapeWidths() {
 		// TODO Auto-generated method stub
-		System.out.print("Widths for this image: ");
-		for(int i=0;i<this.chromosomeWidth.size();i++){
-			System.out.print(this.chromosomeWidth.get(i)+",");
-		}
-	}
+		System.out.print("Widths for this image: "+this.chromosomeWidth[0]+","+this.chromosomeWidth[0]);
 
+	}
+	public int getDistanceFromEdge(Point tempPoint){
+		return this.distanceFromEdgeMatrix[tempPoint.x][tempPoint.y];
+	}
 
 }

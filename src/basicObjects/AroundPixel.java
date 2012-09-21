@@ -19,5 +19,7 @@ public class AroundPixel {
 	public Point getPos(int pos){
 		return aroundDot[pos];
 	}
-
+	public Point getPoint(int pos,Point fromPoint){
+		return new Point(fromPoint.x+aroundDot[pos].x,fromPoint.y+aroundDot[pos].y);
+	}
 }

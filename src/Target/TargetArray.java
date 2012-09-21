@@ -408,7 +408,9 @@ public class TargetArray {
 		  System.out.print(E);
 	  }
   }
-
+public TargetShape getShape(int pos){
+	return this.unNamed.get(pos);
+}
  
   public LinkedList<TargetShape> getListShapes(){
 	  LinkedList<TargetShape> temp=new LinkedList<TargetShape>();
