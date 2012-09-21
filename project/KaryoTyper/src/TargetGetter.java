@@ -3,12 +3,10 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
-import java.util.ListIterator;
 
 import javax.imageio.ImageIO;
 
@@ -17,7 +15,6 @@ import Color.PixelColor;
 import Target.TargetImage;
 import Target.TargetShape;
 import basicObjects.AroundPixel;
-import basicObjects.FlightPath;
 import basicObjects.MedialAxisGraph;
 import basicObjects.PixelPoint;
 import basicObjects.Shape;
@@ -27,7 +24,6 @@ import com.drew.imaging.jpeg.JpegProcessingException;
 
 public class TargetGetter {
     public LinkedList<TargetShape> shapeList;
-    private FlightPath flightPath;
     /*
      * aroundot is an array of 8 points that is a x,y difference from the center point pixel
      * 107       |-1,-1| 0,-1| 1,-1|
@@ -35,63 +31,32 @@ public class TargetGetter {
      * 345	     |-1, 1| 0, 1| 1, 1|
      */
     private AroundPixel aroundDot;
-    private int targetImgBorderSize;
     private boolean[][] screenChecked;
     private boolean[][] spotNext;
     private int currPixelCount;
-    private String imageFolderPath;
     private LinkedList<String> imageQue;
     private	TargetImage img;
-    private int distanceToIncludeTargets;
-    private double maxLength;
-    private double minWidth;
-    private double minHeight;
     private int allowedColorDiff;
     private int pixelSpace;
     private Color colorAverage;
     private int colorCount;
-    private int minColorNShape;
-    private int maxColorNShape;
-    private int targetExcludeDistance;
     private ColorBuckets myBuckets;
     private int firstPixelMax;
     private int firstPixelMin;
-    private double firstLengthMax;
-    private double firstLengthMin;
-    private int firstColorCountMax;
-    private int firstColorCountMin;
-    private int textImageRotationCount;
     private int colorThreshold;
     private int firstPassCount;
     private int removedCount;
     private long start;
     private static final double feetPerDegreeLatLong=364169.55420532933;//at lat 38.14;//at lat 38.14
-    private boolean onImgEdge;
 	public TargetGetter(String jpegPath){
-		flightPath=new FlightPath();
 		aroundDot=new AroundPixel();
-		this.targetImgBorderSize=35;//target image border in pixels
-		this.distanceToIncludeTargets=120;//70feet
-		textImageRotationCount=20;
 		this.colorThreshold=245;
-		this.imageFolderPath=jpegPath;
 		this.imageQue=new LinkedList<String>();
 		start=System.currentTimeMillis();
-		this.onImgEdge=false;
-		this.targetExcludeDistance=80;//80 in feet
 		this.firstPixelMax=11000;
 		this.firstPixelMin=30;
-	    this.maxLength=13;
-	    this.minWidth=2.5;
-	    this.minHeight=2.5;
-	    this.firstLengthMax=20;//20feet
-	    this.firstLengthMin=2.5;//31 foot
 	    this.allowedColorDiff=70;//70
 	    this.pixelSpace=3;//7
-	    this.maxColorNShape=190;//60
-	    this.minColorNShape=15;//17
-	    this.firstColorCountMax=200;//100
-	    this.firstColorCountMin=11;//13
 	    colorAverage=new Color(0,0,0);
 	    this.colorCount=0;
 		loadFiles();
@@ -177,9 +142,6 @@ public class TargetGetter {
 			        	}
 			        }
 		    	}
-	    		else{
-	    			this.onImgEdge=true;
-	    		}
 	    	}
 		}
 		return canvas;
@@ -237,9 +199,6 @@ public class TargetGetter {
 				        	}
 				        }
 			    	}
-		    		else{
-		    			this.onImgEdge=true;
-		    		}
 		    	}
 			}
 			}
@@ -399,8 +358,6 @@ public class TargetGetter {
         }
 		while(!tempShapeList.isEmpty()){
 			TargetShape tempPop=tempShapeList.pop();
-			int id=tempPop.getTargetNimageID();
-			boolean add = true;
 			System.out.println();
        		System.out.println("Loc: "+tempPop.getScreenCordinate().x+","+tempPop.getScreenCordinate().y);
        		System.out.println("size: "+(tempPop.getSize().x/img.getPixelsPerFoot())+","+(tempPop.getSize().y/img.getPixelsPerFoot()));
@@ -417,8 +374,6 @@ public class TargetGetter {
     	this.firstPassCount=0;
     	this.removedCount=0;
         LinkedList<TargetShape> tempShapeList=new LinkedList<TargetShape>();
-    	int[] removeShapeList=new int[100000];
-    	int removeListCount=0;
         Color color1=new Color(0,0,0);//color that will be used to store pixel color to check
     	TargetShape temp=new TargetShape(shapeNum);
     	for(int r=pixelSpace+1;r<img.getImgWidth()-pixelSpace;r+=pixelSpace){//made plus one change chromosomes
@@ -443,8 +398,6 @@ public class TargetGetter {
         }
 		while(!tempShapeList.isEmpty()){
 			TargetShape tempPop=tempShapeList.pop();
-			int id=tempPop.getTargetNimageID();
-			boolean add = true;
 
 					System.out.println();
             		System.out.println("Loc: "+tempPop.getScreenCordinate().x+","+tempPop.getScreenCordinate().y);
@@ -545,7 +498,6 @@ public class TargetGetter {
          *ont the canvas
        	 */
         this.currPixelCount=0;
-        this.onImgEdge=false;
         canvas=getMatchingPixel(canvasBounds,colorOItem,new Point(xCor,yCor),canvasStart,canvas,(short)0,new Color(200,200,200));
         if(/*!this.onImgEdge&&*/this.currPixelCount>this.firstPixelMin){//this.currPixelCount>this.firstPixelMin&&this.currPixelCount<this.firstPixelMax
         	shpN=new TargetShape(new Point(sizeSquared,sizeSquared));
@@ -590,7 +542,6 @@ public class TargetGetter {
          *ont the canvas
        	 */
         this.currPixelCount=0;
-        this.onImgEdge=false;
         canvas=getMatchingPixelLeft(canvasBounds,colorOItem,new Point(xCor,yCor),canvasStart,canvas,(short)0,new Color(200,200,200));
         if(/*!this.onImgEdge&&*/this.currPixelCount>this.firstPixelMin){//this.currPixelCount>this.firstPixelMin&&this.currPixelCount<this.firstPixelMax
         	shpN=new TargetShape(new Point(sizeSquared,sizeSquared));
@@ -657,8 +608,7 @@ public class TargetGetter {
     	File folder = new File(path);
     	//System.out.println(path);
     	File[] listOfFiles = folder.listFiles(); 
-    	for (int i = 0; i < listOfFiles.length; i++) 
-    	{
+    	for (int i = 0; i < listOfFiles.length; i++) {
     	if (listOfFiles[i].isFile()) {
     		String file = listOfFiles[i].getName();
     		if (file.endsWith(".jpg") || file.endsWith(".JPG")) {
@@ -683,42 +633,7 @@ public class TargetGetter {
     	    	   }
     	        }
     	     }
-    	  }
-    	    return null;
-    	}    
-
-    public String getNewFilesFromLog(String path) {
-        String log = path+"/imagelog.txt";
-        LinkedList<String> imageList = new LinkedList<String>();
-        try {
-        FileReader fileReader = new FileReader(log);
-        BufferedReader bufferedReader = new BufferedReader(fileReader);
-
-        String line = null;
-        while ((line = bufferedReader.readLine()) != null) {
-            imageList.add(line);
-        }
-        bufferedReader.close();
-        }
-        catch (IOException e) {
-            System.out.println(e);
-        }
-
-        ListIterator imageIter = imageList.listIterator();
-
-        String next;
-        while (imageIter.hasNext()) {
-            next = (String) imageIter.next();
-            if (imageQue.contains(next)) {
-                continue;
-            }
-            else {
-                imageQue.add(next);
-                return next;
-            }
-        }
-        return null;
+    	 }
+    	 return null;
     }
-
-
 }
