@@ -3,6 +3,8 @@ package basicObjects;
 import java.awt.Point;
 import java.util.LinkedList;
 
+import Target.TargetShape;
+
 public class MedialAxisGraph {
 	LinkedList<Vertex> axisGraph=new LinkedList<Vertex>();
 	public MedialAxisGraph(LinkedList<Point> medialAxis){
@@ -82,5 +84,16 @@ public class MedialAxisGraph {
 		}
 		return medialAxis;
 	}
-	
+	public LinkedList<Point> trimMedialAxis(int minDistance,LinkedList<Point> medialAxis,TargetShape shape){
+		LinkedList<Point> trimmedAxis=new LinkedList<Point>();
+		if(medialAxis!=null){
+			for(int i=0;i<medialAxis.size();i++){
+				if(shape.getDistanceFromEdge(medialAxis.get(i))>=minDistance){
+					trimmedAxis.add(medialAxis.get(i));
+				}
+			}
+		}
+		return trimmedAxis;
+
+	}
 }

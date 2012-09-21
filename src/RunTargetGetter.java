@@ -93,7 +93,7 @@ public class RunTargetGetter extends JFrame{
 							RunTargetGetter.currentStatus.setText("Waiting for images");
 						}
 						else{
-							RunTargetGetter.currentStatus.setText("Finished looking at img"+filename.substring(filename.indexOf("ima"))+" shutting down.");
+							RunTargetGetter.currentStatus.setText("Finished looking at img"+filename+" shutting down.");
 						}
 					}
 				try {

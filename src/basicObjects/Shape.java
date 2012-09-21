@@ -626,7 +626,7 @@ public class Shape {
 	        removedLastTime=lastPixelCount-temp.getPixelCount();
 	        distanceFromEdgeCount++;
 	   //     temp.shapeOut();
-	     //   temp.matrixOut(this.distanceFromEdgeMatrix);
+//	        temp.matrixOut(this.distanceFromEdgeMatrix);
         }
         for(int i=0;i<skeleton.size();i++){
         	int mostCenteredConnection=0;
@@ -664,9 +664,11 @@ public class Shape {
         for(int i=0;i<skeleton.size();i++){
         	temp.setPixel(skeleton.get(i), true);
         }
+        temp.matrixOut(this.distanceFromEdgeMatrix);
     //    temp.shapeOut();
         this.chromosomeWidth[0]=this.biggestIncreaseSkeletonAtWidthCount;
         this.chromosomeWidth[1]=this.most2LeastRemovedAtWidthCount;
+        writeShapeWidths();
         return skeleton;
     }    
 	public void writeShapeWidths() {
@@ -674,6 +676,8 @@ public class Shape {
 		System.out.print("Widths for this image: "+this.chromosomeWidth[0]+","+this.chromosomeWidth[0]);
 
 	}
-
+	public int getDistanceFromEdge(Point tempPoint){
+		return this.distanceFromEdgeMatrix[tempPoint.x][tempPoint.y];
+	}
 
 }

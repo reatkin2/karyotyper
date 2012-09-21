@@ -818,9 +818,6 @@ public class TargetGetter {
      				tempPop.getSkeleton(img);
      				img.addWidth(tempPop.getWidths(0));
      				img.addWidth(tempPop.getWidths(1));
-     				//MedialAxisGraph tempGraph=new MedialAxisGraph(tempPop.getSkeltonPoints());
-     				//tempGraph.removeSegments(minLength, maxLength)
-     				//tempPop.setMedialAxis(tempGraph.getMedialAxis());
      				if(((tempPop.getWidths(0)>=4&&tempPop.getWidths(0)<15)
      							||(tempPop.getWidths(1)>=4&&tempPop.getWidths(1)<15))){
      					if((tempPop.getPixelCount()<this.firstPixelMax)
@@ -830,15 +827,9 @@ public class TargetGetter {
 	     					}
      					}
      				}
-     				tempPop.shapeOut();
+     				//tempPop.shapeOut();
      				System.out.println("Image: "+tempPop.getTitle()+" Count: "+tempPop.getTargetNimageID());
      				tempPop.writeShapeWidths();
-     				if(tempPop.checkKeepThisShape()){
-     					writeTargetImage(tempPop);
-     				}
-     				else{
-     					writeRemovedImage(tempPop);
-     				}
        				//targetNimgCount++;
 //    				this.googleEarthIt();
 //    				shapeList.writeTurnInDoc("",this.imageFolderPath);
@@ -849,11 +840,27 @@ public class TargetGetter {
 		}
 		System.out.println("FirstPass: "+this.firstPassCount+"   Removed: "+this.removedCount);
 		double avgChromosomewidth=img.calcFinalAverage();
+		
 		System.out.println("Width: "+avgChromosomewidth);
 		return shapeNum;//targetNimgCount;
 
     }
-
+    public void printChromosomes(){
+    		for(int i=0;i<this.shapeList.size();i++){
+    			TargetShape tempShape=this.shapeList.get(i);
+				MedialAxisGraph tempGraph=new MedialAxisGraph(tempShape.getSkeltonPoints());
+//				tempGraph.removeSegments((int)Math.round((img.getAverage())), -1);
+//				tempShape.setMedialAxis(tempGraph.getMedialAxis());
+				tempShape.setMedialAxis(tempGraph.trimMedialAxis((int)Math.round(img.getAverage()*.7), tempShape.getSkeltonPoints(), tempShape));
+ 				if(tempShape.checkKeepThisShape()){
+ 					writeTargetImage(tempShape);
+ 				}
+ 				else{
+ 					writeRemovedImage(tempShape);
+ 				}
+    		}
+    		this.shapeList=new LinkedList<TargetShape>();
+    }
     public void writeTargetImage(TargetShape tempShape){
 		try {
 		    // retrieve image
@@ -863,21 +870,24 @@ public class TargetGetter {
 //			BufferedImage tempImg=getTextImage(targetText);
 //			tempImg=this.makeRotatedImage(tempImg);
 			//BufferedImage tempImg2=new BufferedImage( 
-			Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
-			ImageWriter writer = (ImageWriter)iter.next();
-			ImageWriteParam iwp = writer.getDefaultWriteParam();
-			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-			iwp.setCompressionQuality(1);   // an integer between 0 and 1
+			//Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
+
+//			Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
+//			ImageWriter writer = (ImageWriter)iter.next();
+//			ImageWriteParam iwp = writer.getDefaultWriteParam();
+//			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+//			iwp.setCompressionQuality(1);   // an integer between 0 and 1
 			// 1 specifies minimum compression and maximum quality
 			File curDir=new File(".");
 			String imageName=new File(tempShape.getTitle()).getName();
-			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Keep/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempShape.getTargetNimageID())+".jpg");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
-			FileImageOutputStream output = new FileImageOutputStream(outputfile);
-			writer.setOutput(output);
+			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Keep/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempShape.getTargetNimageID())+".png");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
+//			FileImageOutputStream output = new FileImageOutputStream(outputfile);
+//			writer.setOutput(output);
 			BufferedImage tempImg=img.getSubImage(tempShape,true);//,targetImgBorderSize);//30pixel border
-			IIOImage image = new IIOImage(tempImg, null, null);
-			writer.write(null, image, iwp);
-			writer.dispose();
+//			IIOImage image = new IIOImage(tempImg, null, null);
+//			writer.write(null, image, iwp);
+//			writer.dispose();
+		    ImageIO.write(tempImg, "png", outputfile);
 		    //ImageIO.write(tempImg, "jpg", outputfile);
 		} catch (IOException e) {
 		    System.out.println(e);
@@ -893,21 +903,23 @@ public class TargetGetter {
 //			BufferedImage tempImg=getTextImage(targetText);
 //			tempImg=this.makeRotatedImage(tempImg);
 			//BufferedImage tempImg2=new BufferedImage( 
-			Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
-			ImageWriter writer = (ImageWriter)iter.next();
-			ImageWriteParam iwp = writer.getDefaultWriteParam();
-			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
-			iwp.setCompressionQuality(1);   // an integer between 0 and 1
+			
+//			Iterator iter = ImageIO.getImageWritersByFormatName("png");
+//			ImageWriter writer = (ImageWriter)iter.next();
+//			ImageWriteParam iwp = writer.getDefaultWriteParam();
+//			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+//			iwp.setCompressionQuality(1);   // an integer between 0 and 1
 			// 1 specifies minimum compression and maximum quality
 			File curDir=new File(".");
 			String imageName=new File(tempShape.getTitle()).getName();
-			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Removed/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempShape.getTargetNimageID())+".jpg");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
-			FileImageOutputStream output = new FileImageOutputStream(outputfile);
-			writer.setOutput(output);
+			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Removed/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempShape.getTargetNimageID())+".png");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
+//			FileImageOutputStream output = new FileImageOutputStream(outputfile);
+//			writer.setOutput(output);
 			BufferedImage tempImg=img.getSubImage(tempShape,false);//,targetImgBorderSize);//30pixel border
-			IIOImage image = new IIOImage(tempImg, null, null);
-			writer.write(null, image, iwp);
-			writer.dispose();
+		    ImageIO.write(tempImg, "png", outputfile);
+//			IIOImage image = new IIOImage(tempImg, null, null);
+//			writer.write(null, image, iwp);
+//			writer.dispose();
 		    //ImageIO.write(tempImg, "jpg", outputfile);
 		} catch (IOException e) {
 		    System.out.println(e);
