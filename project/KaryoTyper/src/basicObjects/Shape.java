@@ -608,9 +608,7 @@ public class Shape {
 	        		distanceFromEdgeMatrix[removePoint.x][removePoint.y]=distanceFromEdgeCount;
 	        	}
 	        }
-	        for(int i=0;i<skeleton.size();i++){
-	        	temp.setPixel(skeleton.get(i), true);
-	        }
+	        addBackSkeleton(temp);
 	        if(distanceFromEdgeCount>2){//do everytime after first run
 	        	int tempRemovedCount=lastPixelCount-temp.getPixelCount();
 	        	if(removedLastTime-tempRemovedCount>most2LeastRemoved){
@@ -628,12 +626,28 @@ public class Shape {
 	   //     temp.shapeOut();
 //	        temp.matrixOut(this.distanceFromEdgeMatrix);
         }
+        fillInSkeleton();
+        addBackSkeleton(temp);
+        temp.matrixOut(this.distanceFromEdgeMatrix);
+    //    temp.shapeOut();
+        this.chromosomeWidth[0]=this.biggestIncreaseSkeletonAtWidthCount;
+        this.chromosomeWidth[1]=this.most2LeastRemovedAtWidthCount;
+        writeShapeWidths();
+        return skeleton;
+    }    
+    private void addBackSkeleton(Shape temp){
+        for(int i=0;i<skeleton.size();i++){
+        	temp.setPixel(skeleton.get(i), true);
+        }
+    }
+    private void fillInSkeleton(){
         for(int i=0;i<skeleton.size();i++){
         	int mostCenteredConnection=0;
         	int connections=0;
         	Point tempPoint=skeleton.get(i);
         	Point addPoint=new Point(-1,-1);
         	Point connectionPoint=new Point(-1,-1);
+        	int cornerConnection=-1;
         	for(int j=0;j<8;j++){
     			Point tempAround=aroundPixel.getPoint(j,tempPoint);
         		if(tempAround.x>=0
@@ -647,30 +661,56 @@ public class Shape {
 	        			}
 	        		}
 	        		if(skeleton.contains(tempAround)){
+	        			if(j==1||j==3||j==5||j==7){
+	        				cornerConnection=j;
+	        			}
 	        			connections++;
 	        			connectionPoint=new Point(tempAround.x,tempAround.y);
 	        		}
 
         		}
         	}
-        	if(connections<2&&distanceFromEdgeMatrix[tempPoint.x][tempPoint.y]!=0){
-        		if(addPoint.x>=0&&addPoint.distance(connectionPoint)>1){
-        			skeleton.add(addPoint);
+        	if(connections<3&&distanceFromEdgeMatrix[tempPoint.x][tempPoint.y]!=0){
+        		if(connections<2){
+	        		if(addPoint.x>=0&&addPoint.distance(connectionPoint)>1){
+	        			skeleton.add(addPoint);
+	        		}
+        		}
+        		else{
+        			if(cornerConnection!=-1){
+        				Point corner=checkCorner4Connection(cornerConnection,tempPoint);
+        				if(corner.x!=-1){
+        					skeleton.add(corner);
+        				}
+        			}
         		}
         	}
 
 
         }
-        for(int i=0;i<skeleton.size();i++){
-        	temp.setPixel(skeleton.get(i), true);
-        }
-        temp.matrixOut(this.distanceFromEdgeMatrix);
-    //    temp.shapeOut();
-        this.chromosomeWidth[0]=this.biggestIncreaseSkeletonAtWidthCount;
-        this.chromosomeWidth[1]=this.most2LeastRemovedAtWidthCount;
-        writeShapeWidths();
-        return skeleton;
-    }    
+
+    }
+    private Point checkCorner4Connection(int cornerConnected,Point axisPoint){
+    	cornerConnected-=4;
+    	if(cornerConnected<0){
+    		cornerConnected+=8;
+    	}
+    	Point cornerConnection=new Point(-1,-1);
+    	for(int i=cornerConnected-1;i<3;i++){
+    		Point tempPoint = this.aroundPixel.getPoint(i, axisPoint);
+    		if(this.skeleton.contains(this.aroundPixel.getPoint(cornerConnected-1,tempPoint))){
+    			return this.aroundPixel.getPoint(cornerConnected-1,tempPoint);
+    		}
+    		if(this.skeleton.contains(this.aroundPixel.getPoint(cornerConnected,tempPoint))){
+    			return this.aroundPixel.getPoint(cornerConnected,tempPoint);
+    		}
+    		if(this.skeleton.contains(this.aroundPixel.getPoint(cornerConnected+1,tempPoint))){
+    			return this.aroundPixel.getPoint(cornerConnected+1,tempPoint);
+    		}
+
+    	}
+    	return cornerConnection;
+    }
 	public void writeShapeWidths() {
 		// TODO Auto-generated method stub
 		System.out.print("Widths for this image: "+this.chromosomeWidth[0]+","+this.chromosomeWidth[0]);
