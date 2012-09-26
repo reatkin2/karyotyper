@@ -64,15 +64,9 @@ public class RunTargetGetter extends JFrame{
 	
 			});
 			// TODO Auto-generated method stub
-	//		TargetGetter test=new TargetGetter();
-	//				//test.findItem(new Rectangle(606,386,380,380),new Point(606,386),20);
-	//		test.findItem(new Rectangle(620,330,50,50),new Point(620,330),12);	
-	//		test.exit();
 			TargetGetter test2=new TargetGetter(args[0]);
 			String filename;
-			//test.findItem(new Rectangle(606,386,380,380),new Point(606,386),20);
-			//for(int i=0;i<args.length;i++){
-			//frame.dispose();
+
 			while(!RunTargetGetter.closing){
 				//System.out.println(args[i]+"---------nextFilestarts Here---------------");
 
@@ -84,9 +78,6 @@ public class RunTargetGetter extends JFrame{
 						frame.targetsFound+=test2.findBackground(filename);
 						frame.targetsFound=test2.findChromosomes(filename, frame.targetsFound);
 						test2.printChromosomes();
-	     				//MedialAxisGraph tempGraph=new MedialAxisGraph(tempPop.getSkeltonPoints());
-	     				//tempGraph.removeSegments(minLength, maxLength)
-	     				//tempPop.setMedialAxis(tempGraph.getMedialAxis());
 
 						imgCount.setText(frame.targetsFound+" Chromosomes found in "+(++frame.imgCounter)+" slides read so far.");
 						if(!RunTargetGetter.currentStatus.getText().contains("Finishing")){

@@ -18,8 +18,6 @@ public class TargetImage {
     private String comments;
     private	BufferedImage img;
 	private double aboveGroundLevelFeet;
-    private int pixelCountAGL;
-    private double pixelsPerFoot;
     private double imgLat;
     private double imgLong;
     private double heading;
@@ -106,16 +104,9 @@ public class TargetImage {
 
 	public Color getColorAt(int x,int y){
 		return this.convertPixel(img.getRGB(x,y));
-		//return new Color(img.getRGB(x, y));//changed for chromosomes
 	}
 	public double getAboveGroundLevelFeet() {
 		return aboveGroundLevelFeet;
-	}
-	public int getPixelCountAGL() {
-		return pixelCountAGL;
-	}
-	public double getPixelsPerFoot() {
-		return pixelsPerFoot;
 	}
 	public double getImgLat() {
 		return imgLat;
@@ -182,22 +173,22 @@ public class TargetImage {
 	}
 	public void graphScale(){
 		 try{
-			  // Create file 
-			  FileWriter fstream = new FileWriter("GrayScale.txt",true);
-			  BufferedWriter out = new BufferedWriter(fstream);
-			  String buffer="";
-			  for(int i=0;i<this.grayScale.length;i++){//out.write("Hello Java");
+			 // Create file 
+			 FileWriter fstream = new FileWriter("GrayScale.txt",true);
+			 BufferedWriter out = new BufferedWriter(fstream);
+			 String buffer="";
+			 for(int i=0;i<this.grayScale.length;i++){//out.write("Hello Java");
 				  buffer+=""+this.grayScale[i]+",";
-			  }
-			  out.write(buffer);
-			  out.write("\n");
+			 }
+			 out.write(buffer);
+			 out.write("\n");
 			  
-			  //Close the output stream
-			  out.close();
-			  //Catch exception if any
-			  }catch (Exception e){
-				  System.err.println("Error: " + e.getMessage());
-			  }
+			 //Close the output stream
+			 out.close();
+			 //Catch exception if any
+		 } catch (Exception e){
+			 System.err.println("Error: " + e.getMessage());
+		 }
 			  
 			
 	}
