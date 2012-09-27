@@ -608,7 +608,12 @@ public class Shape {
 	        		distanceFromEdgeMatrix[removePoint.x][removePoint.y]=distanceFromEdgeCount;
 	        	}
 	        }
-	        addBackSkeleton(temp);
+	        if(distanceFromEdgeCount<2){
+	        	skeleton=new LinkedList<Point>();
+	        }
+	        else{
+	        	addBackSkeleton(temp);
+	        }
 	        if(distanceFromEdgeCount>2){//do everytime after first run
 	        	int tempRemovedCount=lastPixelCount-temp.getPixelCount();
 	        	if(removedLastTime-tempRemovedCount>most2LeastRemoved){
@@ -645,39 +650,53 @@ public class Shape {
         	int mostCenteredConnection=0;
         	int connections=0;
         	Point tempPoint=skeleton.get(i);
-        	Point addPoint=new Point(-1,-1);
-        	Point connectionPoint=new Point(-1,-1);
+        	int addPoint=-1;
+        	int connectionPoint=-1;
+        	int cornerConnectedCount=0;
         	int cornerConnection=-1;
+        	boolean connectionPos[]={false,false,false,false,false,false,false,false};
         	for(int j=0;j<8;j++){
     			Point tempAround=aroundPixel.getPoint(j,tempPoint);
         		if(tempAround.x>=0
         				&&tempAround.x<this.shapeSize.x
         				&&tempAround.y>=0
         				&&tempAround.y<this.shapeSize.y){
-	        		if(distanceFromEdgeMatrix[tempAround.x][tempAround.y]>=distanceFromEdgeMatrix[tempPoint.x][tempPoint.y]){
-	        			if(distanceFromEdgeMatrix[tempAround.x][tempAround.y]>mostCenteredConnection&&!skeleton.contains(tempAround)){
-	        				mostCenteredConnection=distanceFromEdgeMatrix[tempAround.x][tempAround.y];
-	        				addPoint=new Point(tempAround.x,tempAround.y);
-	        			}
-	        		}
 	        		if(skeleton.contains(tempAround)){
-	        			if(j==1||j==3||j==5||j==7){
-	        				cornerConnection=j;
-	        			}
+	        			connectionPos[j]=true;
 	        			connections++;
-	        			connectionPoint=new Point(tempAround.x,tempAround.y);
+		        		if(j%2==1){
+		        			cornerConnection=j;
+		        			cornerConnectedCount++;
+		        		}
 	        		}
+        		}
+        	}
+        	for(int j=0;j<8;j++){
+        		if(!connectionPos[j]
+        				&&!connectionPos[aroundPixel.handleLoop(j+1)]
+        				&&!connectionPos[aroundPixel.handleLoop(j-1)]){
+        			Point tempAround=aroundPixel.getPoint(j,tempPoint);
+	        		if(tempAround.x>=0
+	        				&&tempAround.x<this.shapeSize.x
+	        				&&tempAround.y>=0
+	        				&&tempAround.y<this.shapeSize.y){
+		        		if(distanceFromEdgeMatrix[tempAround.x][tempAround.y]>mostCenteredConnection){
+        					mostCenteredConnection=distanceFromEdgeMatrix[tempAround.x][tempAround.y];
+        					addPoint=j; 			
+		        		}
 
+	
+	        		}
         		}
         	}
         	if(connections<3&&distanceFromEdgeMatrix[tempPoint.x][tempPoint.y]!=0){
         		if(connections<2){
-	        		if(addPoint.x>=0&&addPoint.distance(connectionPoint)>1){
-	        			skeleton.add(addPoint);
+	        		if(addPoint>=0){
+	        			skeleton.add(aroundPixel.getPoint(addPoint,tempPoint));
 	        		}
         		}
         		else{
-        			if(cornerConnection!=-1){
+        			if(cornerConnection==1){
         				Point corner=checkCorner4Connection(cornerConnection,tempPoint);
         				if(corner.x!=-1){
         					skeleton.add(corner);
@@ -715,6 +734,9 @@ public class Shape {
 		// TODO Auto-generated method stub
 		System.out.print("Widths for this image: "+this.chromosomeWidth[0]+","+this.chromosomeWidth[0]);
 
+	}
+	public Point getSizeOfDistanceMap(){
+		return new Point(this.distanceFromEdgeMatrix.length,this.distanceFromEdgeMatrix[0].length);
 	}
 	public int getDistanceFromEdge(Point tempPoint){
 		return this.distanceFromEdgeMatrix[tempPoint.x][tempPoint.y];

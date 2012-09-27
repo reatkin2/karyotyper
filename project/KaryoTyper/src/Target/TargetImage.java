@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import javax.imageio.ImageIO;
 
 
+import Color.ISOClineColor;
 import basicObjects.LatLongPoint;
 import basicObjects.Shape;
 
@@ -163,6 +164,23 @@ public class TargetImage {
 			for(int i=0;i<targetShape.getSkeltonPoints().size();i++){
 				tempImg.setRGB(targetShape.getSkeltonPoints().get(i).x, targetShape.getSkeltonPoints().get(i).y, (new Color(255,0,0,255)).getRGB());
 			}
+		}
+					
+		return tempImg;
+    }
+    public BufferedImage getISOcline(Shape targetShape){
+		BufferedImage tempImg=new BufferedImage(targetShape.getSize().x,targetShape.getSize().y,BufferedImage.TYPE_3BYTE_BGR);
+		for(int i=0;i<targetShape.getSize().y;i++){
+			for(int j=0;j<targetShape.getSize().x;j++){
+				if(targetShape.getDistanceFromEdge(new Point(j, i))<0){
+					tempImg.setRGB(j,i,Color.BLUE.getRGB());
+				}
+				else{
+					Color temp=ISOClineColor.getColor(targetShape.getDistanceFromEdge(new Point(j, i)));
+					tempImg.setRGB(j,i,temp.getRGB());
+				}
+			}
+
 		}
 					
 		return tempImg;

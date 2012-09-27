@@ -22,4 +22,25 @@ public class AroundPixel {
 	public Point getPoint(int pos,Point fromPoint){
 		return new Point(fromPoint.x+aroundDot[pos].x,fromPoint.y+aroundDot[pos].y);
 	}
+	public boolean isAdjacent(int pos1,int pos2){
+		if((pos1==0&&pos2==7)||pos1==7&&pos2==0){
+			return true;
+		}
+		else{
+			int distance=Math.abs(pos1-pos2);
+			if(distance<=1){
+				return true;
+			}
+		}
+		return false;
+	}
+	public int handleLoop(int pos){
+		if(pos==-1){
+			return 7;
+		}
+		if(pos==8){
+			return 0;
+		}
+		return pos;
+	}
 }

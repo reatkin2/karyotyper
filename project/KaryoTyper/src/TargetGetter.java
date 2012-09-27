@@ -858,6 +858,8 @@ public class TargetGetter {
 				
  				if(tempShape.checkKeepThisShape()){
  					writeTargetImage(tempShape);
+ 					writeISOClineImage(tempShape);
+ 					
  				}
  				else{
  					writeRemovedImage(tempShape);
@@ -898,6 +900,40 @@ public class TargetGetter {
 		}
 
     }
+    public void writeISOClineImage(TargetShape tempShape){
+		try {
+		    // retrieve image
+//			TargetShape tempTrimmed=new Shape(tempPop);
+//			tempTrimmed.trimShape(4);
+//			short targetText[][]=this.getInsideShape(new Rectangle(tempTrimmed.getScreenCordinate().x,tempTrimmed.getScreenCordinate().y,tempTrimmed.getSize().x,tempTrimmed.getSize().y),tempTrimmed);
+//			BufferedImage tempImg=getTextImage(targetText);
+//			tempImg=this.makeRotatedImage(tempImg);
+			//BufferedImage tempImg2=new BufferedImage( 
+			//Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
+
+//			Iterator iter = ImageIO.getImageWritersByFormatName("jpeg");
+//			ImageWriter writer = (ImageWriter)iter.next();
+//			ImageWriteParam iwp = writer.getDefaultWriteParam();
+//			iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
+//			iwp.setCompressionQuality(1);   // an integer between 0 and 1
+			// 1 specifies minimum compression and maximum quality
+			File curDir=new File(".");
+			String imageName=new File(tempShape.getTitle()).getName();
+			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Keep/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempShape.getTargetNimageID())+"ISO"+".png");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
+//			FileImageOutputStream output = new FileImageOutputStream(outputfile);
+//			writer.setOutput(output);
+			BufferedImage tempImg=img.getISOcline(tempShape);//,targetImgBorderSize);//30pixel border
+//			IIOImage image = new IIOImage(tempImg, null, null);
+//			writer.write(null, image, iwp);
+//			writer.dispose();
+		    ImageIO.write(tempImg, "png", outputfile);
+		    //ImageIO.write(tempImg, "jpg", outputfile);
+		} catch (IOException e) {
+		    System.out.println(e);
+		}
+
+    }
+
     public void writeRemovedImage(TargetShape tempShape){
 		try {
 		    // retrieve image
