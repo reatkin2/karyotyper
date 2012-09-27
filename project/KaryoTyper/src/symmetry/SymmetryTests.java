@@ -6,6 +6,9 @@ import java.util.LinkedList;
 import targetGetter.TestShape;
 
 import Target.TargetShape;
+import basicObjects.AxisVertex;
+import basicObjects.AxisVertex.DistanceException;
+import basicObjects.MedialAxisGraph;
 import basicObjects.Shape;
 
 
@@ -113,18 +116,18 @@ public class SymmetryTests {
 	public void realColorTest() {
 		TargetShape image = TestShape.getImageObject("C:\\Users\\Robert\\Desktop\\SchoolWork\\" +
 				"CSC492\\repo\\project\\Karyotyper\\testImage.jpg");
-		boolean[][] img = image.getShape();
-		Image imageObject = new Image(img);
-		System.out.println("LinkedList skeleton:");
-		LinkedList<Point> pointList = image.getSkeltonPoints();
-		for (Point p : pointList) {
-			System.out.println("(" + p.x + ", " + p.y + ")");
+//		boolean[][] img = image.getShape();
+//		Image imageObject = new Image(img);
+		MedialAxisGraph axis = new MedialAxisGraph(image.getSkeltonPoints());
+		for (AxisVertex v : axis.getAxisGraph()) {
+			try {
+				v.calculateOrthogonalLine(5, 7);
+			} catch (DistanceException e) {
+				System.out.println(e.getMessage());
+				e.printStackTrace();
+			}
 		}
-		Axis axis = new Axis(pointList, imageObject, 3, 5);
-		System.out.println(axis.toString());
-		DetectSymmetry.detectColorSymmetry(imageObject, axis, 20, 0.99);
-		
-		//TODO: Learn about LinkedList skeleton ordering.
+//		DetectSymmetry.detectColorSymmetry(imageObject, axis, 20, 0.99);
 	}
 
 }

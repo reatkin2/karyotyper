@@ -104,4 +104,8 @@ public class MedialAxisGraph {
 		return trimmedAxis;
 
 	}
+
+	public LinkedList<AxisVertex> getAxisGraph() {
+		return axisGraph;
+	}
 }
