@@ -689,7 +689,7 @@ public class Shape {
 	        		}
         		}
         	}
-        	if(connections<3&&distanceFromEdgeMatrix[tempPoint.x][tempPoint.y]!=0){
+        	if(connections<3&&distanceFromEdgeMatrix[tempPoint.x][tempPoint.y]>0){
         		if(connections<2){
 	        		if(addPoint>=0){
 	        			skeleton.add(aroundPixel.getPoint(addPoint,tempPoint));
@@ -715,19 +715,42 @@ public class Shape {
     		cornerConnected+=8;
     	}
     	Point cornerConnection=new Point(-1,-1);
-    	for(int i=cornerConnected-1;i<3;i++){
-    		Point tempPoint = this.aroundPixel.getPoint(i, axisPoint);
-    		if(this.skeleton.contains(this.aroundPixel.getPoint(cornerConnected-1,tempPoint))){
-    			return this.aroundPixel.getPoint(cornerConnected-1,tempPoint);
+//    	for(int i=0;i<3;i++){
+    		Point tempPoint = this.aroundPixel.getPoint(cornerConnected, axisPoint);
+//    		if(cornerConnected-1+i==-1){
+//        		tempPoint=this.aroundPixel.getPoint(7, axisPoint);
+//    		}
+//    		else if(cornerConnected-1+i==8){
+//        		tempPoint=this.aroundPixel.getPoint(0, axisPoint);
+//    		}
+//    		else{
+//        		tempPoint=this.aroundPixel.getPoint(cornerConnected-1+i, axisPoint);
+//    		}
+    		if(this.skeleton.contains(tempPoint)){
+    			return cornerConnection;
+    		}
+    		if(cornerConnected-1<0){
+        		if(this.skeleton.contains(this.aroundPixel.getPoint(7,tempPoint))){
+        			return tempPoint;
+        		}
+
+    		}
+    		else if(this.skeleton.contains(this.aroundPixel.getPoint(cornerConnected-1,tempPoint))){
+    			return tempPoint;
     		}
     		if(this.skeleton.contains(this.aroundPixel.getPoint(cornerConnected,tempPoint))){
-    			return this.aroundPixel.getPoint(cornerConnected,tempPoint);
+    			return tempPoint;
     		}
-    		if(this.skeleton.contains(this.aroundPixel.getPoint(cornerConnected+1,tempPoint))){
-    			return this.aroundPixel.getPoint(cornerConnected+1,tempPoint);
+    		if(cornerConnected+1>7){
+        		if(this.skeleton.contains(this.aroundPixel.getPoint(0,tempPoint))){
+        			return tempPoint;
+        		}
+    		}
+    		else if(this.skeleton.contains(this.aroundPixel.getPoint(cornerConnected+1,tempPoint))){
+    			return tempPoint;
     		}
 
-    	}
+ //   	}
     	return cornerConnection;
     }
 	public void writeShapeWidths() {
