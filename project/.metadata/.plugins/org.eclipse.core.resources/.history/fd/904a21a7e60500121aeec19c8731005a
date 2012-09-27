@@ -1,0 +1,105 @@
+package symmetry;
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+
+public class Axis {
+	
+	private Collection<Point> points;
+	private Point[] pointsArray;
+	private short[][] imgMap;
+	
+	public Axis(Collection<Point> points, Image img) {
+		this.points = points;
+		imgMap = img.getImageMap();
+		
+		for (Point p : points) {
+			imgMap[p.x][p.y] = Short.MAX_VALUE;
+		}
+	}
+	
+	public Axis(LinkedList<Point> points, Image img) {
+		this.points = getAxisFromImage(points, img);
+	}
+
+	private LinkedList<Point> getAxisFromImage(LinkedList<Point> pointsList, Image img) {
+		LinkedList<Point> axisList = new LinkedList<Point>();
+		short[][] imgMap = img.getImageMap();
+		
+		for (Point p : pointsList) {
+			imgMap[p.x][p.y] = Short.MAX_VALUE;
+		}
+		
+//		axisList.
+		
+		return null;
+	}
+
+	public int getLength() {
+		return points.size();
+	}
+
+	public Collection<Point> getPoints() {
+		return points;
+	}
+	
+	public Point[] getPointsArray() {
+		return pointsArray;
+	}
+
+	public Point getPrevious(Point p) {
+		Point[] pointsArray = points.toArray(new Point[points.size()]);
+		for (int i = 1; i < points.size(); i++) {
+			if (p.equals(pointsArray[i])) {
+				return pointsArray[i-1];
+			}
+		}
+		return null;
+	}
+	
+	public Point getNext(Iterator<Point> iterator) {
+		return iterator.next();
+	}
+	
+	public Point getNext(Point p) {
+		Point[] pointsArray = points.toArray(new Point[points.size()]);
+		for (int i = 0; i < points.size() - 1; i++) {
+			if (p.equals(pointsArray[i])) {
+				return pointsArray[i+1];
+			}
+		}
+		return null;
+		
+		//TODO: change to look for point more than 1 pixel along
+	}
+	
+	public String toString() {
+		String axisString = "Axis string:\n";
+		for (Point p : points) {
+			axisString += "(" + p.x + ", " + p.y + ")\n";
+		}
+		return axisString;
+	}
+
+	/**
+	 * Gets a point along the medial axis 5 points away from the requested point.  It searches pixels around
+	 * the requested point clockwise until another axis point is encountered.  Then does so again 4 more times.
+	 * If the final point is less than 5 points away then it searches again counterclockwise.
+	 * @param p
+	 * @return
+	 */
+	public Point getNearbyPoint(Point p) {
+		int numCycles = 5;
+		Point nearbyPoint = p;
+		for (int i = 0; i < numCycles; i++) {
+			if (imgMap[p.x][p.y - 1] == Short.MAX_VALUE) {
+				
+			}
+		}
+		return null;
+	}
+	
+}

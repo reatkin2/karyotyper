@@ -1,0 +1,27 @@
+package symmetry;
+
+import java.awt.Point;
+
+public class AxisPoint extends Point {
+
+	private double tangentSlope;
+	private boolean noTanSlope;
+	private double tangentYIntercept;
+	private double orthogonalSlope;
+	private boolean noOrthoSlope;
+	private double orthogonalYIntercept;
+	
+	public AxisPoint(int x, int y, double tangentSlope, double tangentYIntercept) {
+		super(x, y);
+		this.tangentSlope = tangentSlope;
+		this.noTanSlope = false;
+		this.tangentYIntercept = tangentYIntercept;
+		
+	}
+	
+	public AxisPoint(int x, int y, boolean noTanSlope, double tangentYIntercept) {
+		super(x, y);
+		this.tangentSlope = Integer.MAX_VALUE;
+		this.noTanSlope = noTanSlope;
+	}
+}

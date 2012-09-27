@@ -1,0 +1,52 @@
+package symmetry;
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+
+
+public class Axis {
+	
+	private Collection<Point> points;
+	private Point[] pointsArray;
+	
+	public Axis(Collection<Point> points) {
+		this.points = points;
+		Point[] pointsArray = points.toArray(new Point[points.size()]);
+	}
+
+	public int getLength() {
+		return points.size();
+	}
+
+	public Collection<Point> getPoints() {
+		return points;
+	}
+	
+	public Point[] getPointsArray() {
+		return pointsArray;
+	}
+
+	public Point getPrevious(Point p) {
+		for (int i = 1; i < points.size(); i++) {
+			if (p.equals(pointsArray[i])) {
+				return pointsArray[i-1];
+			}
+		}
+		return null;
+	}
+	
+	public Point getNext(Iterator<Point> iterator) {
+		return iterator.next();
+	}
+	
+	public Point getNext(Point p) {
+		for (int i = 0; i < points.size() - 1; i++) {
+			if (p.equals(pointsArray[i])) {
+				return pointsArray[i+1];
+			}
+		}
+		return null;
+	}
+	
+}

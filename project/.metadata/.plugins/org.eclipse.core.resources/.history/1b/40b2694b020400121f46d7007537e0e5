@@ -1,0 +1,33 @@
+package symmetry;
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Collection;
+
+
+public class Axis {
+	
+	private ArrayList<Point> points;
+	
+	public Axis(Collection<Point> points) {
+		
+		this.points = points;
+	}
+
+	public int getLength() {
+		return points.size();
+	}
+
+	public Collection<Point> getPoints() {
+		return points;
+	}
+
+	public Point getPrevious(Point p) {
+		
+		return points.get(points.indexOf(p) - 1);
+	}
+	
+	public Point getNext(Point p) {
+		return points.get(points.indexOf(p) + 1);
+	}
+	
+}

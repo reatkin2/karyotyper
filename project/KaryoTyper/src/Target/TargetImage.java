@@ -15,11 +15,11 @@ import javax.imageio.ImageIO;
 import basicObjects.LatLongPoint;
 import basicObjects.Shape;
 
-import com.drew.imaging.jpeg.JpegMetadataReader;
-import com.drew.imaging.jpeg.JpegProcessingException;
-import com.drew.metadata.Directory;
-import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.ExifSubIFDDirectory;
+//import com.drew.imaging.jpeg.JpegMetadataReader;
+//import com.drew.imaging.jpeg.JpegProcessingException;
+//import com.drew.metadata.Directory;
+//import com.drew.metadata.Metadata;
+//import com.drew.metadata.exif.ExifSubIFDDirectory;
 
 
 public class TargetImage {
