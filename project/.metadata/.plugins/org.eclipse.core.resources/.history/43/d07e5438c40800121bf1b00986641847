@@ -631,6 +631,7 @@ public class Shape {
 	   //     temp.shapeOut();
 //	        temp.matrixOut(this.distanceFromEdgeMatrix);
         }
+        fillInSkeleton();
         addBackSkeleton(temp);
         temp.matrixOut(this.distanceFromEdgeMatrix);
     //    temp.shapeOut();
@@ -644,7 +645,7 @@ public class Shape {
         	temp.setPixel(skeleton.get(i), true);
         }
     }
-    public void fillInSkeleton(MedialAxisGraph graph){
+    private void fillInSkeleton(MedialAxisGraph graph){
         for(int i=0;i<skeleton.size();i++){
         	int mostCenteredConnection=0;
         	int connections=0; 
@@ -654,6 +655,9 @@ public class Shape {
         	Point mostConnected=new Point(-1,-1);
         	Point newConnectionPoint=new Point(-1,-1);
         	int mostNewConnections=0;
+        	int connectionPoint=-1;
+        	int cornerConnectedCount=0;
+        	int cornerConnection=-1;
         	boolean connectionPos[]={false,false,false,false,false,false,false,false};
         	for(int j=0;j<8;j++){
     			Point tempAround=aroundPixel.getPoint(j,tempPoint);
@@ -664,6 +668,10 @@ public class Shape {
 	        		if(skeleton.contains(tempAround)){
 	        			connectionPos[j]=true;
 	        			connections++;
+		        		if(j%2==1){
+		        			cornerConnection=j;
+		        			cornerConnectedCount++;
+		        		}
 	        		}
         		}
         	}
