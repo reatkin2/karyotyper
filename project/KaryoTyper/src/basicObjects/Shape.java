@@ -74,7 +74,7 @@ public class Shape {
     	pixelCount=0;
     	aroundPixel= new AroundPixel();
     	skeleton=new LinkedList<Point>();
-    	distanceFromEdgeMatrix=null;
+    	this.distanceFromEdgeMatrix=null;
         biggestIncreaseSkeletonAtWidthCount=-1;
         most2LeastRemovedAtWidthCount=1;
         chromosomeWidth=new int[2];
@@ -287,8 +287,8 @@ public class Shape {
     	this.skeleton=copyShape.getSkeltonPoints();
     	if(copyShape.distanceFromEdgeMatrix!=null){
     		this.distanceFromEdgeMatrix=new int[copyShape.distanceFromEdgeMatrix.length][copyShape.distanceFromEdgeMatrix[0].length];
-            for(int j=0;j<distanceFromEdgeMatrix.length;j++){
-            	for(int i=0; i<distanceFromEdgeMatrix[0].length;i++){
+            for(int j=0;j<this.distanceFromEdgeMatrix.length;j++){
+            	for(int i=0; i<this.distanceFromEdgeMatrix[0].length;i++){
             		this.distanceFromEdgeMatrix[j][i]=copyShape.distanceFromEdgeMatrix[j][i];
             	}
             }
@@ -486,9 +486,9 @@ public class Shape {
     	LinkedList<Point> addThisRound=new LinkedList<Point>();
     	Shape temp=new Shape(this);
     	this.distanceFromEdgeMatrix=new int[temp.getSize().x][temp.getSize().y];
-    	for(int i=0;i<distanceFromEdgeMatrix.length;i++){
-    		for(int j=0;j<distanceFromEdgeMatrix[0].length;j++){
-    			distanceFromEdgeMatrix[i][j]=-5;
+    	for(int i=0;i<this.distanceFromEdgeMatrix.length;i++){
+    		for(int j=0;j<this.distanceFromEdgeMatrix[0].length;j++){
+    			this.distanceFromEdgeMatrix[i][j]=-5;
     		}
     	}
     	Point pointRightEdge=new Point(0,0);
@@ -597,15 +597,15 @@ public class Shape {
 		    while(!removeEdgePointsVertical.isEmpty()){
 	        	Point removePoint=removeEdgePointsVertical.pop();
 	        	temp.setPixel(removePoint,false);
-	        	if(distanceFromEdgeMatrix[removePoint.x][removePoint.y]==-5){
-	        		distanceFromEdgeMatrix[removePoint.x][removePoint.y]=distanceFromEdgeCount;
+	        	if(this.distanceFromEdgeMatrix[removePoint.x][removePoint.y]==-5){
+	        		this.distanceFromEdgeMatrix[removePoint.x][removePoint.y]=distanceFromEdgeCount;
 	        	}
 	        }
 	        while(!removeEdgePointsHorizantal.isEmpty()){
 	        	Point removePoint=removeEdgePointsHorizantal.pop();
 	        	temp.setPixel(removePoint,false);
-	        	if(distanceFromEdgeMatrix[removePoint.x][removePoint.y]==-5){
-	        		distanceFromEdgeMatrix[removePoint.x][removePoint.y]=distanceFromEdgeCount;
+	        	if(this.distanceFromEdgeMatrix[removePoint.x][removePoint.y]==-5){
+	        		this.distanceFromEdgeMatrix[removePoint.x][removePoint.y]=distanceFromEdgeCount;
 	        	}
 	        }
 	        if(distanceFromEdgeCount<2){
@@ -668,6 +668,7 @@ public class Shape {
         		}
         	}
         	for(int j=0;j<8;j++){
+            	//TODO: andrew fix not picking ideal pixel sept27,2012 because not picking within 2 of tempPoint
         		if(!connectionPos[j]
         				&&!connectionPos[aroundPixel.handleLoop(j+1)]
         				&&!connectionPos[aroundPixel.handleLoop(j-1)]){
@@ -676,8 +677,8 @@ public class Shape {
 	        				&&tempAround.x<this.shapeSize.x
 	        				&&tempAround.y>=0
 	        				&&tempAround.y<this.shapeSize.y){
-		        		if(distanceFromEdgeMatrix[tempAround.x][tempAround.y]>mostCenteredConnection){
-        					mostCenteredConnection=distanceFromEdgeMatrix[tempAround.x][tempAround.y];
+		        		if(this.distanceFromEdgeMatrix[tempAround.x][tempAround.y]>mostCenteredConnection){
+        					mostCenteredConnection=this.distanceFromEdgeMatrix[tempAround.x][tempAround.y];
         					addPoint=j; 			
 		        		}
 	        			int currConnections=check4MostNewConnection(j,tempPoint);
@@ -689,20 +690,24 @@ public class Shape {
 	        		}
         		}
         	}
-        	if(connections<3&&distanceFromEdgeMatrix[tempPoint.x][tempPoint.y]>2){    		
+        	if(connections<3&&this.distanceFromEdgeMatrix[tempPoint.x][tempPoint.y]>2){    		
         		if(connections<2){
-	        		if(mostNewConnections>0){
+	        		if(mostNewConnections>0&&mostConnected.x!=-1){
 	        			skeleton.add(mostConnected);
+	        			graph.addVertex(new Vertex(mostConnected));
 	        			added=true;
 	        		}
 	        		else if(addPoint>=0){
-	        			skeleton.add(aroundPixel.getPoint(addPoint,tempPoint));
+	        			Point newTempPoint=aroundPixel.getPoint(addPoint,tempPoint);
+	        			skeleton.add(newTempPoint);
+	        			graph.addVertex(new Vertex(newTempPoint));
 	        			added=true;
 	        		}
         		}
-        		if(!added){
+        		if(!added&&mostConnected.x!=-1){
         			if(!graph.isConnected(tempPoint,newConnectionPoint)){
         				skeleton.add(mostConnected);
+	        			graph.addVertex(new Vertex(mostConnected));
         			}
         		}
         		

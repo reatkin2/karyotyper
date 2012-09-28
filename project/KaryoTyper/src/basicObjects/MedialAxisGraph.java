@@ -28,6 +28,18 @@ public class MedialAxisGraph {
 			}
 		}
 	}
+	public void addVertex(Vertex tempVertex){
+		if(!axisGraph.contains(tempVertex)){
+			axisGraph.add(tempVertex);
+			for(int j=0;j<axisGraph.size();j++){
+				if(tempVertex.checkAdjacent(axisGraph.get(j))){
+					tempVertex.addChild(axisGraph.get(j));
+					axisGraph.get(j).addChild(tempVertex);
+				}
+			}
+		}
+
+	}
 	public LinkedList<Vertex> getIntersections(){
 		LinkedList<Vertex> interSections=new LinkedList<Vertex>();
 		for(int i=0;i<this.axisGraph.size();i++){

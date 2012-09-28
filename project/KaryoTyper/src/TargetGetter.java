@@ -849,13 +849,13 @@ public class TargetGetter {
     		for(int i=0;i<this.shapeList.size();i++){
     			TargetShape tempShape=this.shapeList.get(i);
 //				MedialAxisGraph tempGraph=new MedialAxisGraph(tempShape.getSkeltonPoints());
-//				tempGraph.removeSegments((int)Math.round((img.getAverage())), -1);
 //				tempShape.setMedialAxis(tempGraph.getMedialAxis());
 //				tempShape.setMedialAxis(tempGraph.trimMedialAxis((int)Math.round(img.getAverage()*.7), tempShape.getSkeltonPoints(), tempShape));
 				MedialAxisGraph tempGraph2=new MedialAxisGraph(tempShape.getSkeltonPoints());
 				tempShape.fillInSkeleton(tempGraph2);
+				tempGraph2.removeSegments((int)Math.round((img.getAverage())), -1);
 //				tempGraph2.removeSegments((int)Math.round((img.getAverage())), -1);
-//				tempShape.setMedialAxis(tempGraph2.getMedialAxis());
+				tempShape.setMedialAxis(tempGraph2.getMedialAxis());
 				
  				if(tempShape.checkKeepThisShape()){
  					writeTargetImage(tempShape);
