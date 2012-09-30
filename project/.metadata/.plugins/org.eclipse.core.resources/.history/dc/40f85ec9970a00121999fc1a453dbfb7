@@ -811,7 +811,7 @@ public class Shape {
 		return this.distanceFromEdgeMatrix[tempPoint.x][tempPoint.y];
 	}
 	public LinkedList<Point> getTheEdge(){
-		LinkedList<Point> edge=new LinkedList<Point>();
+		LinkedList<Point> edge;
 		for(int i=0;i<this.distanceFromEdgeMatrix[0].length;i++){
     		for(int j=0;j<this.distanceFromEdgeMatrix.length;j++){
     			if(this.distanceFromEdgeMatrix[j][i]==0){
@@ -819,7 +819,6 @@ public class Shape {
     			}
     		}
     	}
-		return edge;
 
 	}
 }

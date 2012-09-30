@@ -857,10 +857,10 @@ public class TargetGetter {
 //				tempGraph2.removeSegments((int)Math.round((img.getAverage())), -1);
 				tempShape.setMedialAxis(tempGraph2.getMedialAxis());
 			//	MedialAxisGraph reconnectGraph=new MedialAxisGraph(tempShape.getSkeltonPoints()));
-				//tempShape.fillInSkeleton(tempGraph2);
+				tempShape.fillInSkeleton(tempGraph2);
  				if(tempShape.checkKeepThisShape()){
- 					writeTargetImage(tempShape,tempShape.getTheEdge(),new Color(0,255,0));
- 					//writeISOClineImage(tempShape);
+ 					writeTargetImage(tempShape);
+ 					writeISOClineImage(tempShape);
  					
  				}
  				else{
@@ -869,7 +869,7 @@ public class TargetGetter {
     		}
     		this.shapeList=new LinkedList<TargetShape>();
     }
-    public void writeTargetImage(TargetShape tempShape,LinkedList<Point> colorPoints,Color paintColor){
+    public void writeTargetImage(TargetShape tempShape){
 		try {
 		    // retrieve image
 //			TargetShape tempTrimmed=new Shape(tempPop);
@@ -891,7 +891,7 @@ public class TargetGetter {
 			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Keep/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempShape.getTargetNimageID())+".png");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
 //			FileImageOutputStream output = new FileImageOutputStream(outputfile);
 //			writer.setOutput(output);
-			BufferedImage tempImg=img.getSubImage(tempShape,colorPoints,paintColor);//,targetImgBorderSize);//30pixel border
+			BufferedImage tempImg=img.getSubImage(tempShape,true);//,targetImgBorderSize);//30pixel border
 //			IIOImage image = new IIOImage(tempImg, null, null);
 //			writer.write(null, image, iwp);
 //			writer.dispose();
@@ -957,7 +957,7 @@ public class TargetGetter {
 			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Removed/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempShape.getTargetNimageID())+".png");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
 //			FileImageOutputStream output = new FileImageOutputStream(outputfile);
 //			writer.setOutput(output);
-			BufferedImage tempImg=img.getSubImage(tempShape,null,null);//,targetImgBorderSize);//30pixel border
+			BufferedImage tempImg=img.getSubImage(tempShape,false);//,targetImgBorderSize);//30pixel border
 		    ImageIO.write(tempImg, "png", outputfile);
 //			IIOImage image = new IIOImage(tempImg, null, null);
 //			writer.write(null, image, iwp);

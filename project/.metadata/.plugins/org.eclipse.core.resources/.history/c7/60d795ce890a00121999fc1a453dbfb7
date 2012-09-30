@@ -83,15 +83,9 @@ public class MedialAxisGraph {
 				
 			}
 		}
-		removeSingleSegment(intersections);
 	}
 	private void removeSingleSegment(LinkedList<Vertex> removeList){
 		for(int i=0;i<removeList.size();i++){
-			for(int j=0;j<removeList.get(i).getChildren().size();j++){
-				if(removeList.get(i).getChildren().get(j).getChildren().contains(removeList.get(i))){
-					removeList.get(i).getChildren().get(j).getChildren().remove(removeList.get(i));
-				}
-			}
 			this.axisGraph.remove(removeList.get(i));
 		}
 	}

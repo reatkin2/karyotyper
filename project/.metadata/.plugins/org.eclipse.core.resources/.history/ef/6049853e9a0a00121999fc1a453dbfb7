@@ -148,7 +148,7 @@ public class TargetImage {
 		}
 		return tempImg;
     }
-    public BufferedImage getSubImage(Shape targetShape,LinkedList<Point> pointList,Color draw){
+    public BufferedImage getSubImage(Shape targetShape,boolean getSkeleton){
 		BufferedImage tempImg=new BufferedImage(targetShape.getSize().x,targetShape.getSize().y,BufferedImage.TYPE_3BYTE_BGR);
 		for(int i=targetShape.getScreenCordinate().x;i<(targetShape.getScreenCordinate().x+targetShape.getSize().x);i++){
 			for(int j=targetShape.getScreenCordinate().y;j<(targetShape.getScreenCordinate().y+targetShape.getSize().y);j++){
@@ -160,9 +160,9 @@ public class TargetImage {
 			}
 
 		}
-		if(pointList!=null&&!pointList.isEmpty()){
-			for(int i=0;i<pointList.size();i++){
-				tempImg.setRGB(pointList.get(i).x, pointList.get(i).y, (draw).getRGB());
+		if(getSkeleton){
+			for(int i=0;i<targetShape.getSkeltonPoints().size();i++){
+				tempImg.setRGB(targetShape.getSkeltonPoints().get(i).x, targetShape.getSkeltonPoints().get(i).y, (new Color(255,0,0,255)).getRGB());
 			}
 		}
 					
