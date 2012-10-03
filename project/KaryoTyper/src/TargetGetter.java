@@ -14,7 +14,6 @@ import Target.TargetImage;
 import Target.TargetShape;
 import basicObjects.AroundPixel;
 import basicObjects.MedialAxisGraph;
-import basicObjects.PixelPoint;
 import basicObjects.Shape;
 
 import com.drew.imaging.jpeg.JpegProcessingException;
@@ -94,11 +93,11 @@ public class TargetGetter {
 	 * 
 	 * @param bounds
 	 *            is a rectangle that only pixels inside of will be checked
-	 * @param colorOItem
+	 * @param currentColor
 	 *            is the color to match
-	 * @param xyCor
+	 * @param currentCoord
 	 *            is the starting pixel
-	 * @param xyCanvas
+	 * @param canvasOrigin
 	 *            is the starting position on the 2d integer canvas
 	 * @param canvas
 	 *            is the 2d integer canvas that stores the shape(IMPORTANT: expected to have all
@@ -107,63 +106,57 @@ public class TargetGetter {
 	 *            is the number entered on canvas that represents matching connected pixels
 	 * @return the 2d integer canvas that represents the shape
 	 */
-	private short[][] getMatchingPixel(Rectangle bounds, Color colorOItem, Point xyCor,
-			Point xyCanvas, short[][] canvas, short shapeID, Color colorLeft) {
-		LinkedList<PixelPoint> foundList = new LinkedList<PixelPoint>();
-		colorLeft = new Color(0, 0, 0);
-		Point canvasDiff = new Point(xyCanvas.x - xyCor.x, xyCanvas.y - xyCor.y);
+	private short[][] getMatchingPixel(Rectangle bounds, Color currentColor, Point currentCoord,
+			Point canvasOrigin, short[][] canvas, short shapeID, Color colorLeft) {
+		LinkedList<Point> foundList = new LinkedList<Point>();
+		Point canvasOffset = new Point(canvasOrigin.x - currentCoord.x, canvasOrigin.y - currentCoord.y);
 		this.initSpotNext();
-		foundList.add(new PixelPoint(xyCor, colorOItem, colorLeft));
+		foundList.add(currentCoord);
 		while (!foundList.isEmpty()) {
-			PixelPoint curr = foundList.pop();
-			colorOItem = new Color(curr.getPrevColor().getRed(), curr.getPrevColor().getGreen(),
-					curr.getPrevColor().getBlue());
-			xyCor = new Point(curr.getImgPoint());
-			colorLeft = new Color(curr.getColorLeft().getRed(), curr.getColorLeft().getGreen(),
-					curr.getColorLeft().getBlue());
-
+			currentCoord = foundList.pop();
+			
 			// loop 8 times once for every position around the center pixel
 			for (int i = 0; i < 8; i++) {
 				/*
-				 * if the spot to be checked is inside of the boundsand if the
+				 * if the spot to be checked is inside of the bounds and if the
 				 * pixel is inside the visible resolution of the screen
 				 */
-				if (xyCor.x + aroundDot.getPos(i).x < img.getImgWidth()
-						&& xyCor.y + aroundDot.getPos(i).y < img.getImgHeight() && xyCor.x > 0
-						&& xyCor.y > 0) {
-					if (!screenChecked[xyCor.x + aroundDot.getPos(i).x][xyCor.y
+				if (currentCoord.x + aroundDot.getPos(i).x < img.getImgWidth()
+						&& currentCoord.y + aroundDot.getPos(i).y < img.getImgHeight() && currentCoord.x > 0
+						&& currentCoord.y > 0) {
+					if (!screenChecked[currentCoord.x + aroundDot.getPos(i).x][currentCoord.y
 							+ aroundDot.getPos(i).y]) {
 						// if the spot to be checked value is -5 meaning it
-						// hasnt been checked yet
-						if (!bounds.contains(new Point(xyCor.x + canvasDiff.x
-								+ aroundDot.getPos(i).x, xyCor.y + canvasDiff.y
+						// hasn't been checked yet
+						if (!bounds.contains(new Point(currentCoord.x + canvasOffset.x
+								+ aroundDot.getPos(i).x, currentCoord.y + canvasOffset.y
 								+ aroundDot.getPos(i).y))
-								|| canvas[xyCor.x + canvasDiff.x + aroundDot.getPos(i).x][xyCor.y
-										+ canvasDiff.y + aroundDot.getPos(i).y] == -5) {
+								|| canvas[currentCoord.x + canvasOffset.x + aroundDot.getPos(i).x][currentCoord.y
+										+ canvasOffset.y + aroundDot.getPos(i).y] == -5) {
 							// if the pixel at the position aroundDot matches
 							// the color
-							Color temp = img.getColorAt(xyCor.x + aroundDot.getPos(i).x, xyCor.y
+							Color temp = img.getColorAt(currentCoord.x + aroundDot.getPos(i).x, currentCoord.y
 									+ aroundDot.getPos(i).y);
 							// was isTargeTColor2(this.imgAvgColor,temp)
 							if (PixelColor.isBackGroundColor(temp, this.colorThreshold)) {
 								this.colorAverage = averageColor(temp);
-								screenChecked[xyCor.x + aroundDot.getPos(i).x][xyCor.y
+								screenChecked[currentCoord.x + aroundDot.getPos(i).x][currentCoord.y
 										+ aroundDot.getPos(i).y] = true;
 								this.currPixelCount++;
 								// paint the canvas at the respectful position
 								// on 2d canvas to the shapeID number
-								if (bounds.contains(new Point(xyCor.x + canvasDiff.x
-										+ aroundDot.getPos(i).x, xyCor.y + canvasDiff.y
+								if (bounds.contains(new Point(currentCoord.x + canvasOffset.x
+										+ aroundDot.getPos(i).x, currentCoord.y + canvasOffset.y
 										+ aroundDot.getPos(i).y))) {
-									canvas[xyCor.x + canvasDiff.x + aroundDot.getPos(i).x][xyCor.y
-											+ canvasDiff.y + aroundDot.getPos(i).y] = shapeID;
+									canvas[currentCoord.x + canvasOffset.x + aroundDot.getPos(i).x][currentCoord.y
+											+ canvasOffset.y + aroundDot.getPos(i).y] = shapeID;
 								}
-								if (!this.spotNext[xyCor.x + aroundDot.getPos(i).x][xyCor.y
+								if (!this.spotNext[currentCoord.x + aroundDot.getPos(i).x][currentCoord.y
 										+ aroundDot.getPos(i).y]) {
-									foundList.add(new PixelPoint(new Point(xyCor.x
-											+ aroundDot.getPos(i).x, xyCor.y
-											+ aroundDot.getPos(i).y), temp, colorLeft));
-									this.spotNext[xyCor.x + aroundDot.getPos(i).x][xyCor.y
+									foundList.add(new Point(currentCoord.x
+											+ aroundDot.getPos(i).x, currentCoord.y
+											+ aroundDot.getPos(i).y));
+									this.spotNext[currentCoord.x + aroundDot.getPos(i).x][currentCoord.y
 											+ aroundDot.getPos(i).y] = true;
 								}
 							}
@@ -181,11 +174,11 @@ public class TargetGetter {
 	 * 
 	 * @param bounds
 	 *            is a rectangle that only pixels inside of will be checked
-	 * @param colorOItem
+	 * @param currentColor
 	 *            is the color to match
-	 * @param xyCor
+	 * @param currentPoint
 	 *            is the starting pixel
-	 * @param xyCanvas
+	 * @param canvasOrigin
 	 *            is the starting position on the 2d integer canvas
 	 * @param canvas
 	 *            is the 2d integer canvas that stores the shape(IMPORTANT: expected to have all
@@ -194,66 +187,57 @@ public class TargetGetter {
 	 *            is the number entered on canvas that represents matching connected pixels
 	 * @return the 2d integer canvas that represents the shape
 	 */
-	private short[][] getMatchingPixelLeft(Rectangle bounds, Color colorOItem, Point xyCor,
-			Point xyCanvas, short[][] canvas, short shapeID, Color colorLeft) {
-		LinkedList<PixelPoint> foundList = new LinkedList<PixelPoint>();
+	private short[][] getMatchingPixelLeft(Rectangle bounds, Color currentColor, Point currentPoint,
+			Point canvasOrigin, short[][] canvas, short shapeID, Color colorLeft) {
+		LinkedList<Point> foundList = new LinkedList<Point>();
 		colorLeft = new Color(0, 0, 0);
-		Point canvasDiff = new Point(xyCanvas.x - xyCor.x, xyCanvas.y - xyCor.y);
+		Point canvasOffset = new Point(canvasOrigin.x - currentPoint.x, canvasOrigin.y - currentPoint.y);
 		this.initSpotNext();
-		// Color orignalColor=new
-		// Color(colorOItem.getRed(),colorOItem.getGreen(),colorOItem.getBlue());
-		foundList.add(new PixelPoint(xyCor, colorOItem, colorLeft));
+		foundList.add(new Point(currentPoint));
 		while (!foundList.isEmpty()) {
-			PixelPoint curr = foundList.pop();
-			colorOItem = new Color(curr.getPrevColor().getRed(), curr.getPrevColor().getGreen(),
-					curr.getPrevColor().getBlue());
-			xyCor = new Point(curr.getImgPoint());
-			colorLeft = new Color(curr.getColorLeft().getRed(), curr.getColorLeft().getGreen(),
-					curr.getColorLeft().getBlue());
+			currentPoint = foundList.pop();
 
-			if (colorLeft.getRed() < 2) {
-				// loop 8 times once for every position around the center pixel
-				for (int i = 0; i < 8; i++) {
-					/*
-					 * if the spot to be checked is inside of the boundsand if
-					 * the pixel is inside the visible resolution of the screen
-					 */
-					if (xyCor.x + aroundDot.getPos(i).x < img.getImgWidth()
-							&& xyCor.y + aroundDot.getPos(i).y < img.getImgHeight() && xyCor.x > 0
-							&& xyCor.y > 0) {
-						if (!screenChecked[xyCor.x + aroundDot.getPos(i).x][xyCor.y
-								+ aroundDot.getPos(i).y]) {
-							// if the spot to be checked value is -5 meaning it
-							// hasnt been checked yet
-							if (!bounds.contains(new Point(xyCor.x + canvasDiff.x
-									+ aroundDot.getPos(i).x, xyCor.y + canvasDiff.y
-									+ aroundDot.getPos(i).y))
-									|| canvas[xyCor.x + canvasDiff.x + aroundDot.getPos(i).x][xyCor.y
-											+ canvasDiff.y + aroundDot.getPos(i).y] == -5) {
-								// if the pixel at the position aroundDot
-								// matches the color
-								Color temp = img.getColorAt(xyCor.x + aroundDot.getPos(i).x,
-										xyCor.y + aroundDot.getPos(i).y);
-								this.colorAverage = averageColor(temp);
-								screenChecked[xyCor.x + aroundDot.getPos(i).x][xyCor.y
+			// loop 8 times once for every position around the center pixel
+			for (int i = 0; i < 8; i++) {
+				/*
+				 * if the spot to be checked is inside of the bounds and if
+				 * the pixel is inside the visible resolution of the screen
+				 */
+				if (currentPoint.x + aroundDot.getPos(i).x < img.getImgWidth()
+						&& currentPoint.y + aroundDot.getPos(i).y < img.getImgHeight() && currentPoint.x > 0
+						&& currentPoint.y > 0) {
+					if (!screenChecked[currentPoint.x + aroundDot.getPos(i).x][currentPoint.y
+							+ aroundDot.getPos(i).y]) {
+						// if the spot to be checked value is -5 meaning it
+						// hasn't been checked yet
+						if (!bounds.contains(new Point(currentPoint.x + canvasOffset.x
+								+ aroundDot.getPos(i).x, currentPoint.y + canvasOffset.y
+								+ aroundDot.getPos(i).y))
+								|| canvas[currentPoint.x + canvasOffset.x + aroundDot.getPos(i).x][currentPoint.y
+										+ canvasOffset.y + aroundDot.getPos(i).y] == -5) {
+							// if the pixel at the position aroundDot
+							// matches the color
+							Color temp = img.getColorAt(currentPoint.x + aroundDot.getPos(i).x,
+									currentPoint.y + aroundDot.getPos(i).y);
+							this.colorAverage = averageColor(temp);
+							screenChecked[currentPoint.x + aroundDot.getPos(i).x][currentPoint.y
+									+ aroundDot.getPos(i).y] = true;
+							this.currPixelCount++;
+							// paint the canvas at the respectful position
+							// on 2d canvas to the shapeID number
+							if (bounds.contains(new Point(currentPoint.x + canvasOffset.x
+									+ aroundDot.getPos(i).x, currentPoint.y + canvasOffset.y
+									+ aroundDot.getPos(i).y))) {
+								canvas[currentPoint.x + canvasOffset.x + aroundDot.getPos(i).x][currentPoint.y
+										+ canvasOffset.y + aroundDot.getPos(i).y] = shapeID;
+							}
+							if (!this.spotNext[currentPoint.x + aroundDot.getPos(i).x][currentPoint.y
+									+ aroundDot.getPos(i).y]) {
+								foundList.add(new Point(currentPoint.x
+										+ aroundDot.getPos(i).x, currentPoint.y
+										+ aroundDot.getPos(i).y));
+								this.spotNext[currentPoint.x + aroundDot.getPos(i).x][currentPoint.y
 										+ aroundDot.getPos(i).y] = true;
-								this.currPixelCount++;
-								// paint the canvas at the respectful position
-								// on 2d canvas to the shapeID number
-								if (bounds.contains(new Point(xyCor.x + canvasDiff.x
-										+ aroundDot.getPos(i).x, xyCor.y + canvasDiff.y
-										+ aroundDot.getPos(i).y))) {
-									canvas[xyCor.x + canvasDiff.x + aroundDot.getPos(i).x][xyCor.y
-											+ canvasDiff.y + aroundDot.getPos(i).y] = shapeID;
-								}
-								if (!this.spotNext[xyCor.x + aroundDot.getPos(i).x][xyCor.y
-										+ aroundDot.getPos(i).y]) {
-									foundList.add(new PixelPoint(new Point(xyCor.x
-											+ aroundDot.getPos(i).x, xyCor.y
-											+ aroundDot.getPos(i).y), temp, colorLeft));
-									this.spotNext[xyCor.x + aroundDot.getPos(i).x][xyCor.y
-											+ aroundDot.getPos(i).y] = true;
-								}
 							}
 						}
 					}
