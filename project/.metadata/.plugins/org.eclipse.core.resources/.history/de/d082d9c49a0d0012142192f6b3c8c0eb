@@ -472,8 +472,73 @@ public class TargetGetter {
 
 		return shapeNum;
 
+<<<<<<< Updated upstream
 	}
 
+	public int findChromosomes(String filename, int shapeNum) {
+		this.firstPassCount = 0;
+		this.removedCount = 0;
+		LinkedList<TargetShape> tempShapeList = new LinkedList<TargetShape>();
+		// color that will be used to store pixel color to check
+		Color color1 = new Color(0, 0, 0);
+		TargetShape temp = new TargetShape(shapeNum);
+		// made plus one change chromosomes
+		for (int r = pixelSpace + 1; r < img.getImgWidth() - pixelSpace; r += pixelSpace) {
+			for (int j = pixelSpace; j < img.getImgHeight() - pixelSpace; j += pixelSpace) {
+				if (!screenChecked[r][j]) {
+
+					color1 = img.getColorAt(r, j);// get pixel color from point
+					this.colorAverage = new Color(color1.getRed(), color1.getGreen(),
+							color1.getBlue());
+					colorCount = 1;
+					temp = getShapeLeft(200, color1, r, j, temp);
+
+					if (temp != null) {
+						temp = new TargetShape(temp);
+						temp.setColor(this.colorAverage);
+						temp.setTargetNimageID(shapeNum++);
+						temp.setTitle(filename);
+
+						tempShapeList.add(temp);
+					}
+				}
+			}
+		}
+		while (!tempShapeList.isEmpty()) {
+			TargetShape tempPop = tempShapeList.pop();
+			System.out.println();
+			System.out.println("Loc: " + tempPop.getScreenCordinate().x + ","
+					+ tempPop.getScreenCordinate().y);
+			System.out.println("pixelC: " + tempPop.getPixelCount());
+			System.out.println(tempPop.getTitle());
+			shapeList.add(tempPop);
+			tempPop.getSkeleton(img);
+			img.addWidth(tempPop.getWidths(0));
+			img.addWidth(tempPop.getWidths(1));
+			if (((tempPop.getWidths(0) >= 4 && tempPop.getWidths(0) < 15) || (tempPop.getWidths(1) >= 4 && tempPop
+					.getWidths(1) < 15))) {
+				if ((tempPop.getPixelCount() < this.firstPixelMax)
+						|| (tempPop.getWidths(0) < 10 && tempPop.getWidths(1) < 10)) {
+					if (!((tempPop.getWidths(0) > 15 || tempPop.getWidths(1) > 15))) {
+						tempPop.setkeepThisShape();
+					}
+				}
+			}
+			System.out.println("Image: " + tempPop.getTitle() + " Count: "
+					+ tempPop.getTargetNimageID());
+			tempPop.writeShapeWidths();
+		}
+		System.out
+				.println("FirstPass: " + this.firstPassCount + "   Removed: " + this.removedCount);
+		double avgChromosomewidth = img.calcFinalAverage();
+
+		System.out.println("Width: " + avgChromosomewidth);
+		return shapeNum;
+
+	}
+
+=======
+    }
     public int findChromosomes(String filename,int shapeNum){
     	this.firstPassCount=0;
     	this.removedCount=0;
@@ -491,7 +556,7 @@ public class TargetGetter {
 		        		if(temp!=null){	
 		        			temp=new TargetShape(temp);
 		            		temp.setColor(this.colorAverage);
-			        		temp.setTargetNimageID(shapeNum++);
+			        		temp.setTargetNiamgeID(shapeNum++);
 			        		temp.setTitle(filename);
 		        			tempShapeList.add(temp);
 		     				temp.getSkeleton(img);
@@ -520,7 +585,7 @@ public class TargetGetter {
 		
 		System.out.println("Width: "+avgChromosomewidth);
 		return shapeNum;//targetNimgCount;
-    }
+>>>>>>> Stashed changes
 
     public void printChromosomes(){
     		for(int i=0;i<this.shapeList.size();i++){
@@ -530,7 +595,6 @@ public class TargetGetter {
 				tempGraph2.removeSegments((int)Math.round((img.getAverage())), -1);
 				tempShape.setMedialAxis(tempGraph2.getMedialAxis());
 				tempShape.fillInSkeleton(tempGraph2);
-				//TODO(aamcknig):remove segments only if they don't have interesctions at both ends
  				if(tempShape.checkKeepThisShape()){
  					writeTargetImage(tempShape,tempShape.getSkeltonPoints(),new Color(255,0,0));
  				}

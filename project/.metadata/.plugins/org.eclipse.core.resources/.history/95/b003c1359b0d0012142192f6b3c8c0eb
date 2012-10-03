@@ -530,7 +530,6 @@ public class TargetGetter {
 				tempGraph2.removeSegments((int)Math.round((img.getAverage())), -1);
 				tempShape.setMedialAxis(tempGraph2.getMedialAxis());
 				tempShape.fillInSkeleton(tempGraph2);
-				//TODO(aamcknig):remove segments only if they don't have interesctions at both ends
  				if(tempShape.checkKeepThisShape()){
  					writeTargetImage(tempShape,tempShape.getSkeltonPoints(),new Color(255,0,0));
  				}
