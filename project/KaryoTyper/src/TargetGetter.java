@@ -857,9 +857,9 @@ public class TargetGetter {
 //				tempGraph2.removeSegments((int)Math.round((img.getAverage())), -1);
 				tempShape.setMedialAxis(tempGraph2.getMedialAxis());
 			//	MedialAxisGraph reconnectGraph=new MedialAxisGraph(tempShape.getSkeltonPoints()));
-				//tempShape.fillInSkeleton(tempGraph2);
+				tempShape.fillInSkeleton(tempGraph2);
  				if(tempShape.checkKeepThisShape()){
- 					writeTargetImage(tempShape,tempShape.getTheEdge(),new Color(0,255,0));
+ 					writeTargetImage(tempShape,tempShape.getSkeltonPoints(),new Color(255,0,0));
  					//writeISOClineImage(tempShape);
  					
  				}
