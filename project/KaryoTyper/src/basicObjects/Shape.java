@@ -6,8 +6,8 @@ package basicObjects;
  */
 import java.awt.Point;
 import java.util.LinkedList;
+
 import Target.TargetImage;
-import Target.TargetShape;
 
 /**
  *

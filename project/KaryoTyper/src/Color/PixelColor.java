@@ -79,103 +79,28 @@ public class PixelColor {
     	int redDiff=original.getRed()-newPixel.getRed();
     	int greenDiff=original.getGreen()-newPixel.getGreen();
     	int blueDiff=original.getBlue()-newPixel.getBlue();
-//    	int combinedDiff=Math.abs(redDiff)+Math.abs(greenDiff)+Math.abs(blueDiff);
-    	//if(combinedDiff<30){
-    		if((Math.abs(redDiff)<allowDiff
-    				&&Math.abs(greenDiff)<allowDiff
-    				&&(Math.abs(blueDiff))<allowDiff)){
-    			return true;
-//            		if(Math.abs(averageDiff-Math.abs(redDiff))<2&&Math.abs(averageDiff-Math.abs(greenDiff))<2&&Math.abs(averageDiff-Math.abs(blueDiff))<2)
-//                	if(Math.abs(redDiff-blueDiff)<20){
-//                    	if(Math.abs(redDiff-greenDiff)<20){
-//                        	if(Math.abs(greenDiff-blueDiff)<20){
-//                        		return true;
-//                        		
-//                        	}
-//                    		
-//                    	}
-//                		
-//                	}
-        	}
-    	//}
+		if((Math.abs(redDiff)<allowDiff
+				&&Math.abs(greenDiff)<allowDiff
+				&&(Math.abs(blueDiff))<allowDiff)){
+			return true;
+    	}
     	return false;
     }
+
     public static boolean isTextColor(Color original,Color newPixel){
-//    	int allowDiff=45;//19380+38250+7395=65025
     	int luminance=(newPixel.getRed()*76) + (newPixel.getGreen()*150) + (newPixel.getBlue()*29);
     	int redDiff=original.getRed()-newPixel.getRed();
     	int greenDiff=original.getGreen()-newPixel.getGreen();
     	int blueDiff=original.getBlue()-newPixel.getBlue();
     	int combinedDiff=Math.abs(redDiff)+Math.abs(greenDiff)+Math.abs(blueDiff);
     	if((combinedDiff<50&&luminance<40000)||(combinedDiff<30)){//combd1 170  combd2 40
-//    	if(Math.abs(newPixel.getBlue()-original.getBlue())<20
-//    			&&Math.abs(newPixel.getGreen()-original.getGreen())<20
-//    			&&Math.abs(newPixel.getRed()-original.getRed())<20){
-//    		if((Math.abs(redDiff)<allowDiff
-//    				&&Math.abs(greenDiff)<allowDiff
-//    				&&(Math.abs(blueDiff))<allowDiff)){
-    			return true;
-//            		if(Math.abs(averageDiff-Math.abs(redDiff))<2&&Math.abs(averageDiff-Math.abs(greenDiff))<2&&Math.abs(averageDiff-Math.abs(blueDiff))<2)
-//                	if(Math.abs(redDiff-blueDiff)<20){
-//                    	if(Math.abs(redDiff-greenDiff)<20){
-//                        	if(Math.abs(greenDiff-blueDiff)<20){
-//                        		return true;
-//                        		
-//                        	}
-//                    		
-//                    	}
-//                		
-//                	}
-        	}
-    	//}
+			return true;
+    	}
     	return false;
     }
 
-//    public static boolean isTargeTColor2(Color original,Color newPixel){
-//    	int redDiff=original.getRed()-newPixel.getRed();
-//    	int greenDiff=original.getGreen()-newPixel.getGreen();
-//    	int blueDiff=original.getBlue()-newPixel.getBlue();
-//    	int combinedDiff=Math.abs(redDiff)+Math.abs(greenDiff)+Math.abs(blueDiff);
-//    	int luminance=(newPixel.getRed()*76) + (newPixel.getGreen()*150) + (newPixel.getBlue()*29);
-//    	if(luminance>42000){
-//    		if(combinedDiff<150){
-//    			return true;
-//    		}
-//        	if(Math.abs(greenDiff)<3){
-//            	if(Math.abs(blueDiff)<3){
-//                	if(Math.abs(redDiff-blueDiff)<20){
-//                    	if(Math.abs(redDiff-greenDiff)<20){
-//                        	if(Math.abs(greenDiff-blueDiff)<20){
-//                        		return true;
-//                        		
-//                        	}
-//                    		
-//                    	}
-//                		
-//                	}
-//            		
-//            	}
-        		
-//        }
-//    	return false;
-//    }
-// working color for getmatchingpixel
-    //targets2 good
-//	if((newPixel.getRed()>130&&Math.abs(newPixel.getGreen()-newPixel.getRed())>70)
-//			||(newPixel.getGreen()>200&&Math.abs(newPixel.getGreen()-newPixel.getBlue())>100)
-//			||(newPixel.getBlue()>100&&((newPixel.getBlue()-newPixel.getGreen()>80)||(newPixel.getBlue()-newPixel.getRed()>80)))
-//			||(newPixel.getGreen()>200&&newPixel.getBlue()>200&&newPixel.getRed()>200)){
-//		return true;
-
-    public static boolean isBackGroundColor(Color newPixel,int threshold){// was isTargeTColor2(Color original,Color newPixel)
-//    	double red=original.getRed()/115.0;
-//    	double green=original.getGreen()/130.0;
-//    	double blue=original.getBlue()/80.0;
-//    	int redBlueDiff=Math.abs(newPixel.getRed()-newPixel.getBlue());
-//    	if((newPixel.getTransparency()==0)||(newPixel.getRed()>250&& newPixel.getGreen()>250&& newPixel.getBlue()>250)){
-//    		return true;
-//        		
-//        }
+    // was isTargeTColor2(Color original,Color newPixel)
+    public static boolean isBackGroundColor(Color newPixel,int threshold){
 		double tempGreyPixel=(.299*newPixel.getRed())+(.587*newPixel.getGreen())+(.114*newPixel.getBlue());
 		if(tempGreyPixel>threshold){
 			return true;
@@ -188,25 +113,12 @@ public class PixelColor {
     	int redDiff=original.getRed()-newPixel.getRed();
     	int greenDiff=original.getGreen()-newPixel.getGreen();
     	int blueDiff=original.getBlue()-newPixel.getBlue();
-//    	int combinedDiff=Math.abs(redDiff)+Math.abs(greenDiff)+Math.abs(blueDiff);
-    	//if(combinedDiff>40){
-    		if((Math.abs(redDiff)>allowDiff&&Math.abs(greenDiff)>allowDiff)
-    				||(Math.abs(blueDiff)>allowDiff&&Math.abs(greenDiff)>allowDiff)
-    				||(Math.abs(redDiff)>allowDiff&&Math.abs(blueDiff)>allowDiff)){
-    			return true;
-//            		if(Math.abs(averageDiff-Math.abs(redDiff))<2&&Math.abs(averageDiff-Math.abs(greenDiff))<2&&Math.abs(averageDiff-Math.abs(blueDiff))<2)
-//                	if(Math.abs(redDiff-blueDiff)<20){
-//                    	if(Math.abs(redDiff-greenDiff)<20){
-//                        	if(Math.abs(greenDiff-blueDiff)<20){
-//                        		return true;
-//                        		
-//                        	}
-//                    		
-//                    	}
-//                		
-//                	}
-        	}
-    	//}
+		if((Math.abs(redDiff)>allowDiff&&Math.abs(greenDiff)>allowDiff)
+				||(Math.abs(blueDiff)>allowDiff&&Math.abs(greenDiff)>allowDiff)
+				||(Math.abs(redDiff)>allowDiff&&Math.abs(blueDiff)>allowDiff)){
+			return true;
+
+    	}
     	return false;
     }
 
