@@ -12,7 +12,8 @@ import java.util.LinkedList;
 import javax.imageio.ImageIO;
 
 import Color.ISOClineColor;
-import basicObjects.Shape;
+import MedialAxis.DistanceMap;
+import basicObjects.Cluster;
 
 
 public class TargetImage {
@@ -50,28 +51,28 @@ public class TargetImage {
 
 
 	}
-    public BufferedImage getSubImage(Shape targetShape){
-		BufferedImage tempImg=new BufferedImage(targetShape.getSize().x,targetShape.getSize().y,BufferedImage.TYPE_3BYTE_BGR);
-		for(int i=targetShape.getScreenCordinate().x;i<(targetShape.getScreenCordinate().x+targetShape.getSize().x);i++){
-			for(int j=targetShape.getScreenCordinate().y;j<(targetShape.getScreenCordinate().y+targetShape.getSize().y);j++){
-				if(targetShape.getValue(i-targetShape.getScreenCordinate().x, j-targetShape.getScreenCordinate().y))
-				tempImg.setRGB(i-targetShape.getScreenCordinate().x, j-targetShape.getScreenCordinate().y, img.getRGB(i,j));
+    public BufferedImage getSubImage(Cluster targetCluster){
+		BufferedImage tempImg=new BufferedImage(targetCluster.getSize().x,targetCluster.getSize().y,BufferedImage.TYPE_3BYTE_BGR);
+		for(int i=targetCluster.getScreenCordinate().x;i<(targetCluster.getScreenCordinate().x+targetCluster.getSize().x);i++){
+			for(int j=targetCluster.getScreenCordinate().y;j<(targetCluster.getScreenCordinate().y+targetCluster.getSize().y);j++){
+				if(targetCluster.getValue(i-targetCluster.getScreenCordinate().x, j-targetCluster.getScreenCordinate().y))
+				tempImg.setRGB(i-targetCluster.getScreenCordinate().x, j-targetCluster.getScreenCordinate().y, img.getRGB(i,j));
 				else{
-					tempImg.setRGB(i-targetShape.getScreenCordinate().x, j-targetShape.getScreenCordinate().y, (Color.BLACK).getRGB());
+					tempImg.setRGB(i-targetCluster.getScreenCordinate().x, j-targetCluster.getScreenCordinate().y, (Color.BLACK).getRGB());
 				}
 			}
 
 		}
 		return tempImg;
     }
-    public BufferedImage getSubImage(Shape targetShape,LinkedList<Point> pointList,Color draw){
-		BufferedImage tempImg=new BufferedImage(targetShape.getSize().x,targetShape.getSize().y,BufferedImage.TYPE_3BYTE_BGR);
-		for(int i=targetShape.getScreenCordinate().x;i<(targetShape.getScreenCordinate().x+targetShape.getSize().x);i++){
-			for(int j=targetShape.getScreenCordinate().y;j<(targetShape.getScreenCordinate().y+targetShape.getSize().y);j++){
-				if(targetShape.getValue(i-targetShape.getScreenCordinate().x, j-targetShape.getScreenCordinate().y))
-				tempImg.setRGB(i-targetShape.getScreenCordinate().x, j-targetShape.getScreenCordinate().y, img.getRGB(i,j));
+    public BufferedImage getSubImage(Cluster targetCluster,LinkedList<Point> pointList,Color draw){
+		BufferedImage tempImg=new BufferedImage(targetCluster.getSize().x,targetCluster.getSize().y,BufferedImage.TYPE_3BYTE_BGR);
+		for(int i=targetCluster.getScreenCordinate().x;i<(targetCluster.getScreenCordinate().x+targetCluster.getSize().x);i++){
+			for(int j=targetCluster.getScreenCordinate().y;j<(targetCluster.getScreenCordinate().y+targetCluster.getSize().y);j++){
+				if(targetCluster.getValue(i-targetCluster.getScreenCordinate().x, j-targetCluster.getScreenCordinate().y))
+				tempImg.setRGB(i-targetCluster.getScreenCordinate().x, j-targetCluster.getScreenCordinate().y, img.getRGB(i,j));
 				else{
-					tempImg.setRGB(i-targetShape.getScreenCordinate().x, j-targetShape.getScreenCordinate().y, (Color.WHITE).getRGB());
+					tempImg.setRGB(i-targetCluster.getScreenCordinate().x, j-targetCluster.getScreenCordinate().y, (Color.WHITE).getRGB());
 				}
 			}
 
@@ -84,15 +85,15 @@ public class TargetImage {
 					
 		return tempImg;
     }
-    public BufferedImage getISOcline(Shape targetShape){
-		BufferedImage tempImg=new BufferedImage(targetShape.getSize().x,targetShape.getSize().y,BufferedImage.TYPE_3BYTE_BGR);
-		for(int i=0;i<targetShape.getSize().y;i++){
-			for(int j=0;j<targetShape.getSize().x;j++){
-				if(targetShape.getDistanceFromEdge(new Point(j, i))<0){
+    public BufferedImage getISOcline(DistanceMap distanceMap){
+		BufferedImage tempImg=new BufferedImage(distanceMap.getWidth(),distanceMap.getHeight(),BufferedImage.TYPE_3BYTE_BGR);
+		for(int i=0;i<distanceMap.getHeight();i++){
+			for(int j=0;j<distanceMap.getWidth();j++){
+				if(distanceMap.getDistanceFromEdge(new Point(j, i))<0){
 					tempImg.setRGB(j,i,Color.BLUE.getRGB());
 				}
 				else{
-					Color temp=ISOClineColor.getColor(targetShape.getDistanceFromEdge(new Point(j, i)));
+					Color temp=ISOClineColor.getColor(distanceMap.getDistanceFromEdge(new Point(j, i)));
 					tempImg.setRGB(j,i,temp.getRGB());
 				}
 			}
@@ -102,15 +103,15 @@ public class TargetImage {
 		return tempImg;
     }
 
-    public BufferedImage getSubImage(Shape targetShape,int borderPixels){
-		BufferedImage tempImg=new BufferedImage(targetShape.getSize().x+(2*borderPixels),targetShape.getSize().y+(2*borderPixels),BufferedImage.TYPE_3BYTE_BGR);
-		for(int i=targetShape.getScreenCordinate().x-borderPixels;i<(targetShape.getScreenCordinate().x+targetShape.getSize().x+borderPixels);i++){
-			for(int j=targetShape.getScreenCordinate().y-borderPixels;j<(targetShape.getScreenCordinate().y+targetShape.getSize().y+borderPixels);j++){
+    public BufferedImage getSubImage(Cluster targetCluster,int borderPixels){
+		BufferedImage tempImg=new BufferedImage(targetCluster.getSize().x+(2*borderPixels),targetCluster.getSize().y+(2*borderPixels),BufferedImage.TYPE_3BYTE_BGR);
+		for(int i=targetCluster.getScreenCordinate().x-borderPixels;i<(targetCluster.getScreenCordinate().x+targetCluster.getSize().x+borderPixels);i++){
+			for(int j=targetCluster.getScreenCordinate().y-borderPixels;j<(targetCluster.getScreenCordinate().y+targetCluster.getSize().y+borderPixels);j++){
 				if(i>=0&&j>=0&&i<img.getWidth()&&j<img.getHeight()){
-					tempImg.setRGB(i-(targetShape.getScreenCordinate().x-borderPixels), j-(targetShape.getScreenCordinate().y-borderPixels), img.getRGB(i,j));
+					tempImg.setRGB(i-(targetCluster.getScreenCordinate().x-borderPixels), j-(targetCluster.getScreenCordinate().y-borderPixels), img.getRGB(i,j));
 				}
 				else{
-					tempImg.setRGB(i-(targetShape.getScreenCordinate().x-borderPixels), j-(targetShape.getScreenCordinate().y-borderPixels),(new Color(0,0,0,0).getRGB()));
+					tempImg.setRGB(i-(targetCluster.getScreenCordinate().x-borderPixels), j-(targetCluster.getScreenCordinate().y-borderPixels),(new Color(0,0,0,0).getRGB()));
 				}
 			}
 

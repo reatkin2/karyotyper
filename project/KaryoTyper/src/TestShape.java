@@ -1,4 +1,4 @@
-import Target.TargetShape;
+import Target.ChromosomeCluster;
 
 
 public class TestShape {
@@ -14,8 +14,8 @@ public class TestShape {
 		if(filename!=null){
 			int shapeNum=test2.findBackground(filename);
 			shapeNum=test2.findChromosomes(filename, shapeNum);
-			TargetShape testShape=test2.shapeList.get(0);
-			test2.shapeList.get(0).shapeOut();
+			ChromosomeCluster testCluster=test2.clusterList.get(0);
+			test2.clusterList.get(0).clusterOut();
 		}
 	}
 

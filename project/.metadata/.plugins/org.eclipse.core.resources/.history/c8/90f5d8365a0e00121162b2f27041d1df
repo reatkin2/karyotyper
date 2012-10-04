@@ -1,0 +1,25 @@
+package MedialAxis;
+
+import java.awt.Point;
+import java.util.LinkedList;
+
+public class MedialAxis {
+    private LinkedList<Point> skeleton;
+
+public MedialAxis(){
+	initMedialAxis();
+}
+
+
+
+
+public void setMedialAxis(LinkedList<Point> tempMedialAxis){
+	this.skeleton=tempMedialAxis;
+}
+
+private void initMedialAxis(){
+	skeleton=new LinkedList<Point>();
+}
+
+}
+

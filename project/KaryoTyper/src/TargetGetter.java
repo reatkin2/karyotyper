@@ -10,16 +10,16 @@ import java.util.LinkedList;
 import javax.imageio.ImageIO;
 
 import Color.PixelColor;
+import MedialAxis.MedialAxisGraph;
 import Target.TargetImage;
-import Target.TargetShape;
+import Target.ChromosomeCluster;
 import basicObjects.AroundPixel;
-import basicObjects.MedialAxisGraph;
-import basicObjects.Shape;
+import basicObjects.Cluster;
 
 import com.drew.imaging.jpeg.JpegProcessingException;
 
 public class TargetGetter {
-	public LinkedList<TargetShape> shapeList;
+	public LinkedList<ChromosomeCluster> clusterList;
 	/*
 	 * aroundot is an array of 8 points that is a x,y difference from the center
 	 * point pixel 107 |-1,-1| 0,-1| 1,-1| 2.6 or 
@@ -84,7 +84,7 @@ public class TargetGetter {
 	}
 
 	public void loadFiles() {
-		shapeList = new LinkedList<TargetShape>();
+		clusterList = new LinkedList<ChromosomeCluster>();
 	}
 
 	/**
@@ -338,9 +338,9 @@ public class TargetGetter {
 		return -1;
 	}
 
-	public LinkedList<Shape> getAllShape(Rectangle bounds, TargetShape inThisShape, boolean print) {
+	public LinkedList<Cluster> getAllCluster(Rectangle bounds, ChromosomeCluster inThisCluster, boolean print) {
 		// create a linked list to store shapes in
-		LinkedList<Shape> allShapes = new LinkedList<Shape>();
+		LinkedList<Cluster> allClusters = new LinkedList<Cluster>();
 		// list for storeing all found colors
 		LinkedList<Color> foundColors = new LinkedList<Color>();
 		short paintColor = 0;// number to paint the current color to canvas
@@ -362,7 +362,7 @@ public class TargetGetter {
 					&& i < this.screenChecked.length; j++) {
 				// if the spot hasn't been checked yet
 				if (canvas[j - bounds.x][i - bounds.y] == -5
-						&& inThisShape.getValue(j - bounds.x, i - bounds.y)) {
+						&& inThisCluster.getValue(j - bounds.x, i - bounds.y)) {
 					Color temp = img.getColorAt(j, i);// get the color of the
 														// spot
 					if (foundColors.isEmpty()) {// if list is empty
@@ -395,10 +395,10 @@ public class TargetGetter {
 		// loop thru all different colors found
 		for (int i = 1; i <= k; i++) {
 			// add the shape of k color to shape list
-			allShapes.add(new TargetShape(canvas, bounds.x, bounds.y, i));
+			allClusters.add(new ChromosomeCluster(canvas, bounds.x, bounds.y, i));
 		}
 
-		return allShapes;// return list of shapes
+		return allClusters;// return list of shapes
 		/*
 		 * 
 		 * changed number 4 to -5 currently testing
@@ -430,13 +430,13 @@ public class TargetGetter {
 	public int findBackground(String filename) {
 		this.firstPassCount = 0;
 		this.removedCount = 0;
-		LinkedList<TargetShape> tempShapeList = new LinkedList<TargetShape>();
+		LinkedList<ChromosomeCluster> tempClusterList = new LinkedList<ChromosomeCluster>();
 		int shapeNum = 0;
 		this.loadNewImage(filename);
 		this.initScreenChecked();
 		Color color1 = new Color(0, 0, 0);// color that will be used to store
 											// pixel color to check
-		TargetShape temp = new TargetShape(shapeNum);
+		ChromosomeCluster temp = new ChromosomeCluster(shapeNum);
 		for (int r = pixelSpace; r < img.getImgWidth() - pixelSpace; r += pixelSpace) {
 			for (int j = pixelSpace; j < img.getImgHeight() - pixelSpace; j += pixelSpace) {
 				if (!screenChecked[r][j]) {
@@ -446,21 +446,21 @@ public class TargetGetter {
 					colorCount = 1;
 					// was isTargeTColor2(this.imgAvgColor, color1)
 					if (PixelColor.isBackGroundColor(color1, this.colorThreshold)) {
-						temp = getShape(600, color1, r, j, temp);
+						temp = getCluster(600, color1, r, j, temp);
 						// newly added for chromosomes
 						if (temp != null) {
-							temp = new TargetShape(temp);
+							temp = new ChromosomeCluster(temp);
 							temp.setColor(this.colorAverage);
-							temp.setTargetNimageID(shapeNum++);
+							temp.setClusterNimageID(shapeNum++);
 							temp.setTitle(filename);
-							tempShapeList.add(temp);
+							tempClusterList.add(temp);
 						}
 					}
 				}
 			}
 		}
-		while (!tempShapeList.isEmpty()) {
-			TargetShape tempPop = tempShapeList.pop();
+		while (!tempClusterList.isEmpty()) {
+			ChromosomeCluster tempPop = tempClusterList.pop();
 			System.out.println();
 			System.out.println("Loc: " + tempPop.getScreenCordinate().x + ","
 					+ tempPop.getScreenCordinate().y);
@@ -477,9 +477,9 @@ public class TargetGetter {
     public int findChromosomes(String filename,int shapeNum){
     	this.firstPassCount=0;
     	this.removedCount=0;
-        LinkedList<TargetShape> tempShapeList=new LinkedList<TargetShape>();
+        LinkedList<ChromosomeCluster> tempClusterList=new LinkedList<ChromosomeCluster>();
         Color color1=new Color(0,0,0);//color that will be used to store pixel color to check
-    	TargetShape temp=new TargetShape(shapeNum);
+    	ChromosomeCluster temp=new ChromosomeCluster(shapeNum);
     	for(int r=pixelSpace+1;r<img.getImgWidth()-pixelSpace;r+=pixelSpace){//made plus one change chromosomes
     		for(int j=pixelSpace;j<img.getImgHeight()-pixelSpace;j+=pixelSpace){
 	    		if(!screenChecked[r][j]){
@@ -487,14 +487,14 @@ public class TargetGetter {
 	    			color1=img.getColorAt(r,j);//get pixel color from point
 	        		this.colorAverage=new Color(color1.getRed(),color1.getGreen(),color1.getBlue());
 	        		colorCount=1;
-		        		temp=getShapeLeft(200,color1,r,j,temp);
+		        		temp=getClusterLeft(200,color1,r,j,temp);
 		        		if(temp!=null){	
-		        			temp=new TargetShape(temp);
+		        			temp=new ChromosomeCluster(temp);
 		            		temp.setColor(this.colorAverage);
-			        		temp.setTargetNimageID(shapeNum++);
+			        		temp.setClusterNimageID(shapeNum++);
 			        		temp.setTitle(filename);
-		        			tempShapeList.add(temp);
-		     				temp.getSkeleton(img);
+		        			tempClusterList.add(temp);
+		     				temp.getMedialAxis().createSkeleton(temp, img);
 		     				img.addWidth(temp.getWidths(0));
 		     				img.addWidth(temp.getWidths(1));
 		     				if(((temp.getWidths(0)>=4&&temp.getWidths(0)<15)
@@ -502,19 +502,19 @@ public class TargetGetter {
 		     					if((temp.getPixelCount()<this.firstPixelMax)
 		     							||(temp.getWidths(0)<10&&temp.getWidths(1)<10)){
 			     					if(!((temp.getWidths(0)>15||temp.getWidths(1)>15))){
-			     						temp.setkeepThisShape();
+			     						temp.setkeepThisCluster();
 			     					}
 		     					}
 		     				}
-		     				System.out.println("Image: "+temp.getTitle()+" Count: "+temp.getTargetNimageID());
-		     				temp.writeShapeWidths();
+		     				System.out.println("Image: "+temp.getTitle()+" Count: "+temp.getClusterNimageID());
+		     				temp.getMedialAxis().writeObjectWidths();
 
-		        			tempShapeList.add(temp);
+		        			tempClusterList.add(temp);
 		        		}
 	        	}
 	    	}
         }
-    	this.shapeList=tempShapeList;
+    	this.clusterList=tempClusterList;
 		System.out.println("FirstPass: "+this.firstPassCount+"   Removed: "+this.removedCount);
 		double avgChromosomewidth=img.calcFinalAverage();
 		
@@ -523,41 +523,41 @@ public class TargetGetter {
     }
 
     public void printChromosomes(){
-    		for(int i=0;i<this.shapeList.size();i++){
-    			TargetShape tempShape=this.shapeList.get(i);
-				MedialAxisGraph tempGraph2=new MedialAxisGraph(tempShape.getSkeltonPoints());
-				tempShape.fillInSkeleton(tempGraph2);
-				tempGraph2.removeSegments((int)Math.round((img.getAverage())), -1);
-				tempShape.setMedialAxis(tempGraph2.getMedialAxis());
-				tempShape.fillInSkeleton(tempGraph2);
+    		for(int i=0;i<this.clusterList.size();i++){
+    			ChromosomeCluster tempCluster=this.clusterList.get(i);
+				MedialAxisGraph tempGraph2=new MedialAxisGraph(tempCluster.getMedialAxis().getSkeltonPoints());
+				tempCluster.getMedialAxis().fillInSkeleton(tempCluster,tempGraph2);
+//				tempGraph2.removeSegments((int)Math.round((img.getAverage())), -1);
+//				tempShape.setMedialAxis(tempGraph2.getMedialAxis());
+//				tempShape.fillInSkeleton(tempGraph2);
 				//TODO(aamcknig):remove segments only if they don't have interesctions at both ends
- 				if(tempShape.checkKeepThisShape()){
- 					writeTargetImage(tempShape,tempShape.getSkeltonPoints(),new Color(255,0,0));
+ 				if(tempCluster.checkKeepThisCluster()){
+ 					writeTargetImage(tempCluster,tempCluster.getMedialAxis().getSkeltonPoints(),new Color(255,0,0));
  				}
  				else{
- 					writeRemovedImage(tempShape);
+ 					writeRemovedImage(tempCluster);
  				}
     		}
-    		this.shapeList=new LinkedList<TargetShape>();
+    		this.clusterList=new LinkedList<ChromosomeCluster>();
     }
-    public void writeTargetImage(TargetShape tempShape,LinkedList<Point> colorPoints,Color paintColor){
+    public void writeTargetImage(ChromosomeCluster tempCluster,LinkedList<Point> colorPoints,Color paintColor){
 		try {
 			File curDir=new File(".");
-			String imageName=new File(tempShape.getTitle()).getName();
-			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Keep/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempShape.getTargetNimageID())+".png");
-			BufferedImage tempImg=img.getSubImage(tempShape,colorPoints,paintColor);//,targetImgBorderSize);//30pixel border
+			String imageName=new File(tempCluster.getTitle()).getName();
+			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Keep/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempCluster.getClusterNimageID())+".png");
+			BufferedImage tempImg=img.getSubImage(tempCluster,colorPoints,paintColor);//,targetImgBorderSize);//30pixel border
 		    ImageIO.write(tempImg, "png", outputfile);
 		} catch (IOException e) {
 		    System.out.println(e);
 		}
 	}
 
-    public void writeISOClineImage(TargetShape tempShape){
+    public void writeISOClineImage(ChromosomeCluster tempCluster){
 		try {
 			File curDir=new File(".");
-			String imageName=new File(tempShape.getTitle()).getName();
-			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Keep/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempShape.getTargetNimageID())+"ISO"+".png");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
-			BufferedImage tempImg=img.getISOcline(tempShape);//,targetImgBorderSize);//30pixel border
+			String imageName=new File(tempCluster.getTitle()).getName();
+			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Keep/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempCluster.getClusterNimageID())+"ISO"+".png");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
+			BufferedImage tempImg=img.getISOcline(tempCluster.getMedialAxis().getDistanceMap());//,targetImgBorderSize);//30pixel border
 		    ImageIO.write(tempImg, "png", outputfile);
 		} catch (IOException e) {
 		    System.out.println(e);
@@ -565,12 +565,12 @@ public class TargetGetter {
 
     }
 
-    public void writeRemovedImage(TargetShape tempShape){
+    public void writeRemovedImage(ChromosomeCluster tempCluster){
 		try {
 			File curDir=new File(".");
-			String imageName=new File(tempShape.getTitle()).getName();
-			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Removed/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempShape.getTargetNimageID())+".png");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
-			BufferedImage tempImg=img.getSubImage(tempShape,null,null);//,targetImgBorderSize);//30pixel border
+			String imageName=new File(tempCluster.getTitle()).getName();
+			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Removed/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempCluster.getClusterNimageID())+".png");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
+			BufferedImage tempImg=img.getSubImage(tempCluster,null,null);//,targetImgBorderSize);//30pixel border
 		    ImageIO.write(tempImg, "png", outputfile);
 		} catch (IOException e) {
 			System.out.println(e);
@@ -593,8 +593,8 @@ public class TargetGetter {
 	 *            place found shape is stored
 	 * @return returns the shape if found and null if no shape found
 	 */
-	public TargetShape getShape(int searchWidth, Color colorOItem, int xCor, int yCor,
-			TargetShape shpN) {
+	public ChromosomeCluster getCluster(int searchWidth, Color colorOItem, int xCor, int yCor,
+			ChromosomeCluster shpN) {
 		// if the point has coordinates less than zero or off screen in neg
 		// direction
 		if (xCor < 0 || yCor < 0) {
@@ -622,9 +622,9 @@ public class TargetGetter {
 		canvas = getMatchingPixel(canvasBounds, colorOItem, new Point(xCor, yCor), canvasStart,
 				canvas, (short) 0, new Color(200, 200, 200));
 		if (/* !this.onImgEdge&& */this.currPixelCount > this.firstPixelMin) {
-			shpN = new TargetShape(new Point(sizeSquared, sizeSquared));
+			shpN = new ChromosomeCluster(new Point(sizeSquared, sizeSquared));
 			// store the shape marked by the number 1 in shape
-			shpN.setShape(canvas, xCor, yCor, 0);
+			shpN.setCluster(canvas, xCor, yCor, 0);
 			this.firstPassCount++;
 			// shpN.shapeOut();
 			return shpN;
@@ -633,7 +633,7 @@ public class TargetGetter {
 		return null;
 		/*
 		 * the number 4 has been changed -5 currently testing -5 check in
-		 * Shape.class if work on this issue
+		 * Cluster.class if work on this issue
 		 */
 	}
 
@@ -652,8 +652,8 @@ public class TargetGetter {
 	 *            place found shape is stored
 	 * @return returns the shape if found and null if no shape found
 	 */
-	public TargetShape getShapeLeft(int searchWidth, Color colorOItem, int xCor, int yCor,
-			TargetShape shpN) {
+	public ChromosomeCluster getClusterLeft(int searchWidth, Color colorOItem, int xCor, int yCor,
+			ChromosomeCluster shpN) {
 		if (xCor < 0 || yCor < 0) {// if the point has cordinates less than zero
 									// or off screen in neg direction
 			return null;// return null for no shape found
@@ -680,9 +680,9 @@ public class TargetGetter {
 		canvas = getMatchingPixelLeft(canvasBounds, colorOItem, new Point(xCor, yCor), canvasStart,
 				canvas, (short) 0, new Color(200, 200, 200));
 		if (/* !this.onImgEdge&& */this.currPixelCount > this.firstPixelMin) {
-			shpN = new TargetShape(new Point(sizeSquared, sizeSquared));
+			shpN = new ChromosomeCluster(new Point(sizeSquared, sizeSquared));
 			// store the shape marked by the number 1 in shape
-			shpN.setShape(canvas, xCor, yCor, 0);
+			shpN.setCluster(canvas, xCor, yCor, 0);
 			this.firstPassCount++;
 			return shpN;
 		}
@@ -690,7 +690,7 @@ public class TargetGetter {
 		return null;
 		/*
 		 * the number 4 has been changed -5 currently testing -5 check in
-		 * Shape.class if work on this issue
+		 * Cluster.class if work on this issue
 		 */
 	}
 
