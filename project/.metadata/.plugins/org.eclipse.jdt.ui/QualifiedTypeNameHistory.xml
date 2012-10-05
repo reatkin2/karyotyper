@@ -1,2 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<qualifiedTypeNameHistroy/>
+<qualifiedTypeNameHistroy>
+<fullyQualifiedTypeName name="MedialAxis.MedialAxis"/>
+<fullyQualifiedTypeName name="MedialAxis.DistanceMap"/>
+<fullyQualifiedTypeName name="basicObjects.AroundPixel"/>
+<fullyQualifiedTypeName name="Target.ChromosomeCluster"/>
+<fullyQualifiedTypeName name="chromosome.ChromosomeList"/>
+<fullyQualifiedTypeName name="chromosome.GeneticSlideImage"/>
+</qualifiedTypeNameHistroy>

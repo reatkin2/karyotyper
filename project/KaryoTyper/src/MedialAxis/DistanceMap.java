@@ -64,5 +64,19 @@ public class DistanceMap {
 
 		}
 	}
+    public void mapOut(){
+    	for(int i=0;i<distanceFromEdgeMatrix[0].length;i++){
+    		for(int j=0;j<distanceFromEdgeMatrix.length;j++){
+    			if(distanceFromEdgeMatrix[j][i]==-5){
+    				System.out.print('_');
+    			}
+    			else{
+    				System.out.print(distanceFromEdgeMatrix[j][i]);
+    			}
+    		}
+    		System.out.println("");
+    	}
+    }
+
 
 }

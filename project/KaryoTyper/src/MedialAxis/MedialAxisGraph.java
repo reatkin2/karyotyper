@@ -3,9 +3,10 @@ package MedialAxis;
 import java.awt.Point;
 import java.util.LinkedList;
 
+import chromosome.ChromosomeCluster;
+
 import basicObjects.Vertex;
 
-import Target.ChromosomeCluster;
 
 public class MedialAxisGraph {
 	LinkedList<Vertex> axisGraph=new LinkedList<Vertex>();

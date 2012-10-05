@@ -1,0 +1,25 @@
+import chromosome.ChromosomeCluster;
+import chromosome.GeneticSlideImage;
+
+
+public class TestShape {
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		String filename;
+		ImageQue images=new ImageQue();
+		filename=images.getNextFile(args[0]);
+		GeneticSlideImage image=new GeneticSlideImage(filename);
+		Extractor extractor=new Extractor();						
+		if(filename!=null){
+			int shapeNum=extractor.findBackground(image);
+			shapeNum=extractor.findClusters(image);
+			ChromosomeCluster testCluster=extractor.getClusterList().get(0);
+			extractor.getClusterList().get(0).clusterOut();
+		}
+	}
+
+}

@@ -3,8 +3,9 @@ package MedialAxis;
 import java.awt.Point;
 import java.util.LinkedList;
 
-import Target.ChromosomeCluster;
-import Target.TargetImage;
+import chromosome.ChromosomeCluster;
+import chromosome.GeneticSlideImage;
+
 import basicObjects.AroundPixel;
 import basicObjects.Cluster;
 import basicObjects.Vertex;
@@ -23,7 +24,7 @@ public class MedialAxis {
 		initMedialAxis();
 		copyMedialAxis(newAxis);
 	}
-	public MedialAxis(Cluster myCluster,TargetImage img){
+	public MedialAxis(Cluster myCluster,GeneticSlideImage img){
 		initMedialAxis();
 		createSkeleton(myCluster, img);
 	}
@@ -65,7 +66,7 @@ public class MedialAxis {
     public DistanceMap getDistanceMap() {
 		return distanceMap;
 	}
-    public void createSkeleton(Cluster myCluster,TargetImage img){
+    public void createSkeleton(Cluster myCluster,GeneticSlideImage img){
     	//Rectangle centerImage=new Rectangle((int)Math.round((bounds.getWidth()/2)-(bounds.getWidth()/4)),(int)Math.round((bounds.getHeight()/2)-(bounds.getHeight()/4)),
     	//						(int)Math.round(bounds.getWidth()/2),(int)Math.round(bounds.getHeight()/2));
         //LinkedList<Cluster> allClusters=new LinkedList<Cluster>();//create a linked list to store Clusters in
@@ -237,9 +238,9 @@ public class MedialAxis {
         	for(int j=0;j<8;j++){
     			Point tempAround=aroundPixel.getPoint(j,tempPoint);
         		if(tempAround.x>=0
-        				&&tempAround.x<myCluster.getSizex()
+        				&&tempAround.x<myCluster.getSize().x
         				&&tempAround.y>=0
-        				&&tempAround.y<myCluster.getSizey()){
+        				&&tempAround.y<myCluster.getSize().y){
 	        		if(skeleton.contains(tempAround)){
 	        			connectionPos[j]=true;
 	        			connections++;
@@ -253,9 +254,9 @@ public class MedialAxis {
         				&&!connectionPos[aroundPixel.handleLoop(j-1)]){
         			Point tempAround=aroundPixel.getPoint(j,tempPoint);
 	        		if(tempAround.x>=0
-	        				&&tempAround.x<myCluster.getSizex()
+	        				&&tempAround.x<myCluster.getSize().x
 	        				&&tempAround.y>=0
-	        				&&tempAround.y<myCluster.getSizey()){
+	        				&&tempAround.y<myCluster.getSize().y){
 		        		if(distanceMap.getDistanceFromEdge(tempAround)>mostCenteredConnection){
         					mostCenteredConnection=distanceMap.getDistanceFromEdge(tempAround);
         					addPoint=j; 			

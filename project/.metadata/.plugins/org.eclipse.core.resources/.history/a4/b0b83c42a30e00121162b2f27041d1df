@@ -1,0 +1,6 @@
+import java.util.LinkedList;
+
+
+public class ImageQue {
+	private LinkedList<String> imageQue;
+}

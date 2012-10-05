@@ -7,34 +7,29 @@ package basicObjects;
 import java.awt.Point;
 import java.util.LinkedList;
 
-import MedialAxis.MedialAxisGraph;
-import Target.TargetImage;
+
 
 /**
  *
  * @author  Andrew
  */
+/**
+ * @author andrew
+ *
+ */
 public class Cluster {
 	private AroundPixel aroundPixel;
     private boolean[][] clusterX;
     private Point clusterSize;
-    private Point screenCordinate;
+    private Point imageLocation;
     private Point firstPixel;
     private String title;
     private Cluster next;
     private int pixelCount;
-    private int sides;
 
 
     private boolean removeThisCluster;
-    //double latLongs[];
-    /** Creates a new instance of Cluster */
-    public Cluster(int imageNum) {
-    	clusterX=new boolean[50][50];
-    	clusterSize=new Point(50,50);
-        initCluster();
 
-    }
     public Cluster() {
     	clusterX=new boolean[50][50];
     	clusterSize=new Point(50,50);
@@ -56,18 +51,11 @@ public class Cluster {
         initCluster();
        setCluster(map,xPoint,yPoint,clusterColorID); 
     }
-    public Cluster(int x,int y){
-    	clusterX=new boolean[50][50];
-    	clusterSize=new Point(50,50);
-      initCluster();
-      screenCordinate=new Point(x,y);
-    }
     private void initCluster(){
-        screenCordinate=new Point(-1,-1);
+        imageLocation=new Point(-1,-1);
         firstPixel=new Point(-1,-1);
         title="";
         next=null;
-        sides=0;
     	clusterSize=new Point(0,0);
     	pixelCount=0;
     	aroundPixel= new AroundPixel();
@@ -82,6 +70,15 @@ public class Cluster {
         		clusterX[i][j]=false;
 
     }
+    
+    /**
+     * this creates a cluster from a 2d array of short integers and records the clusters
+     * location in the image
+     * @param map 2d array of short integers that represent a cluster of pixels
+     * @param xPoint the x cordinate of where a certain pixel in this cluster is located in the image
+     * @param yPoint the y cordinate of where a certain pixel in this cluster is located in the image
+     * @param clusterColorID the number marked all over the 2d array of shorts that represents the cluster
+     */
     public void setCluster(short[][] map,int xPoint,int yPoint,int clusterColorID){
         int firstCol=-1;
         int firstRow=-1;
@@ -99,23 +96,23 @@ public class Cluster {
                 if(map[k][i]==clusterColorID){
                 	pixelCount++;
                    if(bottomRow<i){
-                       //setScreenCordinate(screenCordinate.x,yRefPoint+i);//put y cordinate at bottom row
+                       //setImageLocation(imageLocation.x,yRefPoint+i);//put y cordinate at bottom row
                         bottomRow=i;
                     }
                    if(farthestRight<k){
-                   	//setScreenCordinate(xRefPoint+k,screenCordinate.y);//put x cordinate farthest rightcolumn
+                   	//setImageLocation(xRefPoint+k,imageLocation.y);//put x cordinate farthest rightcolumn
                    	farthestRight=k;
                    }
 
                     if(firstCol>k){
                         firstCol=k;
-                       	setScreenCordinate(xRefPoint+k,screenCordinate.y);//put x cordinate farthest rightcolumn
+                       	setImageLocation(new Point(xRefPoint+k,imageLocation.y));//put x cordinate farthest rightcolumn
                     }
                     if(firstRow==-1){
                         firstCol=k;
                         firstPixel.setLocation(k,i);
                         firstRow=i;
-                        setScreenCordinate(screenCordinate.x,yRefPoint+i);//put y cordinate at bottom row
+                        setImageLocation(new Point(imageLocation.x,yRefPoint+i));//put y cordinate at bottom row
                     }
                 }
 
@@ -138,6 +135,12 @@ public class Cluster {
         this.clusterSize=new Point(calcSize());
 
     }
+    
+    /**
+     * checks to see if this cluster is the same as another cluster
+     * @param isCluster a cluster to be compared to this one
+     * @return true if the clusters are the same
+     */
     public boolean isSame(Cluster isCluster){
     	for(int j=0;j<clusterX[0].length;j++)
     		for(int i=0;i<clusterX.length;i++)
@@ -160,11 +163,14 @@ public class Cluster {
     public boolean getValue(Point posX){
     	return clusterX[posX.x][posX.y];
     }
-    public void setPos(int x, int y){
-        if(!clusterX[x][y])
-        	pixelCount++;
-    	clusterX[x][y]=true;
-    }
+    
+    
+    /**
+     * sets a position in the square area of the cluster to be part of the cluster or to not be 
+     * and increments or decrements the pixel count of the cluster if needed
+     * @param xy the location in the cluster to add or remove
+     * @param newValue true to add false to remove
+     */
     public void setPixel(Point xy,boolean newValue){
     	if(!newValue&&clusterX[xy.x][xy.y]){
     		this.pixelCount--;
@@ -175,45 +181,41 @@ public class Cluster {
     	clusterX[xy.x][xy.y]=newValue;
 
     }
-    public void setPosNot(int x, int y){
-        if(clusterX[x][y])
-        	pixelCount--;
-    	clusterX[x][y]=false;
+    public Point getImageLocation(){
+        return imageLocation;
     }
-    public void setPoint(int x, int y){
-        setScreenCordinate(x,y);
-    }
-    public Point getScreenCordinate(){
-        return screenCordinate;
-    }
-    public Point getSCcenter(){
-    	int x=screenCordinate.x+((int)Math.floor(this.clusterSize.x/2));
-       	int y=screenCordinate.y+((int)Math.floor(this.clusterSize.y/2));
+    public Point getImageLocationcenter(){
+    	int x=imageLocation.x+((int)Math.floor(this.clusterSize.x/2));
+       	int y=imageLocation.y+((int)Math.floor(this.clusterSize.y/2));
     	return new Point(x,y);
     }
-    public void setScreenCordinate(int x, int y){
-    	if(x<0)
-    		x=0;
-    	if(y<0)
-    		y=0;
-    	this.screenCordinate.setLocation(x,y);
-    }
-    public void setScreenCordinate(Point xy){
+    public void setImageLocation(Point xy){
     	if(xy.x<0)
     		xy.x=0;
     	if(xy.y<0)
     		xy.y=0;
-    	this.screenCordinate.setLocation(xy.x,xy.y);
+    	this.imageLocation.setLocation(xy.x,xy.y);
     }
+    
+    /**
+     * returns the width and height of the smallest box that contains the cluster
+     * as a point with the x as width and y as height
+     * @return point that x is the width and y is the height
+     */
     public Point getSize(){
 		return clusterSize;
 	}
     public void setSize(int x, int y){
     	clusterSize.x=x;
-    	
     	clusterSize.y=y;
     }
-    public Point calcSize(){
+    
+    /**
+     * used to reduce the box that holds the cluster to the smallest possible
+     * box that can hold the cluster by finding smallest width and height cluster will fit in
+     * @return a point that the x represents the width and y repesents the height
+     */
+    private Point calcSize(){
     	Point size=new Point(0,0);
       for(int j=0;j<clusterX[0].length;j++){
     	  for(int i=0; i<clusterX.length;i++){
@@ -247,24 +249,23 @@ public class Cluster {
     public boolean[][] getCluster(){
     	return clusterX;
     }
-    public void setSides(int sidesX){
-    	sides=sidesX;
-    }
-    public int getSides(){
-    	return sides;
-    }
     public void setkeepThisCluster(){
     	this.removeThisCluster=false;
     }
     public boolean checkKeepThisCluster(){
     	return (!this.removeThisCluster);
     }
+    
+    /**
+     * used to create a duplicate cluster
+     * @param copyCluster cluster to duplicate
+     */
     public void copyCluster(Cluster copyCluster){
     	this.removeThisCluster=copyCluster.removeThisCluster;
     	boolean foundFirstPix=false;
     	this.next=copyCluster.next;
     	//this.myBuckets.copyBuckets(copyCluster.myBuckets.getBucketArray());
-    	setScreenCordinate(copyCluster.getScreenCordinate());
+    	setImageLocation(copyCluster.getImageLocation());
         title=copyCluster.getTitle();
         this.clusterSize=new Point(copyCluster.clusterSize);
         for(int j=0;j<clusterX[0].length;j++){
@@ -280,8 +281,12 @@ public class Cluster {
             }
           }
     }
+    
+    /**
+     * this prints to the console a visual representation of the cluster
+     */
     public void clusterOut(){
-    	System.out.println("ScreenLocation:"+this.screenCordinate.x+","+this.screenCordinate.y);
+    	System.out.println("ScreenLocation:"+this.imageLocation.x+","+this.imageLocation.y);
     	System.out.println(this.getSize().x+","+this.getSize().y+" : "+this.getTitle());
     	System.out.println("PixelCount: "+pixelCount);
     	for(int i=0;i<this.getSize().y;i++){
@@ -296,153 +301,18 @@ public class Cluster {
     		System.out.println("");
     	}
     }
-    public void matrixOut(int[][] matrix){
-    	System.out.println(this.getSize().x+","+this.getSize().y+" : "+this.getTitle());
-    	System.out.println("PixelCount: "+pixelCount);
-    	for(int i=0;i<matrix[0].length;i++){
-    		for(int j=0;j<matrix.length;j++){
-    			if(matrix[j][i]==-5){
-    				System.out.print('_');
-    			}
-    			else{
-    				System.out.print(matrix[j][i]);
-    			}
-    		}
-    		System.out.println("");
-    	}
-    }
     public int calcSides(){
     	int numSides=0;
     	
     	return numSides;
     }
+    
+    /**
+     * this returns the point in the first row of the cluster box where the first part of the cluster occurs 
+     * @return the point in the first row of the cluster box where the first part of the cluster occurs 
+     */
     public Point getFirstPixel(){
     	return firstPixel;
     }
-
-    private int getClockWiseOutline(int direction,Point currPnt,int count){
-		if(count++>7){
-			return -1;
-		}
-    	if(direction<0){
-			direction=7;
-		}
-		Point tempPnt=new Point(currPnt.x+aroundPixel.getPos(direction).x,currPnt.y+aroundPixel.getPos(direction).y);
-		if(clusterX.length>tempPnt.x&&tempPnt.x>=0
-				&&clusterX[0].length>tempPnt.y&&tempPnt.y>=0){
-			if(this.getPos(tempPnt)){//find the next spot thats part of the cluster
-				//System.out.println("good pnt@"+(currPnt.x+aroundPixel.getPos(direction).x)+","+(currPnt.y+aroundPixel.getPos(direction).y));//error checking
-				return direction;
-			}
-		}
-		//rotate around till next spot found
-		return getClockWiseOutline(--direction,currPnt,count);
-    		//tempPnt.setLocation(currPnt.x+aroundPixel.getPos(direction).x,currPnt.y+aroundPixel.getPos(direction).y);
-    		//System.out.println("try pnt: "+direction+"&Point: "+tempPnt);
-
-    }
-	private int tryClockWiseDirection(int direction){
-   		switch(direction){
-			case 0:
-				direction=1;
-				break;
-			case 1:
-			case 2:
-				direction=3;
-				break;
-			case 3:
-			case 4:
-				direction=5;
-				break;
-			case 5:
-			case 6:
-				direction=7;
-				break;
-			case 7:
-				direction=1;
-				break;
-   		}
-   		return direction;
-	}
-	public int getCWOutline(int direction,Point currPnt){
-		return  getClockWiseOutline(tryClockWiseDirection(direction), currPnt,0);
-	}
-
-	public Point projectToCenter(Point start,int xdir,int ydir){
-//		Point end=new Point((int)(Math.round(this.clusterSize.x/2.0)),(int)Math.round(this.clusterSize.y/2.0));
-//		double slope=getSlope(start,end);
-//		if(slope==0){
-//			slope=.0001;
-//		}
-//		double intercept=(double)start.y-(slope*(double)start.x);
-		int partX=start.x;
-		int partY=start.y;
-		while(partX<this.clusterSize.x&&partY<this.clusterSize.y&&partX>=0&&partY>=0){
-			//if(slope>1){
-				//partX=(int)Math.round(((double)partY-intercept)/slope);
-				if(partX>=0&&partX<this.clusterSize.x&&partY>=0&&partY<this.clusterSize.y){
-					if(clusterX[partX][partY]){
-						return new Point(partX,partY);
-					}
-					partY+=ydir;
-					partX+=xdir;
-				}
-			//}
-//			else{
-//				partY=(int)Math.round(((double)partX*slope)+intercept);
-//				if(partX>=0&&partX<this.clusterSize.x&&partY>=0&&partY<this.clusterSize.y){
-//					if(clusterX[partX][partY]){
-//						return new Point(partX,partY);
-//					}
-//				}
-//				partX+=xdir;
-//			}
-		}
-		return new Point(-1,-1);
-	}
-	public double getSlope(Point start, Point end){
-		if(end.x-start.x==0){
-			return 1000.01;
-		}
-		return (((double)end.y-(double)start.y)/((double)end.x-(double)start.x));
-	}
-	public void trimCluster(int depth){
-		LinkedList<Point> pointList=new LinkedList<Point>();
-//		int xdir=1;
-//		int ydir=1;
-		for(int k=0;k<depth;k++){
-			for(int i=0;i<this.clusterSize.x;i++){
-//				if(i>=this.clusterSize.x/2.0){
-//					xdir=-1;
-//				}
-//				else{
-//					xdir=1;
-//				}
-				pointList.push(projectToCenter(new Point(i,0),0,1));
-				pointList.push(projectToCenter(new Point(i,this.clusterSize.y-1),0,-1));
-			}
-			for(int j=0;j<this.clusterSize.y;j++){
-//				if(j>=this.clusterSize.y/2.0){
-//					ydir=-1;
-//				}
-//				else{
-//					ydir=1;
-//				}
-				pointList.push(projectToCenter(new Point(0,j),1,0));
-				pointList.push(projectToCenter(new Point(this.clusterSize.x-1,j),-1,0));	
-			}
-			while(!pointList.isEmpty()){
-				Point temp=pointList.pop();
-				if(temp.x!=-1&&temp.y!=-1){
-					if(clusterX[temp.x][temp.y]){
-						this.pixelCount--;
-					}
-					this.clusterX[temp.x][temp.y]=false;
-				}
-			}
-		}
-	}
-
-
 
 }

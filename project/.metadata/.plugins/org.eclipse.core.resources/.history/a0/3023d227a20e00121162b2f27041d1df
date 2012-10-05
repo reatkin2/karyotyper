@@ -1,0 +1,599 @@
+import java.awt.Color;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.LinkedList;
+
+import javax.imageio.ImageIO;
+
+import chromosome.ChromosomeCluster;
+import chromosome.GeneticSlideImage;
+
+import Color.PixelColor;
+import MedialAxis.MedialAxisGraph;
+import basicObjects.AroundPixel;
+
+
+public class TargetGetter {
+	public LinkedList<ChromosomeCluster> clusterList;
+	/*
+	 * aroundot is an array of 8 points that is a x,y difference from the center
+	 * point pixel 107 |-1,-1| 0,-1| 1,-1| 2.6 or 
+	 *                 |-1, 0| dot | 1, 0| <--- this is a visual of around dot 345
+	 *                 |-1, 1| 0, 1| 1, 1|
+	 */
+	private AroundPixel aroundDot;
+
+
+	private int currPixelCount;
+	private LinkedList<String> imageQue;
+	private GeneticSlideImage img;
+	private int pixelSpace;
+	private Color colorAverage;
+	private int colorCount;
+	private int firstPixelMax;
+	private int firstPixelMin;
+
+	private int firstPassCount;
+	private int removedCount;
+	private long start;
+
+	public TargetGetter(String jpegPath) {
+		aroundDot = new AroundPixel();
+
+		this.imageQue = new LinkedList<String>();
+		start = System.currentTimeMillis();
+		this.firstPixelMax = 11000;
+		this.firstPixelMin = 30;
+		this.pixelSpace = 3;
+		colorAverage = new Color(0, 0, 0);
+		this.colorCount = 0;
+		loadFiles();
+		currPixelCount = 0;
+		img = null;
+	}
+
+	public void loadNewImage(String filename) {
+		img = new GeneticSlideImage(filename);
+		img.computeScale();
+		img.graphScale();
+	}
+
+
+	public void loadFiles() {
+		clusterList = new LinkedList<ChromosomeCluster>();
+	}
+
+	/**
+	 * gets all connected matching colored pixels and returns shape on the 2d integer array -canvas-
+	 * painted by the number -shapeID-
+	 * 
+	 * @param bounds
+	 *            is a rectangle that only pixels inside of will be checked
+	 * @param currentColor
+	 *            is the color to match
+	 * @param currentCoord
+	 *            is the starting pixel
+	 * @param canvasOrigin
+	 *            is the starting position on the 2d integer canvas
+	 * @param canvas
+	 *            is the 2d integer canvas that stores the shape(IMPORTANT: expected to have all
+	 *            positions not checked initialized to the value -5)
+	 * @param shapeID
+	 *            is the number entered on canvas that represents matching connected pixels
+	 * @return the 2d integer canvas that represents the shape
+	 */
+	private short[][] getMatchingPixel(Rectangle bounds, Color currentColor, Point currentCoord,
+			Point canvasOrigin, short[][] canvas, short shapeID, Color colorLeft) {
+		LinkedList<Point> foundList = new LinkedList<Point>();
+		Point canvasOffset = new Point(canvasOrigin.x - currentCoord.x, canvasOrigin.y - currentCoord.y);
+		img.initNextPixel();
+		foundList.add(currentCoord);
+		while (!foundList.isEmpty()) {
+			currentCoord = foundList.pop();
+			
+			// loop 8 times once for every position around the center pixel
+			for (int i = 0; i < 8; i++) {
+				/*
+				 * if the spot to be checked is inside of the bounds and if the
+				 * pixel is inside the visible resolution of the screen
+				 */
+				if (currentCoord.x + aroundDot.getPos(i).x < img.getImgWidth()
+						&& currentCoord.y + aroundDot.getPos(i).y < img.getImgHeight() && currentCoord.x > 0
+						&& currentCoord.y > 0) {
+					if (!img.isPixelChecked(new Point(currentCoord.x + aroundDot.getPos(i).x,currentCoord.y + aroundDot.getPos(i).y))) {
+						// if the spot to be checked value is -5 meaning it
+						// hasn't been checked yet
+						if (!bounds.contains(new Point(currentCoord.x + canvasOffset.x
+								+ aroundDot.getPos(i).x, currentCoord.y + canvasOffset.y
+								+ aroundDot.getPos(i).y))
+								|| canvas[currentCoord.x + canvasOffset.x + aroundDot.getPos(i).x][currentCoord.y
+										+ canvasOffset.y + aroundDot.getPos(i).y] == -5) {
+							// if the pixel at the position aroundDot matches
+							// the color
+							Color temp = img.getColorAt(currentCoord.x + aroundDot.getPos(i).x, currentCoord.y
+									+ aroundDot.getPos(i).y);
+							// was isTargeTColor2(this.imgAvgColor,temp)
+							if (PixelColor.isBackGroundColor(temp, img.getColorThreshold())) {
+								this.colorAverage = averageColor(temp);
+								img.markPixelChecked(new Point(currentCoord.x + aroundDot.getPos(i).x,currentCoord.y+aroundDot.getPos(i).y));
+								this.currPixelCount++;
+								// paint the canvas at the respectful position
+								// on 2d canvas to the shapeID number
+								if (bounds.contains(new Point(currentCoord.x + canvasOffset.x
+										+ aroundDot.getPos(i).x, currentCoord.y + canvasOffset.y
+										+ aroundDot.getPos(i).y))) {
+									canvas[currentCoord.x + canvasOffset.x + aroundDot.getPos(i).x][currentCoord.y
+											+ canvasOffset.y + aroundDot.getPos(i).y] = shapeID;
+								}
+								if (!img.isPixelFound(new Point(currentCoord.x + aroundDot.getPos(i).x,currentCoord.y + aroundDot.getPos(i).y))) {
+									foundList.add(new Point(currentCoord.x
+											+ aroundDot.getPos(i).x, currentCoord.y
+											+ aroundDot.getPos(i).y));
+									img.addPixelFound(new Point(currentCoord.x + aroundDot.getPos(i).x,currentCoord.y + aroundDot.getPos(i).y));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return canvas;
+	}
+
+	/**
+	 * gets all connected matching colored pixels and returns shape on the 2d integer array -canvas-
+	 * painted by the number -shapeID-
+	 * 
+	 * @param bounds
+	 *            is a rectangle that only pixels inside of will be checked
+	 * @param currentColor
+	 *            is the color to match
+	 * @param currentPoint
+	 *            is the starting pixel
+	 * @param canvasOrigin
+	 *            is the starting position on the 2d integer canvas
+	 * @param canvas
+	 *            is the 2d integer canvas that stores the shape(IMPORTANT: expected to have all
+	 *            positions not checked initialized to the value -5)
+	 * @param shapeID
+	 *            is the number entered on canvas that represents matching connected pixels
+	 * @return the 2d integer canvas that represents the shape
+	 */
+	private short[][] getMatchingPixelLeft(Rectangle bounds, Color currentColor, Point currentPoint,
+			Point canvasOrigin, short[][] canvas, short shapeID, Color colorLeft) {
+		LinkedList<Point> foundList = new LinkedList<Point>();
+		colorLeft = new Color(0, 0, 0);
+		Point canvasOffset = new Point(canvasOrigin.x - currentPoint.x, canvasOrigin.y - currentPoint.y);
+		img.initNextPixel();
+		foundList.add(new Point(currentPoint));
+		while (!foundList.isEmpty()) {
+			currentPoint = foundList.pop();
+
+			// loop 8 times once for every position around the center pixel
+			for (int i = 0; i < 8; i++) {
+				/*
+				 * if the spot to be checked is inside of the bounds and if
+				 * the pixel is inside the visible resolution of the screen
+				 */
+				if (currentPoint.x + aroundDot.getPos(i).x < img.getImgWidth()
+						&& currentPoint.y + aroundDot.getPos(i).y < img.getImgHeight() && currentPoint.x > 0
+						&& currentPoint.y > 0) {
+					if (!img.isPixelChecked(new Point(currentPoint.x + aroundDot.getPos(i).x,currentPoint.y + aroundDot.getPos(i).y))) {
+						// if the spot to be checked value is -5 meaning it
+						// hasn't been checked yet
+						if (!bounds.contains(new Point(currentPoint.x + canvasOffset.x
+								+ aroundDot.getPos(i).x, currentPoint.y + canvasOffset.y
+								+ aroundDot.getPos(i).y))
+								|| canvas[currentPoint.x + canvasOffset.x + aroundDot.getPos(i).x][currentPoint.y
+										+ canvasOffset.y + aroundDot.getPos(i).y] == -5) {
+							// if the pixel at the position aroundDot
+							// matches the color
+							Color temp = img.getColorAt(currentPoint.x + aroundDot.getPos(i).x,
+									currentPoint.y + aroundDot.getPos(i).y);
+							this.colorAverage = averageColor(temp);
+							img.markPixelChecked(new Point(currentPoint.x + aroundDot.getPos(i).x,currentPoint.y + aroundDot.getPos(i).y));
+							this.currPixelCount++;
+							// paint the canvas at the respectful position
+							// on 2d canvas to the shapeID number
+							if (bounds.contains(new Point(currentPoint.x + canvasOffset.x
+									+ aroundDot.getPos(i).x, currentPoint.y + canvasOffset.y
+									+ aroundDot.getPos(i).y))) {
+								canvas[currentPoint.x + canvasOffset.x + aroundDot.getPos(i).x][currentPoint.y
+										+ canvasOffset.y + aroundDot.getPos(i).y] = shapeID;
+							}
+							if (!img.isPixelFound(new Point(currentPoint.x + aroundDot.getPos(i).x,currentPoint.y	+ aroundDot.getPos(i).y))) {
+								foundList.add(new Point(currentPoint.x
+										+ aroundDot.getPos(i).x, currentPoint.y
+										+ aroundDot.getPos(i).y));
+								img.addPixelFound(new Point(currentPoint.x + aroundDot.getPos(i).x,currentPoint.y + aroundDot.getPos(i).y));
+							}
+						}
+					}
+				}
+			}
+		}
+		return canvas;
+	}
+
+
+	public int containsColor(Color temp, LinkedList<Color> list) {
+		if (!list.isEmpty()) {
+			for (int i = 0; i < list.size(); i++) {
+				if (PixelColor.isTargeTColorX(list.get(i), temp)) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+
+	/**
+	 * searches screen spiraling out and returns the point where it finds the item
+	 * 
+	 * @param bounds
+	 *            is the area to search inside of
+	 * @param startPnt
+	 *            the point to start searching from
+	 * @param itemName
+	 *            is the string that appears when the mouse is over the item
+	 * @param colorOItem
+	 *            the color of item we are looking for
+	 * @param colorOLetters
+	 *            color of the letters that appear when mouse over item
+	 * @param radiusInc
+	 *            the number that will be added to the radius as it spirals out(how thurough it
+	 *            searches)
+	 * @param radiusSensitive
+	 *            is the distance between x or y along the spiral that will be checked(how thurough
+	 *            it searches)
+	 * @return the point where item was found or -1,-1 if not found
+	 * @throws JpegProcessingException
+	 */
+	public int findBackground(String filename) {
+		this.firstPassCount = 0;
+		this.removedCount = 0;
+		LinkedList<ChromosomeCluster> tempClusterList = new LinkedList<ChromosomeCluster>();
+		int shapeNum = 0;
+		this.loadNewImage(filename);
+		Color color1 = new Color(0, 0, 0);// color that will be used to store
+											// pixel color to check
+		ChromosomeCluster temp = new ChromosomeCluster(shapeNum);
+		for (int r = pixelSpace; r < img.getImgWidth() - pixelSpace; r += pixelSpace) {
+			for (int j = pixelSpace; j < img.getImgHeight() - pixelSpace; j += pixelSpace) {
+				if (!img.isPixelChecked(new Point(r,j))) {
+					color1 = img.getColorAt(r, j);// get pixel color from point
+					this.colorAverage = new Color(color1.getRed(), color1.getGreen(),
+							color1.getBlue());
+					colorCount = 1;
+					// was isTargeTColor2(this.imgAvgColor, color1)
+					if (PixelColor.isBackGroundColor(color1, img.getColorThreshold())) {
+						temp = getCluster(600, color1, r, j, temp);
+						// newly added for chromosomes
+						if (temp != null) {
+							temp = new ChromosomeCluster(temp);
+							temp.setColor(this.colorAverage);
+							temp.setClusterNimageID(shapeNum++);
+							temp.setTitle(filename);
+							tempClusterList.add(temp);
+						}
+					}
+				}
+			}
+		}
+		while (!tempClusterList.isEmpty()) {
+			ChromosomeCluster tempPop = tempClusterList.pop();
+			System.out.println();
+			System.out.println("Loc: " + tempPop.getScreenCordinate().x + ","
+					+ tempPop.getScreenCordinate().y);
+			System.out.println("pixelC: " + tempPop.getPixelCount());
+			System.out.println(tempPop.getTitle());
+		}
+		System.out
+				.println("FirstPass: " + this.firstPassCount + "   Removed: " + this.removedCount);
+
+		return shapeNum;
+
+	}
+
+    public int findChromosomes(String filename,int shapeNum){
+    	this.firstPassCount=0;
+    	this.removedCount=0;
+        LinkedList<ChromosomeCluster> tempClusterList=new LinkedList<ChromosomeCluster>();
+        Color color1=new Color(0,0,0);//color that will be used to store pixel color to check
+    	ChromosomeCluster temp=new ChromosomeCluster(shapeNum);
+    	for(int r=pixelSpace+1;r<img.getImgWidth()-pixelSpace;r+=pixelSpace){//made plus one change chromosomes
+    		for(int j=pixelSpace;j<img.getImgHeight()-pixelSpace;j+=pixelSpace){
+	    		if(!img.isPixelChecked(new Point(r,j))){
+	    			
+	    			color1=img.getColorAt(r,j);//get pixel color from point
+	        		this.colorAverage=new Color(color1.getRed(),color1.getGreen(),color1.getBlue());
+	        		colorCount=1;
+		        		temp=getClusterLeft(200,color1,r,j,temp);
+		        		if(temp!=null){	
+		        			temp=new ChromosomeCluster(temp);
+		            		temp.setColor(this.colorAverage);
+			        		temp.setClusterNimageID(shapeNum++);
+			        		temp.setTitle(filename);
+		        			tempClusterList.add(temp);
+		     				temp.getMedialAxis().createSkeleton(temp, img);
+		     				img.addWidth(temp.getWidths(0));
+		     				img.addWidth(temp.getWidths(1));
+		     				if(((temp.getWidths(0)>=4&&temp.getWidths(0)<15)
+		     							||(temp.getWidths(1)>=4&&temp.getWidths(1)<15))){
+		     					if((temp.getPixelCount()<this.firstPixelMax)
+		     							||(temp.getWidths(0)<10&&temp.getWidths(1)<10)){
+			     					if(!((temp.getWidths(0)>15||temp.getWidths(1)>15))){
+			     						temp.setkeepThisCluster();
+			     					}
+		     					}
+		     				}
+		     				System.out.println("Image: "+temp.getTitle()+" Count: "+temp.getClusterNimageID());
+		     				temp.getMedialAxis().writeObjectWidths();
+
+		        			tempClusterList.add(temp);
+		        		}
+	        	}
+	    	}
+        }
+    	this.clusterList=tempClusterList;
+		System.out.println("FirstPass: "+this.firstPassCount+"   Removed: "+this.removedCount);
+		double avgChromosomewidth=img.calcFinalAverage();
+		
+		System.out.println("Width: "+avgChromosomewidth);
+		return shapeNum;//targetNimgCount;
+    }
+
+    public void printChromosomes(){
+    		for(int i=0;i<this.clusterList.size();i++){
+    			ChromosomeCluster tempCluster=this.clusterList.get(i);
+				MedialAxisGraph tempGraph2=new MedialAxisGraph(tempCluster.getMedialAxis().getSkeltonPoints());
+				tempCluster.getMedialAxis().fillInSkeleton(tempCluster,tempGraph2);
+//				tempGraph2.removeSegments((int)Math.round((img.getAverage())), -1);
+//				tempShape.setMedialAxis(tempGraph2.getMedialAxis());
+//				tempShape.fillInSkeleton(tempGraph2);
+				//TODO(aamcknig):remove segments only if they don't have interesctions at both ends
+ 				if(tempCluster.checkKeepThisCluster()){
+ 					writeTargetImage(tempCluster,tempCluster.getMedialAxis().getSkeltonPoints(),new Color(255,0,0));
+ 				}
+ 				else{
+ 					writeRemovedImage(tempCluster);
+ 				}
+    		}
+    		this.clusterList=new LinkedList<ChromosomeCluster>();
+    }
+    public void writeTargetImage(ChromosomeCluster tempCluster,LinkedList<Point> colorPoints,Color paintColor){
+		try {
+			File curDir=new File(".");
+			String imageName=new File(tempCluster.getTitle()).getName();
+			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Keep/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempCluster.getClusterNimageID())+".png");
+			BufferedImage tempImg=img.getSubImage(tempCluster,colorPoints,paintColor);//,targetImgBorderSize);//30pixel border
+		    ImageIO.write(tempImg, "png", outputfile);
+		} catch (IOException e) {
+		    System.out.println(e);
+		}
+	}
+
+    public void writeISOClineImage(ChromosomeCluster tempCluster){
+		try {
+			File curDir=new File(".");
+			String imageName=new File(tempCluster.getTitle()).getName();
+			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Keep/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempCluster.getClusterNimageID())+"ISO"+".png");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
+			BufferedImage tempImg=img.getISOcline(tempCluster.getMedialAxis().getDistanceMap());//,targetImgBorderSize);//30pixel border
+		    ImageIO.write(tempImg, "png", outputfile);
+		} catch (IOException e) {
+		    System.out.println(e);
+		}
+
+    }
+
+    public void writeRemovedImage(ChromosomeCluster tempCluster){
+		try {
+			File curDir=new File(".");
+			String imageName=new File(tempCluster.getTitle()).getName();
+			File outputfile = new File(curDir.getCanonicalPath()+"/shapeData/Removed/"+imageName.substring(0,imageName.indexOf('.'))+"_"+(tempCluster.getClusterNimageID())+".png");//,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
+			BufferedImage tempImg=img.getSubImage(tempCluster,null,null);//,targetImgBorderSize);//30pixel border
+		    ImageIO.write(tempImg, "png", outputfile);
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+
+	}
+
+	/**
+	 * returns a shape of all connected pixels matching in color that fit in double the searchWidth
+	 * 
+	 * @param searchWidth
+	 *            half of the width of the squared search area
+	 * @param colorOItem
+	 *            the color to match
+	 * @param xCor
+	 *            the x coordinate of the starting pixel
+	 * @param yCor
+	 *            the y coordinate of the starting pixel
+	 * @param shpN
+	 *            place found shape is stored
+	 * @return returns the shape if found and null if no shape found
+	 */
+	public ChromosomeCluster getCluster(int searchWidth, Color colorOItem, int xCor, int yCor,
+			ChromosomeCluster shpN) {
+		// if the point has coordinates less than zero or off screen in neg
+		// direction
+		if (xCor < 0 || yCor < 0) {
+			return null;// return null for no shape found
+		}
+		int sizeSquared = 2 * searchWidth;// double width for search area
+		// create a 2d integer canvas to mark matching connected pixels on
+		short[][] canvas = new short[sizeSquared][sizeSquared];
+		Rectangle canvasBounds = new Rectangle(0, 0, sizeSquared, sizeSquared);
+		for (int y = 0; y < sizeSquared; y++) {
+			for (int x = 0; x < sizeSquared; x++) {
+				// initialize all spots on the 2d canvas to not checked
+				canvas[y][x] = -5;
+			}
+		}
+		Point canvasStart = new Point((int) (sizeSquared / 2.0), (int) (sizeSquared / 2.0));
+		canvas[canvasStart.x][canvasStart.y] = 0;// mark the center of the
+													// canvas as a found pixel
+		/*
+		 * find all connected matching pixels startingat the center of canvas
+		 * and the point xCor,yCormarking the matching pixels as the number 1ont
+		 * the canvas
+		 */
+		this.currPixelCount = 0;
+		canvas = getMatchingPixel(canvasBounds, colorOItem, new Point(xCor, yCor), canvasStart,
+				canvas, (short) 0, new Color(200, 200, 200));
+		if (/* !this.onImgEdge&& */this.currPixelCount > this.firstPixelMin) {
+			shpN = new ChromosomeCluster(new Point(sizeSquared, sizeSquared));
+			// store the shape marked by the number 1 in shape
+			shpN.setCluster(canvas, xCor, yCor, 0);
+			this.firstPassCount++;
+			// shpN.shapeOut();
+			return shpN;
+		}
+		// return the shape found
+		return null;
+		/*
+		 * the number 4 has been changed -5 currently testing -5 check in
+		 * Cluster.class if work on this issue
+		 */
+	}
+
+	/**
+	 * returns a shape of all connected pixels matching in color that fit in double the searchWidth
+	 * 
+	 * @param searchWidth
+	 *            half of the width of the squared search area
+	 * @param colorOItem
+	 *            the color to match
+	 * @param xCor
+	 *            the x cordinate of the starting pixel
+	 * @param yCor
+	 *            the y cordinate of the starting pixel
+	 * @param shpN
+	 *            place found shape is stored
+	 * @return returns the shape if found and null if no shape found
+	 */
+	public ChromosomeCluster getClusterLeft(int searchWidth, Color colorOItem, int xCor, int yCor,
+			ChromosomeCluster shpN) {
+		if (xCor < 0 || yCor < 0) {// if the point has cordinates less than zero
+									// or off screen in neg direction
+			return null;// return null for no shape found
+		}
+		int sizeSquared = 2 * searchWidth;// double width for search area
+		// create a 2d integer canvas to mark matching connected pixels on
+		short[][] canvas = new short[sizeSquared][sizeSquared];
+		Rectangle canvasBounds = new Rectangle(0, 0, sizeSquared, sizeSquared);
+		// initialize all spots on the 2d canvas to not checked
+		for (int i = 0; i < sizeSquared; i++)
+			// loop y area
+			for (int j = 0; j < sizeSquared; j++)
+				// loop x area
+				canvas[i][j] = -5;
+		Point canvasStart = new Point((int) (sizeSquared / 2.0), (int) (sizeSquared / 2.0));
+		// mark the center of the canvas as a found pixel
+		canvas[canvasStart.x][canvasStart.y] = 0;
+		/*
+		 * find all connected matching pixels startingat the center of canvas
+		 * and the point xCor,yCormarking the matching pixels as the number 1ont
+		 * the canvas
+		 */
+		this.currPixelCount = 0;
+		canvas = getMatchingPixelLeft(canvasBounds, colorOItem, new Point(xCor, yCor), canvasStart,
+				canvas, (short) 0, new Color(200, 200, 200));
+		if (/* !this.onImgEdge&& */this.currPixelCount > this.firstPixelMin) {
+			shpN = new ChromosomeCluster(new Point(sizeSquared, sizeSquared));
+			// store the shape marked by the number 1 in shape
+			shpN.setCluster(canvas, xCor, yCor, 0);
+			this.firstPassCount++;
+			return shpN;
+		}
+		// return the shape found
+		return null;
+		/*
+		 * the number 4 has been changed -5 currently testing -5 check in
+		 * Cluster.class if work on this issue
+		 */
+	}
+
+	public void exit() {
+
+		// use the current time to mark files as unique file name
+		// Date today=new Date();
+		System.out.println("Minutes:Secs " + (((System.currentTimeMillis() - start) / 60000) / 60)
+				+ ":" + ((System.currentTimeMillis() - start) / 1000));
+
+		try {
+			File dir1 = new File(".");
+			System.out.println("Working directory is: " + dir1.getAbsolutePath());
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+	}
+
+	public Color averageColor(Color temp) {
+		int red = ((this.colorAverage.getRed() * this.colorCount) + temp.getRed())
+				/ (this.colorCount + 1);
+		int green = ((this.colorAverage.getGreen() * this.colorCount) + temp.getGreen())
+				/ (this.colorCount + 1);
+		int blue = ((this.colorAverage.getBlue() * this.colorCount) + temp.getBlue())
+				/ (this.colorCount + 1);
+		this.colorCount++;
+		return new Color(red, green, blue);
+	}
+
+	public boolean waitTillFileIsReady(String filename) {
+		File fileToCopy = new File(filename);
+		boolean fileReady = false;
+		int sleepTime = 500; // Sleep 1 second
+		while (!fileReady) {
+			// Cannot write to file, windows still working on it
+			// Sleep(sleepTime);
+			try {
+				Thread.sleep(sleepTime);
+				FileReader test = new FileReader(fileToCopy);
+				test.close();
+				fileReady = true;
+			} catch (Exception e) {
+				System.out.println(e);
+				waitTillFileIsReady(filename);
+			}
+		}
+		return true;
+	}
+
+	public String getNewFiles(String path) {
+		boolean foundFile = false;
+		File folder = new File(path);
+		File[] listOfFiles = folder.listFiles();
+		for (int i = 0; i < listOfFiles.length; i++) {
+			if (listOfFiles[i].isFile()) {
+				String file = listOfFiles[i].getName();
+				if (file.endsWith(".jpg") || file.endsWith(".JPG")) {
+					if (imageQue.size() == 0) {
+						imageQue.add(file);
+						this.imageQue.add(file);
+						return path + "/" + file;
+					} else {
+						foundFile = false;
+						for (int j = 0; j < imageQue.size(); j++) {
+							if (imageQue.get(j).equals(file)) {
+								foundFile = true;
+							}
+						}
+						if (!foundFile) {
+							this.imageQue.add(file);
+							this.waitTillFileIsReady(path + "/" + file);
+							return path + "/" + file;
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+}
