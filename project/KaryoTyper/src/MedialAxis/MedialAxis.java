@@ -228,11 +228,11 @@ public class MedialAxis {
 	        distanceFromEdgeCount++;
         }
         addBackSkeleton(temp);
-        this.distanceMap.mapOut();
+        //this.distanceMap.mapOut();
         this.objectWidth[0]=(this.biggestIncreaseSkeletonAtWidthCount+.75)*2;
         this.objectWidth[1]=(this.most2LeastRemovedAtWidthCount+.75)*2;
         this.writeObjectWidths();
-        System.out.println("BreakPoint");
+        //System.out.println("BreakPoint");
         
     }    
     

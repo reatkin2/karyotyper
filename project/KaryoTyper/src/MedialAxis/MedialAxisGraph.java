@@ -138,6 +138,15 @@ public class MedialAxisGraph {
 			this.axisGraph.remove(removeList.get(i));
 		}
 	}
+	private void removeVertex(Vertex removeVertex){
+		int positionNGraph=this.indexOfVertexWithPoint(removeVertex.getPoint());
+			for(int j=0;j<removeVertex.getChildren().size();j++){
+				if(removeVertex.getChildren().get(j).getChildren().contains(removeVertex)){
+					removeVertex.getChildren().get(j).getChildren().remove(removeVertex);
+				}
+			}
+			this.axisGraph.remove(positionNGraph);
+	}
 	
 	/**
 	 * returns a linked list of points that represent the graph
@@ -209,15 +218,34 @@ public class MedialAxisGraph {
 		}
 		return connected;
 	}
-//	private void trimGraph(){
-//		LinkedList<Vertex> intersections=this.getIntersections();
-//		for(int i=0;i<intersections.size();i++){
-//			LinkedList<Point> checkList=new LinkedList<Point>();
-//			boolean
-//			for(int j=0;j<intersections.get(i).getChildren().size();j++){
-//				checkList.add(intersections.get(i).getChildren().get(j).getPoint());
-//			}
-//			for
-//		}
-//	}
+	public void trimGraph(){
+		LinkedList<Vertex> intersections=this.getIntersections();
+		//foreach intersection
+		for(int i=0;i<intersections.size();i++){
+			boolean trim=false;
+			//for each child of the intersection
+			for(int j=0;!trim&&j<intersections.get(i).getChildren().size();j++){
+				//for each child of the children of the intersection
+				int sameChildrenCount=0;
+				for(int k=0;!trim&&k<intersections.get(i).getChildren().size();k++){
+					if(intersections.get(i).getChildren().get(j).getChildren().contains(intersections.get(i).getChildren().get(k))){
+						sameChildrenCount++;
+					}
+					else if(intersections.get(i).getChildren().get(j).getPoint().equals(intersections.get(i).getChildren().get(k).getPoint())){
+						sameChildrenCount++;
+					}
+
+				}
+				if(sameChildrenCount==intersections.get(i).getChildren().size()){
+					trim=true;
+				}
+				
+			}
+			if(trim){
+				removeVertex(intersections.get(i));
+				intersections.remove(i);
+				i--;
+			}
+		}
+	}
 }

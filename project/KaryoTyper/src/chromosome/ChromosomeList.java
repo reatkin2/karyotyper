@@ -30,6 +30,9 @@ public class ChromosomeList {
 			ChromosomeCluster tempCluster=this.chromosomeList.get(i);
 			MedialAxisGraph tempGraph2=new MedialAxisGraph(tempCluster.getMedialAxis().getMedialAxisPoints());
 			tempCluster.getMedialAxis().fillInSkeleton(tempCluster,tempGraph2);
+			tempGraph2=new MedialAxisGraph(tempCluster.getMedialAxis().getMedialAxisPoints());
+			tempGraph2.trimGraph();
+			tempCluster.getMedialAxis().setMedialAxis(tempGraph2.getMedialAxis());
 //			tempGraph2.removeSegments((int)Math.round((img.getAverage()/2)), -1);
 //			tempShape.setMedialAxis(tempGraph2.getMedialAxis());
 //			tempShape.fillInSkeleton(tempGraph2);
