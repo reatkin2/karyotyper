@@ -1,19 +1,21 @@
+package runner;
 import java.io.File;
 import java.io.FileReader;
 import java.util.LinkedList;
 
+public class ImageQueue {
+	private LinkedList<String> imageQueue;
 
-public class ImageQue {
-	private LinkedList<String> imageQue;
-	
-	public ImageQue(){
-		this.imageQue = new LinkedList<String>();
+	public ImageQueue() {
+		this.imageQueue = new LinkedList<String>();
 	}
-	
+
 	/**
-	 * puts all the files into the que that are in the folder specified by path
-	 * and returns the next file in the que
-	 * @param the folder that you want to get images from
+	 * puts all the files into the queue that are in the folder specified by path and returns the
+	 * next file in the queue
+	 * 
+	 * @param the
+	 *            folder that you want to get images from
 	 * @return the filename of the next image in images left to look at
 	 */
 	public String getNextFile(String path) {
@@ -24,19 +26,19 @@ public class ImageQue {
 			if (listOfFiles[i].isFile()) {
 				String file = listOfFiles[i].getName();
 				if (file.endsWith(".jpg") || file.endsWith(".JPG")) {
-					if (imageQue.size() == 0) {
-						imageQue.add(file);
-						this.imageQue.add(file);
+					if (imageQueue.size() == 0) {
+						imageQueue.add(file);
+						this.imageQueue.add(file);
 						return path + "/" + file;
 					} else {
 						foundFile = false;
-						for (int j = 0; j < imageQue.size(); j++) {
-							if (imageQue.get(j).equals(file)) {
+						for (int j = 0; j < imageQueue.size(); j++) {
+							if (imageQueue.get(j).equals(file)) {
 								foundFile = true;
 							}
 						}
 						if (!foundFile) {
-							this.imageQue.add(file);
+							this.imageQueue.add(file);
 							this.waitTillFileIsReady(path + "/" + file);
 							return path + "/" + file;
 						}
@@ -46,17 +48,19 @@ public class ImageQue {
 		}
 		return null;
 	}
-	
+
 	/**
-	 * if a file has just been copied into the folder this will wait until
-	 * its fully copied before returning it as a file that can be checked
-	 * @param the name of the file to be waited on
+	 * if a file has just been copied into the folder this will wait until its fully copied before
+	 * returning it as a file that can be checked
+	 * 
+	 * @param the
+	 *            name of the file to be waited on
 	 * @return returns true if the file is ready
 	 */
 	private boolean waitTillFileIsReady(String filename) {
 		File fileToCopy = new File(filename);
 		boolean fileReady = false;
-		int sleepTime = 500; // Sleep 1 second
+		int sleepTime = 500;
 		while (!fileReady) {
 			// Cannot write to file, windows still working on it
 			// Sleep(sleepTime);
