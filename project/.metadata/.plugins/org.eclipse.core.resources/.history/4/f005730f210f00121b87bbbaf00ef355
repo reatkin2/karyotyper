@@ -209,15 +209,15 @@ public class MedialAxisGraph {
 		}
 		return connected;
 	}
-//	private void trimGraph(){
-//		LinkedList<Vertex> intersections=this.getIntersections();
-//		for(int i=0;i<intersections.size();i++){
-//			LinkedList<Point> checkList=new LinkedList<Point>();
-//			boolean
-//			for(int j=0;j<intersections.get(i).getChildren().size();j++){
-//				checkList.add(intersections.get(i).getChildren().get(j).getPoint());
-//			}
-//			for
-//		}
-//	}
+	private void trimGraph(){
+		LinkedList<Vertex> intersections=this.getIntersections();
+		for(int i=0;i<intersections.size();i++){
+			LinkedList<Point> checkList=new LinkedList<Point>();
+			boolean
+			for(int j=0;j<intersections.get(i).getChildren().size();j++){
+				checkList.add(intersections.get(i).getChildren().get(j).getPoint());
+			}
+			for
+		}
+	}
 }

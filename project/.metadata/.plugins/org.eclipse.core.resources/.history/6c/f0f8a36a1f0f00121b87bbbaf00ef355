@@ -113,22 +113,22 @@ public class MedialAxisGraph {
 				tempList.add(intersections.get(i).getChildren().get(j));
 				LinkedList<Vertex> segment=getSegment(tempList,0);
 				if(minLength!=-1&&segment.size()<minLength){
-					removeVertice(segment);
+					removeSingleSegment(segment);
 				}
 				else if(maxLength!=-1&&segment.size()>maxLength){
-					removeVertice(segment);
+					removeSingleSegment(segment);
 				}
 				
 			}
 		}
-		removeVertice(intersections);
+		removeSingleSegment(intersections);
 	}
 	
 	/**
 	 * remove all vertexes from the graph that are in the removeList
 	 * @param removeList the list of vertexes to be removed
 	 */
-	private void removeVertice(LinkedList<Vertex> removeList){
+	private void removeSingleSegment(LinkedList<Vertex> removeList){
 		for(int i=0;i<removeList.size();i++){
 			for(int j=0;j<removeList.get(i).getChildren().size();j++){
 				if(removeList.get(i).getChildren().get(j).getChildren().contains(removeList.get(i))){
@@ -209,15 +209,4 @@ public class MedialAxisGraph {
 		}
 		return connected;
 	}
-//	private void trimGraph(){
-//		LinkedList<Vertex> intersections=this.getIntersections();
-//		for(int i=0;i<intersections.size();i++){
-//			LinkedList<Point> checkList=new LinkedList<Point>();
-//			boolean
-//			for(int j=0;j<intersections.get(i).getChildren().size();j++){
-//				checkList.add(intersections.get(i).getChildren().get(j).getPoint());
-//			}
-//			for
-//		}
-//	}
 }
