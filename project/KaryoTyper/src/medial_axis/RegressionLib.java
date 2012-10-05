@@ -1,7 +1,7 @@
 /**
  * 
  */
-package MedialAxis;
+package medial_axis;
 
 import java.awt.Color;
 import java.awt.Point;
@@ -24,7 +24,7 @@ import org.apache.commons.math3.optimization.general.LevenbergMarquardtOptimizer
 public class RegressionLib {
 	// This is set after running a regression method in this class.
 	private double fitError;
-	
+
 	public static void main(String[] args) {
 		try {
 			int DEGREE = 3;
@@ -66,7 +66,7 @@ public class RegressionLib {
 				if (y >= img.getHeight() - 1 || y < 0) {
 					continue;
 				}
-				
+
 				img.setRGB(x, y, PURE_BLUE);
 			}
 
@@ -80,15 +80,14 @@ public class RegressionLib {
 		}
 	}
 
-	public DifferentiableUnivariateFunction ApproxByPolynomial(int degree,
-			ArrayList<Point> points) {
+	public DifferentiableUnivariateFunction ApproxByPolynomial(int degree, ArrayList<Point> points) {
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
 		PolynomialFitter fitter = new PolynomialFitter(degree, optimizer);
 
 		for (Point pt : points) {
 			fitter.addObservedPoint(pt.x, pt.y);
 		}
-		
+
 		PolynomialFunction approximation = new PolynomialFunction(fitter.fit());
 		this.setFitError(optimizer.getRMS());
 		return approximation;
