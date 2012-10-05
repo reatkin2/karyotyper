@@ -46,7 +46,7 @@ public class MedialAxis {
 
 	private void copyMedialAxis(MedialAxis copyMedialAxis) {
 		this.distanceMap = new DistanceMap(copyMedialAxis.distanceMap);
-		this.skeleton = copyMedialAxis.getSkeltonPoints();
+		this.skeleton = copyMedialAxis.getSkeletonPoints();
 		this.biggestIncreaseSkeletonAtWidthCount = copyMedialAxis.biggestIncreaseSkeletonAtWidthCount;
 		this.most2LeastRemovedAtWidthCount = copyMedialAxis.most2LeastRemovedAtWidthCount;
 		objectWidth[0] = copyMedialAxis.objectWidth[0];
@@ -54,11 +54,17 @@ public class MedialAxis {
 
 	}
 
+	/**
+	 * this returns an array of two integers that represent the width of the chromosome found when
+	 * doing erosion/distance map by two different methods
+	 * 
+	 * @return the width
+	 */
 	public int[] getObjectWidth() {
 		return objectWidth;
 	}
 
-	public LinkedList<Point> getSkeltonPoints() {
+	public LinkedList<Point> getSkeletonPoints() {
 		return this.skeleton;
 	}
 
@@ -66,6 +72,14 @@ public class MedialAxis {
 		return distanceMap;
 	}
 
+	/**
+	 * this does the erosion and distanceMap creation similtaniously
+	 * 
+	 * @param myCluster
+	 *            the cluster to get the medial Axis of
+	 * @param img
+	 *            the image to the cluster is from
+	 */
 	public void createSkeleton(Cluster myCluster, GeneticSlideImage image) {
 		// create a linked list to store Clusters in
 		LinkedList<Point> removeEdgePointsHorizantal = new LinkedList<Point>();
@@ -216,12 +230,27 @@ public class MedialAxis {
 		this.objectWidth[1] = this.most2LeastRemovedAtWidthCount;
 	}
 
+	/**
+	 * this is used to add back the parts of the medial axis that have been removed during erosion
+	 * to help with the next step of erosion
+	 * 
+	 * @param temp
+	 *            the cluster to add back the medial axis points too
+	 */
 	private void addBackSkeleton(Cluster temp) {
 		for (int i = 0; i < skeleton.size(); i++) {
 			temp.setPixel(skeleton.get(i), true);
 		}
 	}
 
+	/**
+	 * this attempts to reconnect the pieces of the medialAxis that were disconnected during erosion
+	 * 
+	 * @param myCluster
+	 *            the cluster that we are getting the medial axis of
+	 * @param graph
+	 *            the graph of the medialAxis
+	 */
 	public void fillInSkeleton(ChromosomeCluster myCluster, MedialAxisGraph graph) {
 		AroundPixel aroundPixel = new AroundPixel();
 		for (int i = 0; i < skeleton.size(); i++) {
@@ -256,11 +285,11 @@ public class MedialAxis {
 							mostCenteredConnection = distanceMap.getDistanceFromEdge(tempAround);
 							addPoint = j;
 						}
-						int currConnections = check4MostNewConnection(j, tempPoint);
+						int currConnections = checkForMostNewConnection(j, tempPoint);
 						if (currConnections > mostNewConnections) {
 							mostConnected = aroundPixel.getPoint(j, tempPoint);
 							mostNewConnections = currConnections;
-							newConnectionPoint = this.getConnection(j, tempPoint);
+							newConnectionPoint = this.getBridgePoint(j, tempPoint);
 						}
 					}
 				}
@@ -291,20 +320,20 @@ public class MedialAxis {
 
 	}
 
-	private Point getConnection(int corner2Check, Point axisPoint) {
+	/**
+	 * this gets a point that is the bridge connection to another part of the medial axis and
+	 * returns the point(-1,-1) if there wasn't a bridge point
+	 * 
+	 * @param corner2Check
+	 *            the direction to look for a bridge based of aroundPixel
+	 * @param axisPoint
+	 *            a point on the medialAxis
+	 * @return the bridging point or (-1,-1)
+	 */
+	private Point getBridgePoint(int corner2Check, Point axisPoint) {
 		AroundPixel aroundPixel = new AroundPixel();
 		Point cornerConnection = new Point(-1, -1);
-		// for(int i=0;i<3;i++){
 		Point tempPoint = aroundPixel.getPoint(corner2Check, axisPoint);
-		// if(cornerConnected-1+i==-1){
-		// tempPoint=this.aroundPixel.getPoint(7, axisPoint);
-		// }
-		// else if(cornerConnected-1+i==8){
-		// tempPoint=this.aroundPixel.getPoint(0, axisPoint);
-		// }
-		// else{
-		// tempPoint=this.aroundPixel.getPoint(cornerConnected-1+i, axisPoint);
-		// }
 		if (this.skeleton.contains(tempPoint)) {
 			return cornerConnection;
 		}
@@ -326,45 +355,72 @@ public class MedialAxis {
 		} else if (this.skeleton.contains(aroundPixel.getPoint(corner2Check + 1, tempPoint))) {
 			return aroundPixel.getPoint(corner2Check + 1, tempPoint);
 		}
-
-		// }
 		return cornerConnection;
 	}
 
-	private int check4MostNewConnection(int corner2Check, Point axisPoint) {
+	/**
+	 * returns the number of connections a bridge point will give
+	 * 
+	 * @param cornerToCheck
+	 *            direction to check for bridge connections based on AroundPixel
+	 * @param axisPoint
+	 *            the point on the medial axis to bridge from
+	 * @return the number of connections the corner2Check has
+	 */
+	private int checkForMostNewConnection(int cornerToCheck, Point axisPoint) {
 		AroundPixel aroundPixel = new AroundPixel();
 		int connectionCount = 0;
-		Point tempPoint = aroundPixel.getPoint(corner2Check, axisPoint);
+		Point tempPoint = aroundPixel.getPoint(cornerToCheck, axisPoint);
 		if (this.skeleton.contains(tempPoint)) {
 			return 0;
 		}
-		if (this.skeleton.contains(aroundPixel.getPoint(corner2Check, tempPoint))) {
+		if (this.skeleton.contains(aroundPixel.getPoint(cornerToCheck, tempPoint))) {
 			connectionCount++;
 		}
-		if (corner2Check - 1 < 0) {
+		if (cornerToCheck - 1 < 0) {
 			if (this.skeleton.contains(aroundPixel.getPoint(7, tempPoint))) {
 				connectionCount++;
 			}
 
-		} else if (this.skeleton.contains(aroundPixel.getPoint(corner2Check - 1, tempPoint))) {
+		} else if (this.skeleton.contains(aroundPixel.getPoint(cornerToCheck - 1, tempPoint))) {
 			connectionCount++;
 		}
-		if (corner2Check + 1 > 7) {
+		if (cornerToCheck + 1 > 7) {
 			if (this.skeleton.contains(aroundPixel.getPoint(0, tempPoint))) {
 				connectionCount++;
 			}
-		} else if (this.skeleton.contains(aroundPixel.getPoint(corner2Check + 1, tempPoint))) {
+		} else if (this.skeleton.contains(aroundPixel.getPoint(cornerToCheck + 1, tempPoint))) {
 			connectionCount++;
 		}
-
-		// }
 		return connectionCount;
 	}
 
-	public void writeObjectWidths() {
-		System.out.print("Widths for this image: " + this.objectWidth[0] + ","
-				+ this.objectWidth[0]);
+	/**
+	 * returns a list of points of this medial axis trimmed by removing points from the medial axis
+	 * based on the distance from the edge any point that is less than minDistance will be removed
+	 * 
+	 * @param minDistance
+	 *            the distance from edge that axis must be or be removed
+	 * @return a linklist of points of the trimmed medial axis
+	 */
+	public LinkedList<Point> trimMedialAxis(int minDistance) {
+		LinkedList<Point> trimmedAxis = new LinkedList<Point>();
+		if (this.skeleton != null) {
+			for (int i = 0; i < this.skeleton.size(); i++) {
+				if (distanceMap.getDistanceFromEdge(this.skeleton.get(i)) >= minDistance) {
+					trimmedAxis.add(this.skeleton.get(i));
+				}
+			}
+		}
+		return trimmedAxis;
 
 	}
 
+	/**
+	 * this is for testing it outputs the widths to console that were found creating the medial axis
+	 */
+	public void writeObjectWidths() {
+		System.out.print("Widths for this image: " + this.objectWidth[0] + ","
+				+ this.objectWidth[1]);
+	}
 }

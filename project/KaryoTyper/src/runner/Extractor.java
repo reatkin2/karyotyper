@@ -207,7 +207,7 @@ public class Extractor {
 	 * 
 	 * @return the number of chunks of the background marked removed
 	 */
-	public int findBackground(GeneticSlideImage img) {
+	public int removeBackground(GeneticSlideImage img) {
 		this.firstPassCount = 0;
 		LinkedList<ChromosomeCluster> tempClusterList = new LinkedList<ChromosomeCluster>();
 		int clusterNum = 0;
@@ -260,14 +260,10 @@ public class Extractor {
 		this.clusterList = new LinkedList<ChromosomeCluster>();
 		Color color1 = new Color(0, 0, 0);// color that will be used to store pixel color to check
 		ChromosomeCluster temp = new ChromosomeCluster(clusterNum);
-		for (int r = pixelSpace + 1; r < img.getImgWidth() - pixelSpace; r += pixelSpace) {// made
-																							// plus
-																							// one
-																							// change
-																							// chromosomes
+		// made plus one change chromosomes
+		for (int r = pixelSpace + 1; r < img.getImgWidth() - pixelSpace; r += pixelSpace) {
 			for (int j = pixelSpace; j < img.getImgHeight() - pixelSpace; j += pixelSpace) {
 				if (!img.isPixelChecked(new Point(r, j))) {
-
 					color1 = img.getColorAt(r, j);// get pixel color from point
 					temp = getClusterLeft(img, 200, color1, r, j, temp);
 					if (temp != null) {
