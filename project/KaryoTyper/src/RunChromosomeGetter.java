@@ -87,7 +87,7 @@ public class RunChromosomeGetter extends JFrame{
 						//use the current image in the que and create a slideImage
 						GeneticSlideImage image=new GeneticSlideImage(filename);
 						//extract the background from the image
-						extractor.findBackground(image);
+						extractor.removeBackground(image);
 						//get clusters from the image and keep a count of how many
 						frame.targetsFound+=extractor.findClusters(image);
 						//pass the list of clusters on to slidelist

@@ -18,7 +18,7 @@ public class TestShape {
 		Extractor extractor=new Extractor();						
 		if(filename!=null){
 			//extract the background from the image
-			int shapeNum=extractor.findBackground(image);
+			int shapeNum=extractor.removeBackground(image);
 			//extract the clusters from the image
 			shapeNum=extractor.findClusters(image);
 			//pass on the list of clusters

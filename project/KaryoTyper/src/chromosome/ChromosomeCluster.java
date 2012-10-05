@@ -31,7 +31,7 @@ public class ChromosomeCluster extends Cluster {
     	initChromosomeCluster();
         copyChromosome(makeNew);
     }
-	public int getWidths(int pos){
+	public double getWidths(int pos){
 		return this.medialAxis.getObjectWidth()[pos];
 	}
 

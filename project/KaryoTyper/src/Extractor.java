@@ -199,7 +199,7 @@ public class Extractor {
 	 * 
 	 * @return the number of chunks of the background marked removed
 	 */
-	public int findBackground(GeneticSlideImage img) {
+	public int removeBackground(GeneticSlideImage img) {
 		this.firstPassCount = 0;
 		LinkedList<ChromosomeCluster> tempClusterList = new LinkedList<ChromosomeCluster>();
 		int clusterNum = 0;
@@ -265,11 +265,11 @@ public class Extractor {
 		     				temp.getMedialAxis().createSkeleton(temp, img);
 		     				img.addWidth(temp.getWidths(0));
 		     				img.addWidth(temp.getWidths(1));
-		     				if(((temp.getWidths(0)>=4&&temp.getWidths(0)<15)
-		     							||(temp.getWidths(1)>=4&&temp.getWidths(1)<15))){
+		     				if(((temp.getWidths(0)>=8&&temp.getWidths(0)<30)
+		     							||(temp.getWidths(1)>=8&&temp.getWidths(1)<30))){
 		     					if((temp.getPixelCount()<this.firstPixelMax)
-		     							||(temp.getWidths(0)<10&&temp.getWidths(1)<10)){
-			     					if(!((temp.getWidths(0)>15||temp.getWidths(1)>15))){
+		     							||(temp.getWidths(0)<20&&temp.getWidths(1)<20)){
+			     					if(!((temp.getWidths(0)>30||temp.getWidths(1)>30))){
 			     						temp.setkeepThisCluster();
 			     					}
 		     					}

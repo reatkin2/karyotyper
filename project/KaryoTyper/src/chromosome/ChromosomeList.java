@@ -20,17 +20,22 @@ public class ChromosomeList {
 		img=newImg;
 	}
 
+    /**
+     * goes through the list chromosomelist and calls either
+     * the method to write chromosome images to the keep folder or
+     * to the removed folder
+     */
     public void printChromosomes(){
 		for(int i=0;i<this.chromosomeList.size();i++){
 			ChromosomeCluster tempCluster=this.chromosomeList.get(i);
-			MedialAxisGraph tempGraph2=new MedialAxisGraph(tempCluster.getMedialAxis().getSkeltonPoints());
+			MedialAxisGraph tempGraph2=new MedialAxisGraph(tempCluster.getMedialAxis().getMedialAxisPoints());
 			tempCluster.getMedialAxis().fillInSkeleton(tempCluster,tempGraph2);
-//			tempGraph2.removeSegments((int)Math.round((img.getAverage())), -1);
+//			tempGraph2.removeSegments((int)Math.round((img.getAverage()/2)), -1);
 //			tempShape.setMedialAxis(tempGraph2.getMedialAxis());
 //			tempShape.fillInSkeleton(tempGraph2);
 			//TODO(aamcknig):remove segments only if they don't have interesctions at both ends
 				if(tempCluster.checkKeepThisCluster()){
-					writeTargetImage(tempCluster,tempCluster.getMedialAxis().getSkeltonPoints(),new Color(255,0,0));
+					writeTargetImage(tempCluster,tempCluster.getMedialAxis().getMedialAxisPoints(),new Color(255,0,0));
 				}
 				else{
 					writeRemovedImage(tempCluster);
@@ -38,6 +43,14 @@ public class ChromosomeList {
 		}
 		this.chromosomeList=new LinkedList<ChromosomeCluster>();
 }
+    
+/**
+ * Writes chromosome images to the keep folder and if not null writes the linkedlist
+ * of points in color specified
+ * @param tempCluster the cluster to printOut as the part of the original image that is the cluster
+ * @param colorPoints the points to paint over the chromosome the color paintColor
+ * @param paintColor the color to paint the Points in colorPoints
+ */
 public void writeTargetImage(ChromosomeCluster tempCluster,LinkedList<Point> colorPoints,Color paintColor){
 	try {
 		File curDir=new File(".");
@@ -50,6 +63,11 @@ public void writeTargetImage(ChromosomeCluster tempCluster,LinkedList<Point> col
 	}
 }
 
+/**
+ * this prints out a image that is the graphical representation of the distance map
+ *  that is in tempCluster
+ * @param tempCluster the cluster that has the distancemap to be printed
+ */
 public void writeISOClineImage(ChromosomeCluster tempCluster){
 	try {
 		File curDir=new File(".");
@@ -63,6 +81,11 @@ public void writeISOClineImage(ChromosomeCluster tempCluster){
 
 }
 
+/**
+ * this rights the part of the image that is the cluster tempCluster to the 
+ * removed folder
+ * @param tempCluster the cluster to write to the removed folder
+ */
 public void writeRemovedImage(ChromosomeCluster tempCluster){
 	try {
 		File curDir=new File(".");

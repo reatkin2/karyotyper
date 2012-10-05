@@ -28,7 +28,7 @@ public class GeneticSlideImage {
     private int mins;
     private int secs;
     private double []grayScale=new double[256];
-    private LinkedList<Integer> chromosomeWidth;
+    private LinkedList<Double> chromosomeWidth;
 	private boolean[][] pixelChecked;
     private double averageWidth;
 	private int colorThreshold;
@@ -60,12 +60,13 @@ public class GeneticSlideImage {
 			System.out.println(e);
 		}
 		averageWidth=-1;
-		chromosomeWidth=new LinkedList<Integer>();
+		chromosomeWidth=new LinkedList<Double>();
 		pixelChecked = new boolean[img.getWidth()][img.getHeight()];
 		pixelFound = new boolean[img.getWidth()][img.getHeight()];
         initPixelsChecked();
 		this.computeScale();
 		this.graphScale();
+		//TODO(aamcknig): make this run on linear regressed function and not a static number
 		this.colorThreshold = 245;
 
 
@@ -109,21 +110,18 @@ public class GeneticSlideImage {
 		}
 
 	}
-    public BufferedImage getSubImage(Cluster targetCluster){
-		BufferedImage tempImg=new BufferedImage(targetCluster.getSize().x,targetCluster.getSize().y,BufferedImage.TYPE_3BYTE_BGR);
-		for(int i=targetCluster.getImageLocation().x;i<(targetCluster.getImageLocation().x+targetCluster.getSize().x);i++){
-			for(int j=targetCluster.getImageLocation().y;j<(targetCluster.getImageLocation().y+targetCluster.getSize().y);j++){
-				if(targetCluster.getValue(i-targetCluster.getImageLocation().x, j-targetCluster.getImageLocation().y))
-				tempImg.setRGB(i-targetCluster.getImageLocation().x, j-targetCluster.getImageLocation().y, img.getRGB(i,j));
-				else{
-					tempImg.setRGB(i-targetCluster.getImageLocation().x, j-targetCluster.getImageLocation().y, (Color.BLACK).getRGB());
-				}
-			}
 
-		}
-		return tempImg;
-    }
-    public BufferedImage getSubImage(Cluster targetCluster,LinkedList<Point> pointList,Color draw){
+	/**
+     * this returns a bufferedImage of the square cluster area with
+     * the original image of the cluster inside the square and all points
+     * in the square area that are not part of the cluster are painted white
+     * and all points in pointList are painted the color drawColor if not null
+     * @param targetCluster the cluster to create a buffered image of
+     * @param pointList the pointlist of points to paint over the image if not null
+     * @param drawColor the color to paint the points in point list if not null
+     * @return a buffered image of the cluster area with points painted over
+     */
+    public BufferedImage getSubImage(Cluster targetCluster,LinkedList<Point> pointList,Color drawColor){
 		BufferedImage tempImg=new BufferedImage(targetCluster.getSize().x,targetCluster.getSize().y,BufferedImage.TYPE_3BYTE_BGR);
 		for(int i=targetCluster.getImageLocation().x;i<(targetCluster.getImageLocation().x+targetCluster.getSize().x);i++){
 			for(int j=targetCluster.getImageLocation().y;j<(targetCluster.getImageLocation().y+targetCluster.getSize().y);j++){
@@ -137,12 +135,18 @@ public class GeneticSlideImage {
 		}
 		if(pointList!=null&&!pointList.isEmpty()){
 			for(int i=0;i<pointList.size();i++){
-				tempImg.setRGB(pointList.get(i).x, pointList.get(i).y, (draw).getRGB());
+				tempImg.setRGB(pointList.get(i).x, pointList.get(i).y, (drawColor).getRGB());
 			}
 		}
 					
 		return tempImg;
     }
+    
+    /**
+     * this returns a graphical representation of a distance map as a bufferedImage
+     * @param distanceMap the distance map to be represented
+     * @return a bufferedimage representing the distancemap
+     */
     public BufferedImage getISOcline(DistanceMap distanceMap){
 		BufferedImage tempImg=new BufferedImage(distanceMap.getWidth(),distanceMap.getHeight(),BufferedImage.TYPE_3BYTE_BGR);
 		for(int i=0;i<distanceMap.getHeight();i++){
@@ -161,21 +165,6 @@ public class GeneticSlideImage {
 		return tempImg;
     }
 
-    public BufferedImage getSubImage(Cluster targetCluster,int borderPixels){
-		BufferedImage tempImg=new BufferedImage(targetCluster.getSize().x+(2*borderPixels),targetCluster.getSize().y+(2*borderPixels),BufferedImage.TYPE_3BYTE_BGR);
-		for(int i=targetCluster.getImageLocation().x-borderPixels;i<(targetCluster.getImageLocation().x+targetCluster.getSize().x+borderPixels);i++){
-			for(int j=targetCluster.getImageLocation().y-borderPixels;j<(targetCluster.getImageLocation().y+targetCluster.getSize().y+borderPixels);j++){
-				if(i>=0&&j>=0&&i<img.getWidth()&&j<img.getHeight()){
-					tempImg.setRGB(i-(targetCluster.getImageLocation().x-borderPixels), j-(targetCluster.getImageLocation().y-borderPixels), img.getRGB(i,j));
-				}
-				else{
-					tempImg.setRGB(i-(targetCluster.getImageLocation().x-borderPixels), j-(targetCluster.getImageLocation().y-borderPixels),(new Color(0,0,0,0).getRGB()));
-				}
-			}
-
-		}
-		return tempImg;
-    }
     public String getMetaData(){
     	return this.comments;
     }
@@ -195,7 +184,7 @@ public class GeneticSlideImage {
 	public double getHeading() {
 		return heading;
 	}
-	public void addWidth(int width){
+	public void addWidth(double width){
 		this.calcNewAvg(width);
 		this.chromosomeWidth.add(width);
 	}
@@ -207,6 +196,12 @@ public class GeneticSlideImage {
 		return this.averageWidth;
 	}
 
+    /**
+     * required to convert the number representing a color in a jpeg image
+     * to a number that can be stored as java Color object
+     * @param pixel the number of representing the rgb value of a pixel in a jpeg image
+     * @return a java Color object that represents the color of the jpeg's pixel
+     */
     public Color convertPixel(int pixel){
 	      int red = (pixel & 0x00ff0000) >> 16;
 	      int green = (pixel & 0x0000ff00) >> 8;
@@ -238,7 +233,12 @@ public class GeneticSlideImage {
 	public void setSecs(int secs) {
 		this.secs = secs;
 	}
-	public void computeScale(){
+	
+	/**
+	 * this creates a histogram of the grayscale of colors in the this image
+	 * called in the constructor
+	 */
+	private void computeScale(){
 		Color tempColor=new Color(0,0,0);
 		for(int i=100;i<this.getImgWidth();i++){
 			for(int j=100;j<this.getImgHeight();j++){
@@ -249,7 +249,12 @@ public class GeneticSlideImage {
 			}
 		}
 	}
-	public void graphScale(){
+	
+	/**
+	 * this appends to a comma seperated file of values of the grayscale
+	 * found in each image, called in constructor
+	 */
+	private void graphScale(){
 		 try{
 			 // Create file 
 			 FileWriter fstream = new FileWriter("GrayScale.txt",true);
@@ -270,13 +275,24 @@ public class GeneticSlideImage {
 			  
 			
 	}
+	
+	/**
+	 * this is for testing, outputs the average width of chromosomes
+	 * in the current image
+	 */
 	public void writeChromosomesWidth() {
 		System.out.print("Widths for this image: ");
 		for(int i=0;i<this.chromosomeWidth.size();i++){
 			System.out.print(this.chromosomeWidth.get(i)+",");
 		}
 	}
-	public void calcNewAvg(int newWidth){
+	
+	/**
+	 * averages in a new value to get the average width of chromosomes
+	 * in this image
+	 * @param newWidth the new width to average in
+	 */
+	public void calcNewAvg(double newWidth){
 		if(this.chromosomeWidth.isEmpty()){
 			this.averageWidth=newWidth;
 		}
@@ -284,10 +300,15 @@ public class GeneticSlideImage {
 			this.averageWidth=(((this.averageWidth*this.chromosomeWidth.size())+newWidth)/(this.chromosomeWidth.size()+1));
 		}
 	}
+	
+	/**
+	 * this removes outliers and recalcs the average width of chromosomes
+	 * in this image
+	 */
 	public void recalcAvgWidth(){
 		double temp=-1;
-		LinkedList<Integer> goodWidths=new LinkedList<Integer>();
-		if(this.chromosomeWidth.size()>2){
+		LinkedList<Double> goodWidths=new LinkedList<Double>();
+		if(this.chromosomeWidth.size()>4){
 			for(int i=0;i<this.chromosomeWidth.size();i++){
 				if(Math.abs(this.averageWidth-((double)this.chromosomeWidth.get(i)))<3){
 					goodWidths.add(this.chromosomeWidth.get(i));
