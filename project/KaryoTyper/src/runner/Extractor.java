@@ -265,7 +265,7 @@ public class Extractor {
 			for (int j = pixelSpace; j < img.getImgHeight() - pixelSpace; j += pixelSpace) {
 				if (!img.isPixelChecked(new Point(r, j))) {
 					color1 = img.getColorAt(r, j);// get pixel color from point
-					temp = getClusterLeft(img, 200, color1, r, j, temp);
+					temp = getClusterLeft(img, 500, color1, r, j, temp);
 					if (temp != null) {
 						temp = new ChromosomeCluster(temp);
 						temp.setClusterNimageID(clusterNum++);

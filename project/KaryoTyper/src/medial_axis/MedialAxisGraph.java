@@ -114,20 +114,37 @@ public class MedialAxisGraph {
 		LinkedList<Vertex> intersections = this.getIntersections();
 		for (int i = 0; i < intersections.size(); i++) {
 			for (int j = 0; j < intersections.get(i).getChildren().size(); j++) {
-				LinkedList<Vertex> tempList = new LinkedList<Vertex>();
-				tempList.add(intersections.get(i).getChildren().get(j));
-				LinkedList<Vertex> segment = getSegment(tempList, 0);
-				if (minLength != -1 && segment.size() < minLength) {
-
-					removeVertice(segment);
-				} else if (maxLength != -1 && segment.size() > maxLength) {
-					removeVertice(segment);
+				if(!intersections.get(i).getChildren().get(j).isIntersection()){
+					LinkedList<Vertex> tempList = new LinkedList<Vertex>();
+					tempList.add(intersections.get(i).getChildren().get(j));
+					LinkedList<Vertex> segment = getSegment(tempList, 0);
+					if(this.getIntersectionCount(segment)<2){
+						if (minLength != -1 && segment.size() < minLength) {
+		
+							removeVertice(segment);
+						} else if (maxLength != -1 && segment.size() > maxLength) {
+							removeVertice(segment);
+						}
+					}
 				}
 			}
 		}
 		removeVertice(intersections);
 	}
-
+	/**
+	 * returns the number of intersections in a list of verteci
+	 * @param vertexList the list to count intersections of
+	 * @return the number of intersections found in the list
+	 */
+	public int getIntersectionCount(LinkedList<Vertex> vertexList){
+		int count=0;
+		for (int i=0;i<vertexList.size();i++){
+			if(vertexList.get(i).isIntersection()){
+				count++;
+			}
+		}
+		return count;
+	}
 	/**
 	 * remove all vertexes from the graph that are in the removeList
 	 * 
@@ -148,12 +165,14 @@ public class MedialAxisGraph {
 
 	private void removeVertex(Vertex removeVertex){
 		int positionNGraph=this.indexOfVertexWithPoint(removeVertex.getPoint());
+		if(positionNGraph!=-1){
 			for(int j=0;j<removeVertex.getChildren().size();j++){
 				if(removeVertex.getChildren().get(j).getChildren().contains(removeVertex)){
 					removeVertex.getChildren().get(j).getChildren().remove(removeVertex);
 				}
 			}
 			this.axisGraph.remove(positionNGraph);
+		}
 	}
 	
 	/**
@@ -237,33 +256,36 @@ public class MedialAxisGraph {
 		}
 		return connected;
 	}
+	
+	/**
+	 * removes any point of the graph that is not critical 
+	 * to connecting the graph
+	 */
 	public void trimGraph(){
 		LinkedList<Vertex> intersections=this.getIntersections();
 		//foreach intersection
 		for(int i=0;i<intersections.size();i++){
-			boolean trim=false;
+			int removeVertex=-1;
 			//for each child of the intersection
-			for(int j=0;!trim&&j<intersections.get(i).getChildren().size();j++){
+			for(int j=0;removeVertex==-1&&j<intersections.get(i).getChildren().size();j++){
 				//for each child of the children of the intersection
 				int sameChildrenCount=0;
-				for(int k=0;!trim&&k<intersections.get(i).getChildren().size();k++){
-					if(intersections.get(i).getChildren().get(j).getChildren().contains(intersections.get(i).getChildren().get(k))){
+				for(int k=0;removeVertex==-1&&k<intersections.get(i).getChildren().get(j).getChildren().size();k++){
+					if(intersections.get(i).getChildren().contains(intersections.get(i).getChildren().get(j).getChildren().get(k))){
 						sameChildrenCount++;
 					}
-					else if(intersections.get(i).getChildren().get(j).getPoint().equals(intersections.get(i).getChildren().get(k).getPoint())){
+					else if(intersections.get(i).getPoint().equals(intersections.get(i).getChildren().get(j).getChildren().get(k).getPoint())){
 						sameChildrenCount++;
 					}
 
 				}
-				if(sameChildrenCount==intersections.get(i).getChildren().size()){
-					trim=true;
+				if(sameChildrenCount>1&&sameChildrenCount==intersections.get(i).getChildren().get(j).getChildren().size()){
+					removeVertex=j;
 				}
 				
 			}
-			if(trim){
-				removeVertex(intersections.get(i));
-				intersections.remove(i);
-				i--;
+			if(removeVertex!=-1){
+				removeVertex(intersections.get(i).getChildren().get(removeVertex));
 			}
 		}
 	}

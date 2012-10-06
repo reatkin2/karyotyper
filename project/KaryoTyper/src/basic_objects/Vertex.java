@@ -6,10 +6,12 @@ import java.util.LinkedList;
 public class Vertex {
 	private LinkedList<Vertex> children;
 	private Point myVertex;
+	private boolean wasIntersection;
 
 	public Vertex(Point vertex) {
 		myVertex = new Point(vertex);
 		children = new LinkedList<Vertex>();
+		wasIntersection=false;
 	}
 
 	public void addChild(Vertex nextChild) {
@@ -28,11 +30,14 @@ public class Vertex {
 
 	public boolean isIntersection() {
 		if (children.size() > 2) {
+			wasIntersection=true;
 			return true;
 		}
 		return false;
 	}
-
+	public boolean wasIntersection(){
+		return this.wasIntersection;
+	}
 	public boolean checkAdjacent(Vertex checkPoint) {
 		// TODO(Andrew): change this for efficiency do this in shape without calculating distance
 		if (isChild(checkPoint)) {

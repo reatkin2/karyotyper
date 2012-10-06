@@ -33,9 +33,8 @@ public class ChromosomeList {
 			tempCluster.getMedialAxis().fillInSkeleton(tempCluster, tempGraph2);
 			tempGraph2=new MedialAxisGraph(tempCluster.getMedialAxis().getMedialAxisPoints());
 			tempGraph2.trimGraph();
+			tempGraph2.removeSegments((int)Math.round((img.getAverage()/2)), -1);
 			tempCluster.getMedialAxis().setMedialAxis(tempGraph2.getMedialAxis());
-
-			// tempGraph2.removeSegments((int)Math.round((img.getAverage()/2)), -1);
 			// tempShape.setMedialAxis(tempGraph2.getMedialAxis());
 			// tempShape.fillInSkeleton(tempGraph2);
 			// TODO(aamcknig):remove segments only if they don't have intersections at both ends
