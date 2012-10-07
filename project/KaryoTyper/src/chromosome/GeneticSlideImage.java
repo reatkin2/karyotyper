@@ -19,7 +19,8 @@ public class GeneticSlideImage {
 
 	private String comments;
 	private BufferedImage img;
-	private double[] grayScale = new double[256];
+	private int[] grayScale;
+	private int[] edgeScale;
 	private LinkedList<Double> chromosomeWidth;
 	private boolean[][] pixelChecked;
 	private double averageWidth;
@@ -34,6 +35,8 @@ public class GeneticSlideImage {
 	private boolean[][] pixelFound;
 
 	public GeneticSlideImage(String filename) {
+		grayScale = new int[256];
+		edgeScale=new int[256];
 		img = null;
 		imageName = filename;
 		for (int i = 0; i < grayScale.length; i++) {
@@ -309,5 +312,43 @@ public class GeneticSlideImage {
 		}
 		System.out.println("AverageWidth: " + this.averageWidth);
 	}
+	/**
+	 * this creates a histogram of the grayscale of colors from around the edge of chromosomes
+	 */
+	public void computeEdgeScale(LinkedList<Point> edgePoints) {
+		Color tempColor = new Color(0, 0, 0);
+		for (int i = 100; i < edgePoints.size(); i++) {
+				tempColor = this.getColorAt(edgePoints.get(i).x,edgePoints.get(i).y);
+				double tempGreyPixel = (.299 * tempColor.getRed()) + (.587 * tempColor.getGreen())
+						+ (.114 * tempColor.getBlue());
+				this.edgeScale[(int) Math.round(tempGreyPixel)]++;
+		}
+	}
+
+	/**
+	 * this appends to a comma separated file of values of the grayscale found in each image, called
+	 * in constructor
+	 */
+	public void graphEdgeScale() {
+		try {
+			// Create file
+			FileWriter fstream = new FileWriter("EdgeScale.txt", true);
+			BufferedWriter out = new BufferedWriter(fstream);
+			String buffer = "";
+			for (int i = 0; i < this.edgeScale.length; i++) {// out.write("Hello Java");
+				buffer += "" + this.edgeScale[i] + ",";
+			}
+			out.write(buffer);
+			out.write("\n");
+
+			// Close the output stream
+			out.close();
+			// Catch exception if any
+		} catch (Exception e) {
+			System.err.println("Error: " + e.getMessage());
+		}
+
+	}
+
 
 }

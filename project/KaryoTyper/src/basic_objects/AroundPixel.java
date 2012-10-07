@@ -85,11 +85,13 @@ public class AroundPixel {
 	 * @return a number between 0-7 7 if pos is -1 and 0 if pos is 8
 	 */
 	public int handleLoop(int pos) {
-		if (pos == -1) {
-			return 7;
+		if (pos <0) {
+			pos+=8;
+			return pos;
 		}
-		if (pos == 8) {
-			return 0;
+		if (pos >7) {
+			pos-=8;
+			return pos;
 		}
 		return pos;
 	}
@@ -111,5 +113,10 @@ public class AroundPixel {
 			return true;
 		}
 		return false;
+	}
+	public Point getOppisiteCorner(int pos,Point xy){
+		int oppisiteCorner=pos-4;
+		oppisiteCorner=handleLoop(oppisiteCorner);
+		return this.getPoint(oppisiteCorner, xy);
 	}
 }

@@ -27,17 +27,30 @@ public class ChromosomeList {
 	 */
 	public void printChromosomes() {
 		for (int i = 0; i < this.chromosomeList.size(); i++) {
+			boolean goodChromosome=false;
 			ChromosomeCluster tempCluster = this.chromosomeList.get(i);
+			img.computeEdgeScale(tempCluster.getMedialAxis().getDistanceMap().getTheEdge(0));
 			MedialAxisGraph tempGraph2 = new MedialAxisGraph(tempCluster.getMedialAxis()
-					.getMedialAxisPoints());
-			tempCluster.getMedialAxis().fillInSkeleton(tempCluster, tempGraph2);
-			tempGraph2=new MedialAxisGraph(tempCluster.getMedialAxis().getMedialAxisPoints());
-			tempGraph2.trimGraph();
-			tempGraph2.removeSegments((int)Math.round((img.getAverage()/2)), -1);
-			tempCluster.getMedialAxis().setMedialAxis(tempGraph2.getMedialAxis());
-			// tempShape.setMedialAxis(tempGraph2.getMedialAxis());
-			// tempShape.fillInSkeleton(tempGraph2);
-			// TODO(aamcknig):remove segments only if they don't have intersections at both ends
+					.getMedialAxisPoints(),tempCluster.getMedialAxis().getDistanceMap());
+				tempCluster.getMedialAxis().fillInSkeleton(tempCluster, tempGraph2);
+				tempGraph2=new MedialAxisGraph(tempCluster.getMedialAxis()
+						.getMedialAxisPoints(),tempCluster.getMedialAxis().getDistanceMap());
+				tempGraph2.trimGraph();
+				tempGraph2.removeSegments((int)Math.round((img.getAverage()*(2.0/3.0))), -1);
+				tempCluster.getMedialAxis().setMedialAxis(tempGraph2.getMedialAxis());
+//			if(0!=tempGraph2.getIntersectionCount(tempGraph2.getAxisGraph())){
+//				tempGraph2.removeSegments((int)Math.round((img.getAverage()/2)), -1);
+//				tempCluster.getMedialAxis().setMedialAxis(tempGraph2.getMedialAxis());
+//				// tempShape.setMedialAxis(tempGraph2.getMedialAxis());
+//				// tempShape.fillInSkeleton(tempGraph2);
+//			}
+//			else{
+//				goodChromosome=true;
+//			}
+//			if(tempCluster.checkKeepThisCluster()&&goodChromosome){
+//				writeChromosomeImage(tempCluster, tempCluster.getMedialAxis().getMedialAxisPoints(),
+//						new Color(255, 0, 0));
+//			}
 			if (tempCluster.checkKeepThisCluster()) {
 				writeTargetImage(tempCluster, tempCluster.getMedialAxis().getMedialAxisPoints(),
 						new Color(255, 0, 0));
@@ -46,6 +59,7 @@ public class ChromosomeList {
 			}
 		}
 		this.chromosomeList = new LinkedList<ChromosomeCluster>();
+		img.graphEdgeScale();
 	}
 
 	/**
@@ -65,6 +79,32 @@ public class ChromosomeList {
 			File curDir = new File(".");
 			String imageName = new File(tempCluster.getTitle()).getName();
 			File outputfile = new File(curDir.getCanonicalPath() + "/shapeData/Keep/"
+					+ imageName.substring(0, imageName.indexOf('.')) + "_"
+					+ (tempCluster.getClusterNimageID()) + ".png");
+			BufferedImage tempImg = img.getSubImage(tempCluster, colorPoints, paintColor);// ,targetImgBorderSize);//30pixel
+																							// border
+			ImageIO.write(tempImg, "png", outputfile);
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+	}
+	/**
+	 * Writes chromosome images to the keep folder and if not null writes the linkedlist of points
+	 * in color specified
+	 * 
+	 * @param tempCluster
+	 *            the cluster to printOut as the part of the original image that is the cluster
+	 * @param colorPoints
+	 *            the points to paint over the chromosome the color paintColor
+	 * @param paintColor
+	 *            the color to paint the Points in colorPoints
+	 */
+	public void writeChromosomeImage(ChromosomeCluster tempCluster, LinkedList<Point> colorPoints,
+			Color paintColor) {
+		try {
+			File curDir = new File(".");
+			String imageName = new File(tempCluster.getTitle()).getName();
+			File outputfile = new File(curDir.getCanonicalPath() + "/shapeData/Chromosome/"
 					+ imageName.substring(0, imageName.indexOf('.')) + "_"
 					+ (tempCluster.getClusterNimageID()) + ".png");
 			BufferedImage tempImg = img.getSubImage(tempCluster, colorPoints, paintColor);// ,targetImgBorderSize);//30pixel

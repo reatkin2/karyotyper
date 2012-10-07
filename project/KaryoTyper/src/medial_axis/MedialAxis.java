@@ -5,6 +5,7 @@ import java.util.LinkedList;
 
 import basic_objects.AroundPixel;
 import basic_objects.Cluster;
+import basic_objects.ErosionPoint;
 import basic_objects.Vertex;
 import chromosome.ChromosomeCluster;
 import chromosome.GeneticSlideImage;
@@ -82,13 +83,14 @@ public class MedialAxis {
 	 */
 	public void createSkeleton(Cluster myCluster, GeneticSlideImage image) {
 		// create a linked list to store Clusters in
-		LinkedList<Point> removeEdgePointsHorizantal = new LinkedList<Point>();
-		LinkedList<Point> removeEdgePointsVertical = new LinkedList<Point>();
+		LinkedList<ErosionPoint> removeEdgePointsVert = new LinkedList<ErosionPoint>();
+		LinkedList<ErosionPoint> removeEdgePointsHorz = new LinkedList<ErosionPoint>();
 		this.skeleton = new LinkedList<Point>();
+		AroundPixel aroundPixel=new AroundPixel();
 		LinkedList<Point> addThisRound = new LinkedList<Point>();
 		Cluster temp = new Cluster(myCluster);
 		this.distanceMap = new DistanceMap(myCluster.getSize().x, myCluster.getSize().y);
-		Point pointRightEdge = new Point(0, 0);
+		ErosionPoint pointRightEdge = new ErosionPoint(0, 0,false);
 		int objectWidth = 0;
 		boolean inObject = false;
 		boolean beforeObjectEdge = true;
@@ -108,23 +110,23 @@ public class MedialAxis {
 				for (int j = 0; j < temp.getSize().y; j++) {
 					if (temp.getPos(i, j)) {
 						if (beforeObjectEdge) {
-							removeEdgePointsHorizantal.push(new Point(i, j));
+							removeEdgePointsVert.push(new ErosionPoint(i, j,true));
 						}
 						objectWidth++;
 						beforeObjectEdge = false;
 						inObject = true;
-						pointRightEdge = new Point(i, j);
+						pointRightEdge = new ErosionPoint(i, j,false);
 					} else {
 						if (inObject) {
 							if (objectWidth <= 2) {
-								Point tempPoint = removeEdgePointsHorizantal.pop();
+								Point tempPoint = removeEdgePointsVert.pop();
 								if (!skeleton.contains(tempPoint)) {
 									skeleton.add(tempPoint);
 									addThisRound.add(tempPoint);
 								}
 							}
-							removeEdgePointsHorizantal.push(pointRightEdge);
-							pointRightEdge = new Point(0, 0);
+							removeEdgePointsVert.push(pointRightEdge);
+							pointRightEdge = new ErosionPoint(0, 0,false);
 						}
 						inObject = false;
 						beforeObjectEdge = true;
@@ -133,7 +135,7 @@ public class MedialAxis {
 				}
 				if (inObject) {
 					if (objectWidth <= 2) {
-						Point tempPoint = removeEdgePointsHorizantal.pop();
+						Point tempPoint = removeEdgePointsVert.pop();
 						if (!skeleton.contains(tempPoint)) {
 							skeleton.add(tempPoint);
 							addThisRound.add(tempPoint);
@@ -141,8 +143,8 @@ public class MedialAxis {
 					}
 					inObject = false;
 					beforeObjectEdge = true;
-					removeEdgePointsHorizantal.push(pointRightEdge);
-					pointRightEdge = new Point(0, 0);
+					removeEdgePointsVert.push(pointRightEdge);
+					pointRightEdge = new ErosionPoint(0, 0,false);
 				}
 				objectWidth = 0;
 			}
@@ -152,23 +154,23 @@ public class MedialAxis {
 				for (int j = 0; j < temp.getSize().x; j++) {// loop height
 					if (temp.getPos(j, i)) {
 						if (beforeObjectEdge) {
-							removeEdgePointsVertical.push(new Point(j, i));
+							removeEdgePointsHorz.push(new ErosionPoint(j, i,true));
 						}
 						beforeObjectEdge = false;
 						inObject = true;
-						pointRightEdge = new Point(j, i);
+						pointRightEdge = new ErosionPoint(j, i,false);
 						objectWidth++;
 					} else {
 						if (inObject) {
 							if (objectWidth <= 2) {
-								Point tempPoint = removeEdgePointsVertical.pop();
+								Point tempPoint = removeEdgePointsHorz.pop();
 								if (!skeleton.contains(tempPoint)) {
 									skeleton.add(tempPoint);
 									addThisRound.add(tempPoint);
 								}
 							}
-							removeEdgePointsVertical.push(pointRightEdge);
-							pointRightEdge = new Point(0, 0);
+							removeEdgePointsHorz.push(pointRightEdge);
+							pointRightEdge = new ErosionPoint(0, 0,false);
 						}
 						inObject = false;
 						beforeObjectEdge = true;
@@ -177,7 +179,7 @@ public class MedialAxis {
 				}
 				if (inObject) {
 					if (objectWidth <= 2) {
-						Point tempPoint = removeEdgePointsVertical.pop();
+						Point tempPoint = removeEdgePointsHorz.pop();
 						if (!skeleton.contains(tempPoint)) {
 							skeleton.add(tempPoint);
 							addThisRound.add(tempPoint);
@@ -185,21 +187,21 @@ public class MedialAxis {
 					}
 					inObject = false;
 					beforeObjectEdge = true;
-					removeEdgePointsVertical.push(pointRightEdge);
-					pointRightEdge = new Point(0, 0);
+					removeEdgePointsHorz.push(pointRightEdge);
+					pointRightEdge = new ErosionPoint(0, 0,false);
 				}
 				objectWidth = 0;
 			}
 			// remove skeleton points from the list, identified by be duplicate in this list
-			while (!removeEdgePointsVertical.isEmpty()) {
-				Point removePoint = removeEdgePointsVertical.pop();
+			while (!removeEdgePointsHorz.isEmpty()) {
+				Point removePoint = removeEdgePointsHorz.pop();
 				temp.setPixel(removePoint, false);
 				if (distanceMap.getDistanceFromEdge(removePoint) == -5) {
 					distanceMap.setDistanceFormEdge(removePoint, distanceFromEdgeCount);
 				}
 			}
-			while (!removeEdgePointsHorizantal.isEmpty()) {
-				Point removePoint = removeEdgePointsHorizantal.pop();
+			while (!removeEdgePointsVert.isEmpty()) {
+				Point removePoint = removeEdgePointsVert.pop();
 				temp.setPixel(removePoint, false);
 				if (distanceMap.getDistanceFromEdge(removePoint) == -5) {
 					distanceMap.setDistanceFormEdge(removePoint, distanceFromEdgeCount);
@@ -253,6 +255,7 @@ public class MedialAxis {
 	 */
 	public void fillInSkeleton(ChromosomeCluster myCluster, MedialAxisGraph graph) {
 		AroundPixel aroundPixel = new AroundPixel();
+		//for each pixel in skeleton/medial axis
 		for (int i = 0; i < skeleton.size(); i++) {
 			int mostCenteredConnection = 0;
 			int connections = 0;
@@ -265,6 +268,7 @@ public class MedialAxis {
 			boolean connectionPos[] = { false, false, false, false, false, false, false, false };
 			for (int j = 0; j < 8; j++) {
 				Point tempAround = aroundPixel.getPoint(j, tempPoint);
+				//if there not off the edge of the cluster box
 				if (tempAround.x >= 0 && tempAround.x < myCluster.getSize().x && tempAround.y >= 0
 						&& tempAround.y < myCluster.getSize().y) {
 					if (skeleton.contains(tempAround)) {
@@ -273,14 +277,19 @@ public class MedialAxis {
 					}
 				}
 			}
+			//for each pixel around the current skeleton pixel tempAround
 			for (int j = 0; j < 8; j++) {
-				// TODO(aamcknig): Fix not picking ideal pixel sept27,2012 because not picking
-				// within 2 of tempPoint
-				if (!connectionPos[j] && !connectionPos[aroundPixel.handleLoop(j + 1)]
-						&& !connectionPos[aroundPixel.handleLoop(j - 1)]) {
+				//this pixel is not part of skeleton and the two next to it aren't a part of skeleton
+				if (!connectionPos[j] 
+					&& !connectionPos[aroundPixel.handleLoop(j + 1)]
+					&& !connectionPos[aroundPixel.handleLoop(j - 1)]
+					&&(!connectionPos[aroundPixel.handleLoop(j - 2)]
+							||!connectionPos[aroundPixel.handleLoop(j + 2)])) {
 					Point tempAround = aroundPixel.getPoint(j, tempPoint);
+					//if there not off the edge of the cluster box
 					if (tempAround.x >= 0 && tempAround.x < myCluster.getSize().x
 							&& tempAround.y >= 0 && tempAround.y < myCluster.getSize().y) {
+						//if this pixel has a more centered value based on distanceMap
 						if (distanceMap.getDistanceFromEdge(tempAround) > mostCenteredConnection) {
 							mostCenteredConnection = distanceMap.getDistanceFromEdge(tempAround);
 							addPoint = j;
@@ -294,23 +303,30 @@ public class MedialAxis {
 					}
 				}
 			}
+			//if this pixel touches less than 3 pixels in the skeleton and is not near the edge of the chromosome
+			//TODO(aamcknig): possible address a highly connected pixel have 5 or 6 connections
+			//TODO(aamcknig): currently not addressing connections above 2 connections
 			if (connections < 3 && distanceMap.getDistanceFromEdge(tempPoint) > 2) {
 				if (connections < 2) {
+					//if there is a point that connects or bridges back to another part of the skeleton
 					if (mostNewConnections > 0 && mostConnected.x != -1) {
 						skeleton.add(mostConnected);
-						graph.addVertex(new Vertex(mostConnected));
+						graph.addVertex(new Vertex(mostConnected,distanceMap.getDistanceFromEdge(mostConnected)));
 						added = true;
+						//if there is a point to add that is centered in chromosome
 					} else if (addPoint >= 0) {
 						Point newTempPoint = aroundPixel.getPoint(addPoint, tempPoint);
 						skeleton.add(newTempPoint);
-						graph.addVertex(new Vertex(newTempPoint));
+						graph.addVertex(new Vertex(newTempPoint,distanceMap.getDistanceFromEdge(newTempPoint)));
 						added = true;
 					}
 				}
+				//if you have 2 connections but there is a bridge point 
 				if (!added && mostConnected.x != -1) {
+					//if that bridge point connects to a seperate part of the medial axis
 					if (!graph.isConnected(tempPoint, newConnectionPoint)) {
 						skeleton.add(mostConnected);
-						graph.addVertex(new Vertex(mostConnected));
+						graph.addVertex(new Vertex(mostConnected,distanceMap.getDistanceFromEdge(mostConnected)));
 					}
 				}
 
@@ -357,6 +373,41 @@ public class MedialAxis {
 		}
 		return cornerConnection;
 	}
+	/**
+	 * this gets a point that is the bridge connection to another part of the medial axis and
+	 * returns the point(-1,-1) if there wasn't a bridge point
+	 * 
+	 * @param corner2Check
+	 *            the direction to look for a bridge based of aroundPixel
+	 * @param axisPoint
+	 *            a point on the medialAxis
+	 * @return the bridging point or (-1,-1)
+	 */
+	private boolean isBridgePoint(int corner2Check, Point bridgePoint) {
+		AroundPixel aroundPixel = new AroundPixel();
+		if (this.skeleton.contains(bridgePoint)) {
+			return false;
+		}
+		if (this.skeleton.contains(aroundPixel.getPoint(corner2Check, bridgePoint))) {
+			return true;
+		}
+		if (corner2Check - 1 < 0) {
+			if (this.skeleton.contains(aroundPixel.getPoint(7, bridgePoint))) {
+				return true;
+			}
+
+		} else if (this.skeleton.contains(aroundPixel.getPoint(corner2Check - 1, bridgePoint))) {
+			return true;
+		}
+		if (corner2Check + 1 > 7) {
+			if (this.skeleton.contains(aroundPixel.getPoint(0, bridgePoint))) {
+				return true;
+			}
+		} else if (this.skeleton.contains(aroundPixel.getPoint(corner2Check + 1, bridgePoint))) {
+			return true;
+		}
+		return false;
+	}
 
 	/**
 	 * returns the number of connections a bridge point will give
@@ -377,19 +428,12 @@ public class MedialAxis {
 		if (this.skeleton.contains(aroundPixel.getPoint(cornerToCheck, tempPoint))) {
 			connectionCount++;
 		}
-		if (cornerToCheck - 1 < 0) {
-			if (this.skeleton.contains(aroundPixel.getPoint(7, tempPoint))) {
-				connectionCount++;
-			}
 
-		} else if (this.skeleton.contains(aroundPixel.getPoint(cornerToCheck - 1, tempPoint))) {
+		if (this.skeleton.contains(aroundPixel.getPoint(aroundPixel.handleLoop(cornerToCheck - 1), tempPoint))) {
 			connectionCount++;
 		}
-		if (cornerToCheck + 1 > 7) {
-			if (this.skeleton.contains(aroundPixel.getPoint(0, tempPoint))) {
-				connectionCount++;
-			}
-		} else if (this.skeleton.contains(aroundPixel.getPoint(cornerToCheck + 1, tempPoint))) {
+
+		if (this.skeleton.contains(aroundPixel.getPoint(aroundPixel.handleLoop(cornerToCheck + 1), tempPoint))) {
 			connectionCount++;
 		}
 		return connectionCount;

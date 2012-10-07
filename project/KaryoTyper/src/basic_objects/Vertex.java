@@ -7,8 +7,11 @@ public class Vertex {
 	private LinkedList<Vertex> children;
 	private Point myVertex;
 	private boolean wasIntersection;
+	private int distanceFromEdge;
 
-	public Vertex(Point vertex) {
+
+	public Vertex(Point vertex,int distance) {
+		distanceFromEdge=distance;
 		myVertex = new Point(vertex);
 		children = new LinkedList<Vertex>();
 		wasIntersection=false;
@@ -26,6 +29,9 @@ public class Vertex {
 		} else {
 			return false;
 		}
+	}
+	public int getDistanceFromEdge() {
+		return distanceFromEdge;
 	}
 
 	public boolean isIntersection() {

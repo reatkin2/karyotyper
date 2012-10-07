@@ -8,13 +8,9 @@ import basic_objects.Vertex;
 public class MedialAxisGraph {
 	LinkedList<Vertex> axisGraph = new LinkedList<Vertex>();
 
-
-
-
-
-	public MedialAxisGraph(LinkedList<Point> medialAxis) {
+	public MedialAxisGraph(LinkedList<Point> medialAxis,DistanceMap distanceMap) {
 		axisGraph = new LinkedList<Vertex>();
-		buildGraph(medialAxis);
+		buildGraph(medialAxis,distanceMap);
 	}
 
 	/**
@@ -23,10 +19,10 @@ public class MedialAxisGraph {
 	 * @param medialAxis
 	 *            the linked list of points to graph
 	 */
-	private void buildGraph(LinkedList<Point> medialAxis) {
+	private void buildGraph(LinkedList<Point> medialAxis,DistanceMap distanceMap) {
 		if (medialAxis != null) {
 			for (int i = 0; i < medialAxis.size(); i++) {
-				Vertex tempVertex = new Vertex(medialAxis.get(i));
+				Vertex tempVertex = new Vertex(medialAxis.get(i),distanceMap.getDistanceFromEdge(medialAxis.get(i)));
 				if (!axisGraph.contains(tempVertex)) {
 					axisGraph.add(tempVertex);
 					for (int j = 0; j < axisGraph.size(); j++) {
@@ -101,6 +97,10 @@ public class MedialAxisGraph {
 		return segment;
 	}
 
+	public LinkedList<Vertex> getAxisGraph() {
+		return axisGraph;
+	}
+
 	/**
 	 * remove all segments that are smaller than or larger than minlength and maxlength
 	 * 
@@ -112,24 +112,71 @@ public class MedialAxisGraph {
 	// TODO(aamcknig): make this remove only if one end is not an intersection
 	public void removeSegments(int minLength, int maxLength) {
 		LinkedList<Vertex> intersections = this.getIntersections();
+		LinkedList<Vertex> removeThese=new LinkedList<Vertex>();
 		for (int i = 0; i < intersections.size(); i++) {
 			for (int j = 0; j < intersections.get(i).getChildren().size(); j++) {
 				if(!intersections.get(i).getChildren().get(j).isIntersection()){
 					LinkedList<Vertex> tempList = new LinkedList<Vertex>();
 					tempList.add(intersections.get(i).getChildren().get(j));
 					LinkedList<Vertex> segment = getSegment(tempList, 0);
-					if(this.getIntersectionCount(segment)<2){
+					if(distanceToEdge(segment)<4){//this.getIntersectionCount(segment)<2
 						if (minLength != -1 && segment.size() < minLength) {
-		
-							removeVertice(segment);
+							removeThese=combine(removeThese,segment);
 						} else if (maxLength != -1 && segment.size() > maxLength) {
-							removeVertice(segment);
+							removeThese=combine(removeThese,segment);
 						}
 					}
 				}
 			}
 		}
-		removeVertice(intersections);
+		removeVertice(removeThese);
+		removeUnconnectedSegments(4);
+		//removeVertice(intersections);
+	}
+	private void removeUnconnectedSegments(int length){
+		LinkedList<Vertex> removeThese=new LinkedList<Vertex>();
+		for(int i=0;i<this.axisGraph.size();i++){
+			boolean hasIntersection=false;
+			if(!axisGraph.get(i).isIntersection()){
+				LinkedList<Vertex> segment=new LinkedList<Vertex>();
+				segment.add(axisGraph.get(i));
+				segment=this.getSegment(segment, 0);
+				if(segment.size()<=length){
+					for(int j=0;!hasIntersection&&j<segment.size();j++){
+						if(this.getIntersectionCount(segment.get(j).getChildren())!=0){
+							hasIntersection=true;
+						}
+					}
+					if(!hasIntersection){
+						removeThese=combine(removeThese,segment);
+					}
+				}
+			}
+		}
+		this.removeVertice(removeThese);
+	}
+	private LinkedList<Vertex> combine(LinkedList<Vertex> list1,LinkedList<Vertex> list2){
+		for(int i=0;i<list2.size();i++){
+			if(!list1.contains(list2.get(i))){
+				list1.add(list2.get(i));
+			}
+		}
+		return list1;
+	}
+	/**
+	 * returns the value of the lowest distance to the edge
+	 * using the distanceMap value of each vertex in checklist
+	 * @param checkList the list of vertice to check for edge closeness
+	 * @return the value of the distance closest to the edge using distanceMap value
+	 */
+	private int distanceToEdge(LinkedList<Vertex> checkList){
+		int distance=1000;
+		for(int i=0;i<checkList.size();i++){
+			if(checkList.get(i).getDistanceFromEdge()<distance){
+				distance=checkList.get(i).getDistanceFromEdge();
+			}
+		}
+		return distance;
 	}
 	/**
 	 * returns the number of intersections in a list of verteci

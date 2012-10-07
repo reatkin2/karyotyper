@@ -63,11 +63,11 @@ public class DistanceMap {
 	 *            is the number of pixels from the edge to get a list of
 	 * @return linkedlist of points at that are the distance away from the edge
 	 */
-	public LinkedList<Point> getTheEdge() {
+	public LinkedList<Point> getTheEdge(int distance) {
 		LinkedList<Point> edge = new LinkedList<Point>();
 		for (int i = 0; i < this.distanceFromEdgeMatrix[0].length; i++) {
 			for (int j = 0; j < this.distanceFromEdgeMatrix.length; j++) {
-				if (this.distanceFromEdgeMatrix[j][i] == 0) {
+				if (this.distanceFromEdgeMatrix[j][i] == distance) {
 					edge.add(new Point(j, i));
 				}
 			}
