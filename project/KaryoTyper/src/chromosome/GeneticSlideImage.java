@@ -13,7 +13,7 @@ import javax.imageio.ImageIO;
 
 import medial_axis.DistanceMap;
 import basic_objects.Cluster;
-import color.ISOClineColor;
+import Color.ISOClineColor;
 
 public class GeneticSlideImage {
 

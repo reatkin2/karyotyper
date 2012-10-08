@@ -1,4 +1,4 @@
-package color;
+package Color;
 
 /*
  * IsColor.java

@@ -4,7 +4,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.LinkedList;
 
-import color.PixelColor;
+import Color.PixelColor;
 import chromosome.ChromosomeCluster;
 import chromosome.GeneticSlideImage;
 import basic_objects.AroundPixel;
