@@ -1,4 +1,5 @@
 package runner;
+
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -97,7 +98,7 @@ public class Extractor {
 							Color temp = img.getColorAt(currentCoord.x + aroundDot.getPos(i).x,
 									currentCoord.y + aroundDot.getPos(i).y);
 							// was isTargeTColor2(this.imgAvgColor,temp)
-							if (PixelColor.isBackGroundColor(temp, img.getColorThreshold())) {
+							if (PixelColor.isBelowThreshold(temp, img.getBackgroundThreshold())) {
 								img.markPixelChecked(new Point(currentCoord.x
 										+ aroundDot.getPos(i).x, currentCoord.y
 										+ aroundDot.getPos(i).y));
@@ -211,15 +212,15 @@ public class Extractor {
 		this.firstPassCount = 0;
 		LinkedList<ChromosomeCluster> tempClusterList = new LinkedList<ChromosomeCluster>();
 		int clusterNum = 0;
-		Color color1 = new Color(0, 0, 0);// color that will be used to store
-											// pixel color to check
+		// color that will be used to store pixel color to check
+		Color currentPxColor = new Color(0, 0, 0);
 		ChromosomeCluster temp = new ChromosomeCluster(clusterNum);
 		for (int r = pixelSpace; r < img.getImgWidth() - pixelSpace; r += pixelSpace) {
 			for (int j = pixelSpace; j < img.getImgHeight() - pixelSpace; j += pixelSpace) {
 				if (!img.isPixelChecked(new Point(r, j))) {
-					color1 = img.getColorAt(r, j);// get pixel color from point
-					// was isTargeTColor2(this.imgAvgColor, color1)
-					if (PixelColor.isBackGroundColor(color1, img.getColorThreshold())) {
+					// get pixel color from point
+					currentPxColor = img.getColorAt(r, j);
+					if (PixelColor.isBelowThreshold(currentPxColor, img.getBackgroundThreshold())) {
 						temp = getCluster(img, 600, r, j, temp);
 						// newly added for chromosomes
 						if (temp != null) {
@@ -368,9 +369,9 @@ public class Extractor {
 	 * @param colorOItem
 	 *            the color to match
 	 * @param xCor
-	 *            the x cordinate of the starting pixel
+	 *            the x coordinate of the starting pixel
 	 * @param yCor
-	 *            the y cordinate of the starting pixel
+	 *            the y coordinate of the starting pixel
 	 * @param shpN
 	 *            place found cluster is stored
 	 * @return returns the cluster if found and null if no cluster found

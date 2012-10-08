@@ -24,7 +24,7 @@ public class PixelColor {
 	 *            background
 	 * @return
 	 */
-	public static boolean isBackGroundColor(Color newPixel, int threshold) {
+	public static boolean isBelowThreshold(Color newPixel, int threshold) {
 		double tempGreyPixel = (.299 * newPixel.getRed()) + (.587 * newPixel.getGreen())
 				+ (.114 * newPixel.getBlue());
 		if (tempGreyPixel > threshold) {

@@ -29,7 +29,7 @@ public class ChromosomeList {
 		for (int i = 0; i < this.chromosomeList.size(); i++) {
 			boolean goodChromosome=false;
 			ChromosomeCluster tempCluster = this.chromosomeList.get(i);
-			img.computeEdgeScale(tempCluster.getMedialAxis().getDistanceMap().getTheEdge(0));
+			img.computeEdgeHistogram(tempCluster.getMedialAxis().getDistanceMap().getTheEdge(0));
 			MedialAxisGraph tempGraph2 = new MedialAxisGraph(tempCluster.getMedialAxis()
 					.getMedialAxisPoints(),tempCluster.getMedialAxis().getDistanceMap());
 				tempCluster.getMedialAxis().fillInSkeleton(tempCluster, tempGraph2);
@@ -59,7 +59,7 @@ public class ChromosomeList {
 			}
 		}
 		this.chromosomeList = new LinkedList<ChromosomeCluster>();
-		img.graphEdgeScale();
+		img.graphEdgeHistogram();
 	}
 
 	/**
