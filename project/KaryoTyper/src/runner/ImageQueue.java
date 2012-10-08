@@ -1,4 +1,5 @@
 package runner;
+
 import java.io.File;
 import java.io.FileReader;
 import java.util.LinkedList;
@@ -8,6 +9,24 @@ public class ImageQueue {
 
 	public ImageQueue() {
 		this.imageQueue = new LinkedList<String>();
+		try{
+			String path = new java.io.File(".").getCanonicalPath();
+			createDirectoryIfNeeded(path+"\\shapeData");
+			createDirectoryIfNeeded(path+"\\shapeData\\Keep");
+			createDirectoryIfNeeded(path+"\\shapeData\\Removed");
+		}catch(Exception e){
+			System.out.println(e);
+		}
+	}
+
+	private void createDirectoryIfNeeded(String directoryName) {
+		File theDir = new File(directoryName);
+
+		// if the directory does not exist, create it
+		if (!theDir.exists()) {
+			System.out.println("creating directory: " + directoryName);
+			theDir.mkdir();
+		}
 	}
 
 	/**
