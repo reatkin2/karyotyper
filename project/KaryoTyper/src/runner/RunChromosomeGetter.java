@@ -93,6 +93,9 @@ public class RunChromosomeGetter extends JFrame {
 					// pass the list of clusters on to slidelist
 					ChromosomeList slideList = new ChromosomeList(extractor.getClusterList(), image);
 					// print out the slidelist
+					imgCount.setText("Calculating Medial Axis for: "+slideList.size()+" Clusters.");
+					slideList.calcMedialAxis(image);
+					imgCount.setText("Writing "+slideList.size()+" images. ");
 					slideList.printChromosomes();
 
 					imgCount.setText(frame.targetsFound + " Chromosomes found in "

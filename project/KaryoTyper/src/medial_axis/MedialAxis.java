@@ -86,7 +86,7 @@ public class MedialAxis {
 		LinkedList<ErosionPoint> removeEdgePointsVert = new LinkedList<ErosionPoint>();
 		LinkedList<ErosionPoint> removeEdgePointsHorz = new LinkedList<ErosionPoint>();
 		this.skeleton = new LinkedList<Point>();
-		AroundPixel aroundPixel=new AroundPixel();
+//		AroundPixel aroundPixel=new AroundPixel();
 		LinkedList<Point> addThisRound = new LinkedList<Point>();
 		Cluster temp = new Cluster(myCluster);
 		this.distanceMap = new DistanceMap(myCluster.getSize().x, myCluster.getSize().y);

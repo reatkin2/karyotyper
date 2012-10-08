@@ -14,6 +14,8 @@ public class ImageQueue {
 			createDirectoryIfNeeded(path+"\\shapeData");
 			createDirectoryIfNeeded(path+"\\shapeData\\Keep");
 			createDirectoryIfNeeded(path+"\\shapeData\\Removed");
+			createDirectoryIfNeeded(path+"\\shapeData\\Chromosome");
+			
 		}catch(Exception e){
 			System.out.println(e);
 		}

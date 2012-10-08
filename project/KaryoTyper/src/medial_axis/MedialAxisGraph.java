@@ -3,14 +3,33 @@ package medial_axis;
 import java.awt.Point;
 import java.util.LinkedList;
 
+import chromosome.ChromosomeCluster;
+import chromosome.GeneticSlideImage;
+
 import basic_objects.Vertex;
 
 public class MedialAxisGraph {
 	LinkedList<Vertex> axisGraph = new LinkedList<Vertex>();
+	MedialAxis medialAxis;
 
-	public MedialAxisGraph(LinkedList<Point> medialAxis,DistanceMap distanceMap) {
+
+	public MedialAxisGraph(ChromosomeCluster myCluster,GeneticSlideImage img) {
 		axisGraph = new LinkedList<Vertex>();
-		buildGraph(medialAxis,distanceMap);
+		medialAxis= new MedialAxis();
+		medialAxis.createSkeleton(myCluster, img);
+	}
+	
+	public MedialAxisGraph(MedialAxis medialAxisTemp,ChromosomeCluster myCluster,GeneticSlideImage img) {
+		axisGraph = new LinkedList<Vertex>();
+		medialAxis=medialAxisTemp;
+		buildGraph(medialAxisTemp.getMedialAxisPoints(),medialAxisTemp.getDistanceMap());
+		medialAxisTemp.fillInSkeleton(myCluster, this);
+		axisGraph = new LinkedList<Vertex>();
+		buildGraph(medialAxisTemp.getMedialAxisPoints(),medialAxisTemp.getDistanceMap());
+		trimGraph();
+		removeSegments((int)Math.round((img.getAverage()*(2.0/3.0))), -1);
+		medialAxisTemp.setMedialAxis(getMedialAxisFromGraph());
+
 	}
 
 	/**
@@ -71,6 +90,9 @@ public class MedialAxisGraph {
 			}
 		}
 		return interSections;
+	}
+	public MedialAxis getMedialAxis() {
+		return medialAxis;
 	}
 
 	/**
@@ -232,7 +254,7 @@ public class MedialAxisGraph {
 	 * 
 	 * @return a linked list of points that represent the graph
 	 */
-	public LinkedList<Point> getMedialAxis() {
+	public LinkedList<Point> getMedialAxisFromGraph() {
 		LinkedList<Point> medialAxis = new LinkedList<Point>();
 		for (int i = 0; i < this.axisGraph.size(); i++) {
 			medialAxis.add(this.axisGraph.get(i).getPoint());

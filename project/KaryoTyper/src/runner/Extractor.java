@@ -271,7 +271,7 @@ public class Extractor {
 						temp.setClusterNimageID(clusterNum++);
 						temp.setTitle(img.getImageName());
 						clusterList.add(temp);
-						temp.getMedialAxis().createSkeleton(temp, img);
+						temp.createSkeleton(img);
 						img.addWidth(temp.getWidths(0));
 						img.addWidth(temp.getWidths(1));
 						if (((temp.getWidths(0) >= 8 && temp.getWidths(0) < 30) || (temp
@@ -285,8 +285,6 @@ public class Extractor {
 						}
 						System.out.println("Image: " + temp.getTitle() + " Count: "
 								+ temp.getClusterNimageID());
-						temp.getMedialAxis().writeObjectWidths();
-
 						clusterList.add(temp);
 					}
 				}
