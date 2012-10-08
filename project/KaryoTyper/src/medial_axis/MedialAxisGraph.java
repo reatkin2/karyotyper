@@ -133,6 +133,11 @@ public class MedialAxisGraph {
 		removeUnconnectedSegments(4);
 		//removeVertice(intersections);
 	}
+	/**
+	 * this removes segments that have no intersections with a length less
+	 * than length
+	 * @param length remove segments shorter than or equal to this length
+	 */
 	private void removeUnconnectedSegments(int length){
 		LinkedList<Vertex> removeThese=new LinkedList<Vertex>();
 		for(int i=0;i<this.axisGraph.size();i++){
