@@ -11,9 +11,10 @@ import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 
+import color.ISOClineColor;
+
 import medial_axis.DistanceMap;
 import basic_objects.Cluster;
-import Color.ISOClineColor;
 
 public class GeneticSlideImage {
 
