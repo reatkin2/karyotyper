@@ -1,7 +1,0 @@
-package symmetry;
-
-import java.awt.Point;
-
-public class AxisPoint extends Point {
-
-}
