@@ -161,7 +161,53 @@ public class GeneticSlideImage {
 
 		return tempImg;
 	}
+	/**
+	 * this returns a bufferedImage of the square cluster area with the original image of the
+	 * cluster inside the square and all points in the square area that are not part of the cluster
+	 * are painted white and all points in pointList are painted the color drawColor if not null
+	 * 
+	 * @param targetCluster
+	 *            the cluster to create a buffered image of
+	 * @param pointList
+	 *            the pointlist of points to paint over the image if not null
+	 * @param drawColor
+	 *            the color to paint the points in point list if not null
+	 * @return a buffered image of the cluster area with points painted over
+	 */
+	public BufferedImage getSubImage(Cluster targetCluster, LinkedList<Point> pointList,
+			Color drawColor,LinkedList<Point> pointList2,Color drawColor2) {
+		BufferedImage tempImg = new BufferedImage(targetCluster.getSize().x,
+				targetCluster.getSize().y, BufferedImage.TYPE_3BYTE_BGR);
+		for (int i = targetCluster.getImageLocation().x; i < (targetCluster.getImageLocation().x + targetCluster
+				.getSize().x); i++) {
+			for (int j = targetCluster.getImageLocation().y; j < (targetCluster.getImageLocation().y + targetCluster
+					.getSize().y); j++) {
+				if (targetCluster.getValue(i - targetCluster.getImageLocation().x, j
+						- targetCluster.getImageLocation().y))
+					tempImg.setRGB(i - targetCluster.getImageLocation().x,
+							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
+				else {
+					tempImg.setRGB(i - targetCluster.getImageLocation().x,
+							j - targetCluster.getImageLocation().y, (Color.WHITE).getRGB());
+				}
+			}
 
+		}
+
+		if (pointList != null && !pointList.isEmpty()) {
+			for (int i = 0; i < pointList.size(); i++) {
+				tempImg.setRGB(pointList.get(i).x, pointList.get(i).y, (drawColor).getRGB());
+			}
+		}
+		if (pointList2 != null && !pointList2.isEmpty()) {
+			for (int i = 0; i < pointList2.size(); i++) {
+				tempImg.setRGB(pointList2.get(i).x, pointList2.get(i).y, (drawColor2).getRGB());
+			}
+		}
+		
+
+		return tempImg;
+	}
 	/**
 	 * this returns a graphical representation of a distance map as a bufferedImage
 	 * 

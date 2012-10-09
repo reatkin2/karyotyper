@@ -96,7 +96,7 @@ public class RunChromosomeGetter extends JFrame {
 					imgCount.setText("Calculating Medial Axis for: "+slideList.size()+" Clusters.");
 					slideList.calcMedialAxis(image);
 					imgCount.setText("Writing "+slideList.size()+" images. ");
-					slideList.printChromosomes();
+					slideList.printChromosomes(image);
 
 					imgCount.setText(frame.targetsFound + " Chromosomes found in "
 							+ (++frame.imgCounter) + " slides read so far.");
