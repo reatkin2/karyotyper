@@ -36,20 +36,22 @@ public class ChromosomeList {
 		for (int i = 0; i < this.chromosomeList.size(); i++) {
 			boolean goodChromosome=false;
 			ChromosomeCluster tempCluster = this.chromosomeList.get(i);
-			img.computeEdgeScale(tempCluster.getMedialAxisGraph().getMedialAxis().getDistanceMap().getTheEdge(0));
+//			img.computeEdgeScale(tempCluster.getMedialAxisGraph().getMedialAxis().getDistanceMap().getTheEdge(0));
 			if(0==tempCluster.getMedialAxisGraph().getIntersectionCount(tempCluster.getMedialAxisGraph().getAxisGraph())){
 				goodChromosome=true;
 			}
 			if(tempCluster.checkKeepThisCluster()&&goodChromosome){
-				writeChromosomeImage(tempCluster, tempCluster.getMedialAxisGraph().getMedialAxis().getMedialAxisPoints(),
-						new Color(255, 0, 0));
+				writeRainbowImage("/shapeData/Chromosome/",tempCluster, tempCluster.getMedialAxisGraph());
+//				writeTargetImage("/shapeData/Chromosome/",tempCluster, tempCluster.getMedialAxisGraph().getMedialAxis().getMedialAxisPoints(),
+//						new Color(255, 0, 0));
 			}
 			else if (tempCluster.checkKeepThisCluster()) {
-				writeTargetImage(tempCluster, tempCluster.getMedialAxisGraph().getMedialAxis().getMedialAxisPoints(),
-						new Color(255, 0, 0),tempCluster.getMedialAxisGraph().getMedialAxis().
-						getPossibleBreaks((int)Math.round((image.getAverage()/2)-4)),new Color(255,0,255));
+				writeRainbowImage("/shapeData/Keep/",tempCluster, tempCluster.getMedialAxisGraph());
+//				writeTargetImage(tempCluster, tempCluster.getMedialAxisGraph().getMedialAxis().getMedialAxisPoints(),
+//						new Color(255, 0, 0),tempCluster.getMedialAxisGraph().getMedialAxis().
+//						getPossibleBreaks((int)Math.round((image.getAverage()/2)-4)),new Color(255,0,255));
 			} else {
-				writeRemovedImage(tempCluster);
+				writeTargetImage("/shapeData/Removed/",tempCluster,null,null);
 			}
 		}
 		this.chromosomeList = new LinkedList<ChromosomeCluster>();
@@ -67,16 +69,16 @@ public class ChromosomeList {
 	 * @param paintColor
 	 *            the color to paint the Points in colorPoints
 	 */
-	public void writeTargetImage(ChromosomeCluster tempCluster, LinkedList<Point> colorPoints,
+	public void writeTargetImage(String path,ChromosomeCluster tempCluster, LinkedList<Point> colorPoints,
 			Color paintColor) {
 		try {
 			File curDir = new File(".");
 			String imageName = new File(tempCluster.getTitle()).getName();
-			File outputfile = new File(curDir.getCanonicalPath() + "/shapeData/Keep/"
+			File outputfile = new File(curDir.getCanonicalPath() + path
 					+ imageName.substring(0, imageName.indexOf('.')) + "_"
 					+ (tempCluster.getClusterNimageID()) + ".png");
 			BufferedImage tempImg = img.getSubImage(tempCluster, colorPoints, paintColor);// ,targetImgBorderSize);//30pixel
-																							// border
+
 			ImageIO.write(tempImg, "png", outputfile);
 		} catch (IOException e) {
 			System.out.println(e);
@@ -93,16 +95,15 @@ public class ChromosomeList {
 	 * @param paintColor
 	 *            the color to paint the Points in colorPoints
 	 */
-	public void writeTargetImage(ChromosomeCluster tempCluster, LinkedList<Point> colorPoints,
-			Color paintColor,LinkedList<Point> colorPoints2,Color paintColor2) {
+	public void writeRainbowImage(String path,ChromosomeCluster tempCluster, MedialAxisGraph graph) {
 		try {
 			File curDir = new File(".");
 			String imageName = new File(tempCluster.getTitle()).getName();
-			File outputfile = new File(curDir.getCanonicalPath() + "/shapeData/Keep/"
+			File outputfile = new File(curDir.getCanonicalPath() + path
 					+ imageName.substring(0, imageName.indexOf('.')) + "_"
 					+ (tempCluster.getClusterNimageID()) + ".png");
-			BufferedImage tempImg = img.getSubImage(tempCluster, colorPoints, paintColor,colorPoints2,paintColor2);// ,targetImgBorderSize);//30pixel
-																							// border
+			BufferedImage tempImg = img.getSubImage(tempCluster, graph);// ,targetImgBorderSize);//30pixel
+
 			ImageIO.write(tempImg, "png", outputfile);
 		} catch (IOException e) {
 			System.out.println(e);
@@ -110,7 +111,7 @@ public class ChromosomeList {
 	}
 
 	/**
-	 * Writes chromosome images to the keep folder and if not null writes the linkedlist of points
+	 * Writes  images to the keep folder and if not null writes the linkedlist of points
 	 * in color specified
 	 * 
 	 * @param tempCluster
@@ -120,15 +121,15 @@ public class ChromosomeList {
 	 * @param paintColor
 	 *            the color to paint the Points in colorPoints
 	 */
-	public void writeChromosomeImage(ChromosomeCluster tempCluster, LinkedList<Point> colorPoints,
-			Color paintColor) {
+	public void writeTargetImage(String path,ChromosomeCluster tempCluster, LinkedList<Point> colorPoints,
+			Color paintColor,LinkedList<Point> colorPoints2,Color paintColor2) {
 		try {
 			File curDir = new File(".");
 			String imageName = new File(tempCluster.getTitle()).getName();
-			File outputfile = new File(curDir.getCanonicalPath() + "/shapeData/Chromosome/"
+			File outputfile = new File(curDir.getCanonicalPath() + path
 					+ imageName.substring(0, imageName.indexOf('.')) + "_"
 					+ (tempCluster.getClusterNimageID()) + ".png");
-			BufferedImage tempImg = img.getSubImage(tempCluster, colorPoints, paintColor);// ,targetImgBorderSize);//30pixel
+			BufferedImage tempImg = img.getSubImage(tempCluster, colorPoints, paintColor,colorPoints2,paintColor2);// ,targetImgBorderSize);//30pixel
 																							// border
 			ImageIO.write(tempImg, "png", outputfile);
 		} catch (IOException e) {
@@ -158,24 +159,4 @@ public class ChromosomeList {
 		}
 	}
 
-	/**
-	 * this rights the part of the image that is the cluster tempCluster to the removed folder
-	 * 
-	 * @param tempCluster
-	 *            the cluster to write to the removed folder
-	 */
-	public void writeRemovedImage(ChromosomeCluster tempCluster) {
-		try {
-			File curDir = new File(".");
-			String imageName = new File(tempCluster.getTitle()).getName();
-			File outputfile = new File(curDir.getCanonicalPath() + "/shapeData/Removed/"
-					+ imageName.substring(0, imageName.indexOf('.')) + "_"
-					+ (tempCluster.getClusterNimageID()) + ".png");// ,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
-			BufferedImage tempImg = img.getSubImage(tempCluster, null, null);// ,targetImgBorderSize);//30pixel
-																				// border
-			ImageIO.write(tempImg, "png", outputfile);
-		} catch (IOException e) {
-			System.out.println(e);
-		}
-	}
 }
