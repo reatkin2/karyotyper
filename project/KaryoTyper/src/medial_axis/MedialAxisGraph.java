@@ -336,4 +336,30 @@ public class MedialAxisGraph {
 			}
 		}
 	}
+	
+	public void generateTangents(double lowerLimitDistance, double upperLimitDistance) throws Exception {
+		resetChecks();
+		for (Vertex v : axisGraph) {
+			v.calculateTangentLine(lowerLimitDistance, upperLimitDistance);
+			resetChecks();
+		}
+	}
+	
+	public void generateOrthogonals(double lowerLimitDistance, double upperLimitDistance) throws Exception {
+		resetChecks();
+		for (Vertex v : axisGraph) {
+			v.calculateOrthogonalLine(lowerLimitDistance, upperLimitDistance);
+			resetChecks();
+		}
+	}
+	
+	/**
+	 * Resets hasBeenChecked flag of all vertices to false. Should be used before and after
+	 * graph traversals to prevent unintended results.
+	 */
+	public void resetChecks() {
+		for (Vertex v : axisGraph) {
+			v.setHasBeenChecked(false);
+		}
+	}
 }

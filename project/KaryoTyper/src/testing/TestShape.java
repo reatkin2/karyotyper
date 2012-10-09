@@ -6,6 +6,8 @@ import chromosome.ChromosomeCluster;
 import chromosome.GeneticSlideImage;
 
 public class TestShape {
+	private static GeneticSlideImage image = null;
+	private static ChromosomeCluster cluster = null;
 
 	/**
 	 * @param args
@@ -39,7 +41,7 @@ public class TestShape {
 	 * @return The chromosome cluster object
 	 */
 	public static ChromosomeCluster getCluster(String filename) {
-		GeneticSlideImage image = new GeneticSlideImage(filename);
+		image = new GeneticSlideImage(filename);
 		Extractor extractor = new Extractor();
 		ChromosomeCluster testCluster = null;
 		if (filename != null) {
@@ -53,6 +55,14 @@ public class TestShape {
 			extractor.getClusterList().get(0).clusterOut();
 		}
 		return testCluster;
+	}
+	
+	public static GeneticSlideImage getGeneticSlideImage() {
+		return image;
+	}
+	
+	public static ChromosomeCluster getCluster() {
+		return cluster;
 	}
 
 }
