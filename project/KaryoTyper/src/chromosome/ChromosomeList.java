@@ -22,7 +22,9 @@ public class ChromosomeList {
 
 	public void calcMedialAxis(GeneticSlideImage image){
 		for (int i = 0; i < this.chromosomeList.size(); i++) {
-			this.chromosomeList.get(i).createMedialAxisGraph(image);
+			if(this.chromosomeList.get(i).checkKeepThisCluster()){
+				this.chromosomeList.get(i).createMedialAxisGraph(image);
+			}
 		}
 	}
 	public int size(){
@@ -37,7 +39,7 @@ public class ChromosomeList {
 			boolean goodChromosome=false;
 			ChromosomeCluster tempCluster = this.chromosomeList.get(i);
 //			img.computeEdgeScale(tempCluster.getMedialAxisGraph().getMedialAxis().getDistanceMap().getTheEdge(0));
-			if(0==tempCluster.getMedialAxisGraph().getIntersectionCount(tempCluster.getMedialAxisGraph().getAxisGraph())){
+			if(tempCluster.checkKeepThisCluster()&&0==tempCluster.getMedialAxisGraph().getIntersectionCount(tempCluster.getMedialAxisGraph().getAxisGraph())){
 				goodChromosome=true;
 			}
 			if(tempCluster.checkKeepThisCluster()&&goodChromosome){
