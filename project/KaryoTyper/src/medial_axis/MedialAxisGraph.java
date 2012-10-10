@@ -27,8 +27,6 @@ public class MedialAxisGraph {
 		trimGraph();
 		removeSegments((int)Math.round((img.getAverage()*(2.0/3.0))), -1);
 		medialAxisTemp.setMedialAxis(getMedialAxisFromGraph());
-		axisGraph = new LinkedList<Vertex>();
-		buildGraph(medialAxisTemp.getMedialAxisPoints(),medialAxisTemp.getDistanceMap());
 
 
 	}
