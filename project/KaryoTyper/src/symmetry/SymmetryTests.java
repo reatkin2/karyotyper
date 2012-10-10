@@ -151,7 +151,7 @@ public class SymmetryTests {
 	public void tangentTest() {
 		String imagePath = "C:\\Users\\Robert\\Desktop\\SchoolWork\\CSC492\\repo" +
 				"\\project\\KaryoTyper\\testImages\\testImage.png";
-		int tanLineLengths = 5;
+		int tanLineLengths = 10;
 
 		ChromosomeCluster cluster = TestShape.getCluster(imagePath);
 		cluster.getMedialAxis().createSkeleton(cluster, TestShape.getGeneticSlideImage());
@@ -184,7 +184,7 @@ public class SymmetryTests {
 		int counter = 0;
 		while (vertices.peek() != null) {
 			Vertex v = vertices.poll();
-			if (counter % 5 == 0) {
+			if (counter % 30 == 0) {
 				try {
 					tanLines.addAll(v.tangentLine(tanLineLengths));
 				} catch (Exception e) {
@@ -198,6 +198,12 @@ public class SymmetryTests {
 		
 		LinkedList<ChromosomeCluster> clusterList = new LinkedList<ChromosomeCluster>();
 		ChromosomeList chromoList = new ChromosomeList(clusterList, TestShape.getGeneticSlideImage());
+		
+		//Debug code
+		for (Point p : tanLines) {
+			System.out.println("(" + p.x + ", " + p.y + ")");
+		}
+		//End debug
 		
 		chromoList.writeTargetImage(cluster, tanLines, Color.GREEN);
 		//TODO: Causes IndexOutofBounds

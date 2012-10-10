@@ -1,6 +1,8 @@
 package basic_objects;
 
 import java.awt.Point;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -16,8 +18,8 @@ public class Vertex {
 	private boolean noOrthoSlope;
 	private double orthogonalYIntercept;
 	/**
-	 * Used when walking the axis graph so that back edges are avoided. Must be reset to false
-	 * before walking again.
+	 * Used when walking the axis graph so that back edges are avoided. Must be
+	 * reset to false before walking again.
 	 */
 	private boolean hasBeenChecked;
 	private boolean tangentIsCalculated;
@@ -87,15 +89,17 @@ public class Vertex {
 	}
 
 	/**
-	 * Calculates an approximation of the tangent line at this vertex by finding the secant line
-	 * that passes through this vertex and some nearby vertex. The nearby vertex is between
-	 * distances specified by lowerLimitPrecision and upperLimitPrecision.
+	 * Calculates an approximation of the tangent line at this vertex by finding
+	 * the secant line that passes through this vertex and some nearby vertex.
+	 * The nearby vertex is between distances specified by lowerLimitPrecision
+	 * and upperLimitPrecision.
 	 * 
 	 * @param lowerLimitPrecision
 	 *            The least acceptable distance for a nearby point.
 	 * @param upperLimitPrecision
 	 *            The greatest acceptable distance for a nearby point.
-	 * @return A double array containing the tangent slope and tangent y-intercept.
+	 * @return A double array containing the tangent slope and tangent
+	 *         y-intercept.
 	 * @throws DistanceException
 	 */
 	public double[] calculateTangentLine(double lowerLimitPrecision,
@@ -123,13 +127,15 @@ public class Vertex {
 	}
 
 	/**
-	 * Calculates an approximation of the orthogonal line at this vertex based on the tangent line.
+	 * Calculates an approximation of the orthogonal line at this vertex based
+	 * on the tangent line.
 	 * 
 	 * @param lowerLimitPrecision
 	 *            The least acceptable distance for a nearby point.
 	 * @param upperLimitPrecision
 	 *            The greatest acceptable distance for a nearby point.
-	 * @return A double array containing the orthogonal slope and orthogonal y-intercept.
+	 * @return A double array containing the orthogonal slope and orthogonal
+	 *         y-intercept.
 	 * @throws DistanceException
 	 */
 	public double[] calculateOrthogonalLine(double lowerLimitPrecision,
@@ -160,15 +166,17 @@ public class Vertex {
 	}
 
 	/**
-	 * Finds a nearby vertex by performing breadth first search on the children until vertex is
-	 * encountered that is greater than lowerLimitPrecision distance away and less than
-	 * upperLimitPrecision away.
+	 * Finds a nearby vertex by performing breadth first search on the children
+	 * until vertex is encountered that is greater than lowerLimitPrecision
+	 * distance away and less than upperLimitPrecision away.
 	 * 
 	 * @param lowerLimitPrecision
+	 *            Minimum distance required to be usable.
 	 * @param upperLimitPrecision
 	 *            Currently not used, may be able to remove.
-	 * @return
-	 * @throws DistanceException
+	 * @return The nearby vertex
+	 * @throws Exception
+	 *             Thrown if there is no vertex that satisfies the limit.
 	 */
 	private Vertex getNearbyVertex(double lowerLimitPrecision,
 			double upperLimitPrecision) throws Exception {
@@ -179,8 +187,9 @@ public class Vertex {
 		do {
 			v = fringe.poll();
 			if (v == null) {
-				throw new Exception("Lower limit is too high or vertex ("
-						+ myVertex.x + ", " + myVertex.y + ") has no children.");
+				throw new Exception("No child of the vertex (" + myVertex.x
+						+ ", " + myVertex.y
+						+ ") satisfies the requested limit.");
 			}
 			v.setHasBeenChecked(true);
 			for (Vertex w : v.getChildren()) {
@@ -202,7 +211,8 @@ public class Vertex {
 	}
 
 	/**
-	 * Calculates and returns a LinkedList of points on the tangent line close to the vertex.
+	 * Calculates and returns a LinkedList of points on the tangent line close
+	 * to the vertex.
 	 * 
 	 * @param length
 	 *            Number of points to calculate
@@ -216,8 +226,15 @@ public class Vertex {
 		}
 		LinkedList<Point> line = new LinkedList<Point>();
 
+		// Calculates x and y values around this vertex
 		for (int i = 0; i < length; i++) {
-			int x = (int) Math.pow(-1, i + 1);
+			// sign is used to alternate directions in which new points are
+			// calculated
+			int sign = (int) Math.pow(-1, i + 1);
+			int x = sign;
+			// For even integers, starting with 0, x values to the left of this
+			// vertex are
+			// selected. For odd, values to the right are selected.
 			if (i % 2 == 0) {
 				x = x * (i / 2);
 			} else {
@@ -225,21 +242,38 @@ public class Vertex {
 			}
 			x = x + myVertex.x;
 
-			int y = (int) (x * tangentSlope + tangentYIntercept);
+			// Calculate y value. If the tangent line has no slope then x is
+			// reset to the x
+			// value of this vertex and y is set to values above and below this
+			// vertex's y value.
+			int y = 0;
+			if (noTanSlope) {
+				x = myVertex.x;
+				if (i % 2 == 0) {
+					y = myVertex.y + (sign * (i / 2));
+				} else {
+					y = myVertex.y + (sign * ((i + 1) / 2));
+				}
+			} else {
+				y = (int) (x * tangentSlope + tangentYIntercept);
+			}
 
 			Point p = new Point(x, y);
 			line.add(p);
 		}
 
-		return line;
+		
+		return fillLine(line);
 	}
 
 	/**
-	 * Calculates and returns a LinkedList of points on the orthogonal line close to the vertex.
+	 * Calculates and returns a LinkedList of points on the orthogonal line
+	 * close to the vertex.
 	 * 
 	 * @param length
 	 *            Number of points to calculate
-	 * @return A LinkedList of points on the orthogonal line close to the vertex.
+	 * @return A LinkedList of points on the orthogonal line close to the
+	 *         vertex.
 	 * @throws Exception
 	 *             Thrown if the orthogonal line has not yet been calculated.
 	 */
@@ -250,7 +284,10 @@ public class Vertex {
 		LinkedList<Point> line = new LinkedList<Point>();
 
 		for (int i = 0; i < length; i++) {
-			int x = (int) Math.pow(-1, i + 1);
+			// sign is used to alternate directions in which new points are
+			// calculated
+			int sign = (int) Math.pow(-1, i + 1);
+			int x = sign;
 			if (i % 2 == 0) {
 				x = x * (i / 2);
 			} else {
@@ -258,12 +295,111 @@ public class Vertex {
 			}
 			x = x + myVertex.x;
 
-			int y = (int) (x * orthogonalSlope + orthogonalYIntercept);
+			int y = 0;
+			if (noOrthoSlope) {
+				y = myVertex.y;
+				if (i % 2 == 0) {
+					x = myVertex.x + (sign * (i / 2));
+				} else {
+					x = myVertex.x + (sign * ((i + 1) / 2));
+				}
+			} else {
+				y = (int) (x * tangentSlope + tangentYIntercept);
+			}
 
 			Point p = new Point(x, y);
 			line.add(p);
 		}
 
+		return fillLine(line);
+	}
+	
+	/**
+	 * Fills in points between calculated points to form a whole line.
+	 * @param line
+	 * @return
+	 */
+	private LinkedList<Point> fillLine(LinkedList<Point> line) {
+		Collections.sort(line, new Comparator<Point>() {
+
+			@Override
+			public int compare(Point o1, Point o2) {
+				return o1.y - o2.y;
+			}});
+		
+		Collections.sort(line, new Comparator<Point>() {
+
+			@Override
+			public int compare(Point o1, Point o2) {
+				return o1.x - o2.x;
+			}});
+		
+		for (int i = 0; i < line.size() - 1; i++) {
+			//Debugging code
+			System.out.println("On index " + i);
+			//End debug
+			Point nextPoint = getNextPointToFill(line, i);
+			if (!line.contains(nextPoint)) {
+				line.add(i + 1, nextPoint);
+			}
+		}
+		
 		return line;
+	}
+
+	private Point getNextPointToFill(LinkedList<Point> line, int index) {
+		Point thisPoint = line.get(index);
+		Point nextPoint = new Point(thisPoint.x, thisPoint.y - 1);
+		double leastDist = nextPoint.distance(line.get(index+1));
+		
+		Point tempPoint = new Point(thisPoint.x + 1, thisPoint.y - 1);
+		double tempDist = tempPoint.distance(line.get(index+1));
+		if (tempDist < leastDist) {
+			leastDist = tempDist;
+			nextPoint = tempPoint;
+		}
+
+		tempPoint = new Point(thisPoint.x + 1, thisPoint.y);
+		tempDist = tempPoint.distance(line.get(index+1));
+		if (tempDist < leastDist) {
+			leastDist = tempDist;
+			nextPoint = tempPoint;
+		}
+
+		tempPoint = new Point(thisPoint.x + 1, thisPoint.y + 1);
+		tempDist = tempPoint.distance(line.get(index+1));
+		if (tempDist < leastDist) {
+			leastDist = tempDist;
+			nextPoint = tempPoint;
+		}
+
+		tempPoint = new Point(thisPoint.x, thisPoint.y + 1);
+		tempDist = tempPoint.distance(line.get(index+1));
+		if (tempDist < leastDist) {
+			leastDist = tempDist;
+			nextPoint = tempPoint;
+		}
+
+		tempPoint = new Point(thisPoint.x - 1, thisPoint.y + 1);
+		tempDist = tempPoint.distance(line.get(index+1));
+		if (tempDist < leastDist) {
+			leastDist = tempDist;
+			nextPoint = tempPoint;
+		}
+
+		tempPoint = new Point(thisPoint.x - 1, thisPoint.y);
+		tempDist = tempPoint.distance(line.get(index+1));
+		if (tempDist < leastDist) {
+			leastDist = tempDist;
+			nextPoint = tempPoint;
+		}
+
+		tempPoint = new Point(thisPoint.x - 1, thisPoint.y - 1);
+		tempDist = tempPoint.distance(line.get(index+1));
+		if (tempDist < leastDist) {
+			leastDist = tempDist;
+			nextPoint = tempPoint;
+		}
+		return nextPoint;
 	}
 }
