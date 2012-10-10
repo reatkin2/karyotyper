@@ -396,7 +396,7 @@ public class Extractor {
 		// mark the center of the canvas as a found pixel
 		canvas[canvasStart.x][canvasStart.y] = 0;
 		/*
-		 * find all connected matching pixels startingat the center of canvas
+		 * find all connected matching pixels starting at the center of canvas
 		 * and the point xCor,yCormarking the matching pixels as the number 1ont
 		 * the canvas
 		 */

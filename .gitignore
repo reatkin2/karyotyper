@@ -1,5 +1,6 @@
 project/KaryoTyper/shapeData/
 GrayScale.txt
+EdgeScale.txt
 .metadata
 *.class
 project/.metadata/

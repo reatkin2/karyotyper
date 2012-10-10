@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
@@ -62,7 +63,7 @@ public class GeneticSlideImage {
 		this.computeHistogram();
 		this.graphScale();
 		// TODO(aamcknig): make this run on linear regressed function and not a static number
-		this.backgroundThreshold = 245;
+		this.backgroundThreshold = this.computeBackgroundThreshold();
 	}
 
 	public int getImgHeight() {
@@ -242,6 +243,35 @@ public class GeneticSlideImage {
 	}
 
 	/**
+	 * This uses the image's histogram to determine up to what threshold to extend the background color.
+	 * 
+	 * @return The threshold value at which to separate background from foreground.
+	 */
+	private int computeBackgroundThreshold() {
+		// For a good frame of reference... a threshold 245 was determined by manual analysis of an
+		// image histogram
+
+		// Sliding integral approach:
+		// The following code sums a sliding interval and keeps track of the largest left index
+		int maxSum = 0;
+		int sumIndex = 0;
+		int intervalSize = 10;
+
+		for (int x = this.grayScale.length - 1; x >= 0; x--) {
+			int sum = 0;
+			for (int dx = 0; dx < intervalSize && dx + x < this.grayScale.length; dx++) {
+				sum += this.grayScale[x + dx];
+			}
+			if (sum >= maxSum) {
+				maxSum = sum;
+				sumIndex = x;
+			}
+		}
+
+		return sumIndex;
+	}
+
+	/**
 	 * This appends to a comma separated file of values of the grayscale found in each image, called
 	 * in constructor
 	 */
@@ -346,5 +376,4 @@ public class GeneticSlideImage {
 		}
 
 	}
-
 }
