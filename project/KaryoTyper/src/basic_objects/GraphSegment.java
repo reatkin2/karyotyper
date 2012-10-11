@@ -5,7 +5,15 @@ import java.util.LinkedList;
 public class GraphSegment {
 	private LinkedList<Vertex> segment;
 	private LinkedList<Vertex> intersections;
+	private int segID;
+	public GraphSegment(int seg){
+		segID=seg;
+		segment=new LinkedList<Vertex>();
+		intersections=new LinkedList<Vertex>();
+
+	}
 	public GraphSegment(LinkedList<Vertex> tempSegment){
+		segID=-1;
 		segment=tempSegment;
 		intersections=new LinkedList<Vertex>();
 
@@ -25,4 +33,11 @@ public class GraphSegment {
 	public int getSegmentLength(){
 		return segment.size();
 	}
+	public int getSegID() {
+		return segID;
+	}
+	public void setSegID(int segID) {
+		this.segID = segID;
+	}
+
 }

@@ -25,7 +25,7 @@ public class GeneticSlideImage {
 	private int[] edgeScale;
 	private LinkedList<Double> chromosomeWidth;
 	private boolean[][] pixelChecked;
-	private double averageWidth;
+	private double chromoWidth;
 	private int colorThreshold;
 	private String imageName;
 	/*
@@ -56,7 +56,7 @@ public class GeneticSlideImage {
 		} catch (IOException e) {
 			System.out.println(e);
 		}
-		averageWidth = -1;
+		chromoWidth = -1;
 		chromosomeWidth = new LinkedList<Double>();
 		pixelChecked = new boolean[img.getWidth()][img.getHeight()];
 		pixelFound = new boolean[img.getWidth()][img.getHeight()];
@@ -294,11 +294,11 @@ public class GeneticSlideImage {
 
 	public double calcFinalAverage() {
 		this.recalcAvgWidth();
-		return this.averageWidth;
+		return this.chromoWidth;
 	}
 
-	public double getAverage() {
-		return this.averageWidth;
+	public double getChromoWidth() {
+		return this.chromoWidth;
 	}
 
 	/**
@@ -376,9 +376,9 @@ public class GeneticSlideImage {
 	 */
 	public void calcNewAvg(double newWidth) {
 		if (this.chromosomeWidth.isEmpty()) {
-			this.averageWidth = newWidth;
+			this.chromoWidth = newWidth;
 		} else {
-			this.averageWidth = (((this.averageWidth * this.chromosomeWidth.size()) + newWidth) / (this.chromosomeWidth
+			this.chromoWidth = (((this.chromoWidth * this.chromosomeWidth.size()) + newWidth) / (this.chromosomeWidth
 					.size() + 1));
 		}
 	}
@@ -391,7 +391,7 @@ public class GeneticSlideImage {
 		LinkedList<Double> goodWidths = new LinkedList<Double>();
 		if (this.chromosomeWidth.size() > 4) {
 			for (int i = 0; i < this.chromosomeWidth.size(); i++) {
-				if (Math.abs(this.averageWidth - ((double) this.chromosomeWidth.get(i))) < 3) {
+				if (Math.abs(this.chromoWidth - ((double) this.chromosomeWidth.get(i))) < 3) {
 					goodWidths.add(this.chromosomeWidth.get(i));
 				}
 			}
@@ -399,9 +399,9 @@ public class GeneticSlideImage {
 			for (int i = 0; i < goodWidths.size(); i++) {
 				temp = temp + goodWidths.get(i);
 			}
-			this.averageWidth = temp / goodWidths.size();
+			this.chromoWidth = temp / goodWidths.size();
 		}
-		System.out.println("AverageWidth: " + this.averageWidth);
+		System.out.println("AverageWidth: " + this.chromoWidth);
 	}
 	/**
 	 * this creates a histogram of the grayscale of colors from around the edge of chromosomes

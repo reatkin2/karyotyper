@@ -4,6 +4,10 @@ import java.awt.Point;
 import java.awt.geom.Line2D;
 
 public class TangentLine extends Line2D.Float{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private double angle2Xaxis;
 	public TangentLine(Point point1,Point point2){
 		super(point1, point2);
