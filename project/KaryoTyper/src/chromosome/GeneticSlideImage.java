@@ -15,7 +15,10 @@ import color.ISOClineColor;
 
 
 import medial_axis.DistanceMap;
+import medial_axis.MedialAxisGraph;
 import basic_objects.Cluster;
+import color.ISOClineColor;
+import color.RainbowColors;
 
 public class GeneticSlideImage {
 
@@ -25,7 +28,7 @@ public class GeneticSlideImage {
 	private int[] edgeScale;
 	private LinkedList<Double> chromosomeWidth;
 	private boolean[][] pixelChecked;
-	private double averageWidth;
+	private double chromoWidth;
 	private int colorThreshold;
 	private String imageName;
 	/*
@@ -56,7 +59,7 @@ public class GeneticSlideImage {
 		} catch (IOException e) {
 			System.out.println(e);
 		}
-		averageWidth = -1;
+		chromoWidth = -1;
 		chromosomeWidth = new LinkedList<Double>();
 		pixelChecked = new boolean[img.getWidth()][img.getHeight()];
 		pixelFound = new boolean[img.getWidth()][img.getHeight()];
@@ -163,7 +166,96 @@ public class GeneticSlideImage {
 
 		return tempImg;
 	}
+	/**
+	 * this returns a bufferedImage of the square cluster area with the original image of the
+	 * cluster inside the square and all points in the square area that are not part of the cluster
+	 * are painted white and all points in pointList are painted the color drawColor if not null
+	 * 
+	 * @param targetCluster
+	 *            the cluster to create a buffered image of
+	 * @param pointList
+	 *            the pointlist of points to paint over the image if not null
+	 * @param drawColor
+	 *            the color to paint the points in point list if not null
+	 * @return a buffered image of the cluster area with points painted over
+	 */
+	public BufferedImage getSubImage(Cluster targetCluster, MedialAxisGraph graphList) {
+		BufferedImage tempImg = new BufferedImage(targetCluster.getSize().x,
+				targetCluster.getSize().y, BufferedImage.TYPE_3BYTE_BGR);
+		for (int i = targetCluster.getImageLocation().x; i < (targetCluster.getImageLocation().x + targetCluster
+				.getSize().x); i++) {
+			for (int j = targetCluster.getImageLocation().y; j < (targetCluster.getImageLocation().y + targetCluster
+					.getSize().y); j++) {
+				if (targetCluster.getValue(i - targetCluster.getImageLocation().x, j
+						- targetCluster.getImageLocation().y))
+					tempImg.setRGB(i - targetCluster.getImageLocation().x,
+							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
+				else {
+					tempImg.setRGB(i - targetCluster.getImageLocation().x,
+							j - targetCluster.getImageLocation().y, (Color.WHITE).getRGB());
+				}
+			}
 
+		}
+
+		if (graphList != null && !graphList.getAxisGraph().isEmpty()) {
+			for (int i = 0; i < graphList.getAxisGraph().size(); i++) {
+				tempImg.setRGB(graphList.getAxisGraph().get(i).getPoint().x,
+						graphList.getAxisGraph().get(i).getPoint().y,
+						RainbowColors.tasteRainbow(graphList.getAxisGraph().get(i).getMySegement()).getRGB());
+			}
+		}
+
+		return tempImg;
+	}
+
+	/**
+	 * this returns a bufferedImage of the square cluster area with the original image of the
+	 * cluster inside the square and all points in the square area that are not part of the cluster
+	 * are painted white and all points in pointList are painted the color drawColor if not null
+	 * 
+	 * @param targetCluster
+	 *            the cluster to create a buffered image of
+	 * @param pointList
+	 *            the pointlist of points to paint over the image if not null
+	 * @param drawColor
+	 *            the color to paint the points in point list if not null
+	 * @return a buffered image of the cluster area with points painted over
+	 */
+	public BufferedImage getSubImage(Cluster targetCluster, LinkedList<Point> pointList,
+			Color drawColor,LinkedList<Point> pointList2,Color drawColor2) {
+		BufferedImage tempImg = new BufferedImage(targetCluster.getSize().x,
+				targetCluster.getSize().y, BufferedImage.TYPE_3BYTE_BGR);
+		for (int i = targetCluster.getImageLocation().x; i < (targetCluster.getImageLocation().x + targetCluster
+				.getSize().x); i++) {
+			for (int j = targetCluster.getImageLocation().y; j < (targetCluster.getImageLocation().y + targetCluster
+					.getSize().y); j++) {
+				if (targetCluster.getValue(i - targetCluster.getImageLocation().x, j
+						- targetCluster.getImageLocation().y))
+					tempImg.setRGB(i - targetCluster.getImageLocation().x,
+							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
+				else {
+					tempImg.setRGB(i - targetCluster.getImageLocation().x,
+							j - targetCluster.getImageLocation().y, (Color.WHITE).getRGB());
+				}
+			}
+
+		}
+
+		if (pointList != null && !pointList.isEmpty()) {
+			for (int i = 0; i < pointList.size(); i++) {
+				tempImg.setRGB(pointList.get(i).x, pointList.get(i).y, (drawColor).getRGB());
+			}
+		}
+		if (pointList2 != null && !pointList2.isEmpty()) {
+			for (int i = 0; i < pointList2.size(); i++) {
+				tempImg.setRGB(pointList2.get(i).x, pointList2.get(i).y, (drawColor2).getRGB());
+			}
+		}
+		
+
+		return tempImg;
+	}
 	/**
 	 * this returns a graphical representation of a distance map as a bufferedImage
 	 * 
@@ -205,11 +297,11 @@ public class GeneticSlideImage {
 
 	public double calcFinalAverage() {
 		this.recalcAvgWidth();
-		return this.averageWidth;
+		return this.chromoWidth;
 	}
 
-	public double getAverage() {
-		return this.averageWidth;
+	public double getChromoWidth() {
+		return this.chromoWidth;
 	}
 
 	/**
@@ -287,9 +379,9 @@ public class GeneticSlideImage {
 	 */
 	public void calcNewAvg(double newWidth) {
 		if (this.chromosomeWidth.isEmpty()) {
-			this.averageWidth = newWidth;
+			this.chromoWidth = newWidth;
 		} else {
-			this.averageWidth = (((this.averageWidth * this.chromosomeWidth.size()) + newWidth) / (this.chromosomeWidth
+			this.chromoWidth = (((this.chromoWidth * this.chromosomeWidth.size()) + newWidth) / (this.chromosomeWidth
 					.size() + 1));
 		}
 	}
@@ -302,7 +394,7 @@ public class GeneticSlideImage {
 		LinkedList<Double> goodWidths = new LinkedList<Double>();
 		if (this.chromosomeWidth.size() > 4) {
 			for (int i = 0; i < this.chromosomeWidth.size(); i++) {
-				if (Math.abs(this.averageWidth - ((double) this.chromosomeWidth.get(i))) < 3) {
+				if (Math.abs(this.chromoWidth - ((double) this.chromosomeWidth.get(i))) < 3) {
 					goodWidths.add(this.chromosomeWidth.get(i));
 				}
 			}
@@ -310,9 +402,9 @@ public class GeneticSlideImage {
 			for (int i = 0; i < goodWidths.size(); i++) {
 				temp = temp + goodWidths.get(i);
 			}
-			this.averageWidth = temp / goodWidths.size();
+			this.chromoWidth = temp / goodWidths.size();
 		}
-		System.out.println("AverageWidth: " + this.averageWidth);
+		System.out.println("AverageWidth: " + this.chromoWidth);
 	}
 	/**
 	 * this creates a histogram of the grayscale of colors from around the edge of chromosomes

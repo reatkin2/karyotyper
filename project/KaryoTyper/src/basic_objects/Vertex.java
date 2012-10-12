@@ -11,6 +11,7 @@ public class Vertex {
 	private Point myVertex;
 	private boolean wasIntersection;
 	private int distanceFromEdge;
+	private int mySegement;
 	private double tangentSlope;
 	private boolean noTanSlope;
 	private double tangentYIntercept;
@@ -25,6 +26,7 @@ public class Vertex {
 	private boolean tangentIsCalculated;
 
 	public Vertex(Point vertex, int distance) {
+		mySegement=-1;
 		distanceFromEdge = distance;
 		myVertex = new Point(vertex);
 		children = new LinkedList<Vertex>();
@@ -87,6 +89,16 @@ public class Vertex {
 	public LinkedList<Vertex> getChildren() {
 		return children;
 	}
+
+	public int getMySegement() {
+		return mySegement;
+	}
+
+	public void setMySegement(int mySegement) {
+		this.mySegement = mySegement;
+	}
+
+
 
 	/**
 	 * Calculates an approximation of the tangent line at this vertex by finding
@@ -200,6 +212,7 @@ public class Vertex {
 		} while (Point.distance(myVertex.x, myVertex.y, v.getPoint().x,
 				v.getPoint().y) < lowerLimitPrecision);
 		return v;
+		//TODO: Added code to reset checks
 	}
 
 	public boolean hasBeenChecked() {

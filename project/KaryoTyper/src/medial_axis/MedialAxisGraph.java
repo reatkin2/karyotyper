@@ -3,14 +3,47 @@ package medial_axis;
 import java.awt.Point;
 import java.util.LinkedList;
 
+import chromosome.ChromosomeCluster;
+import chromosome.GeneticSlideImage;
+
+import basic_objects.GraphSegment;
 import basic_objects.Vertex;
 
 public class MedialAxisGraph {
-	LinkedList<Vertex> axisGraph = new LinkedList<Vertex>();
-
-	public MedialAxisGraph(LinkedList<Point> medialAxis,DistanceMap distanceMap) {
+	private LinkedList<Vertex> axisGraph = new LinkedList<Vertex>();
+	private MedialAxis medialAxis;
+	private int segmentCount;
+	private double chromoWidth;
+	
+	public MedialAxisGraph(){
+		this.chromoWidth=-1;
+		segmentCount=0;
 		axisGraph = new LinkedList<Vertex>();
-		buildGraph(medialAxis,distanceMap);
+		medialAxis=new MedialAxis();
+	}
+	public MedialAxisGraph(MedialAxis medialAxisTemp) {
+		this.chromoWidth=-1;
+		segmentCount=0;
+		axisGraph = new LinkedList<Vertex>();
+		medialAxis=medialAxisTemp;
+		buildGraph(medialAxisTemp.getMedialAxisPoints(),medialAxisTemp.getDistanceMap());
+	}
+
+	public MedialAxisGraph(MedialAxis medialAxisTemp,ChromosomeCluster myCluster,GeneticSlideImage img) {
+		chromoWidth=img.getChromoWidth();
+		segmentCount=0;
+		axisGraph = new LinkedList<Vertex>();
+		medialAxis=medialAxisTemp;
+		buildGraph(medialAxisTemp.getMedialAxisPoints(),medialAxisTemp.getDistanceMap());
+		medialAxisTemp.fillInSkeleton(myCluster, this);
+		segmentCount=0;
+		axisGraph = new LinkedList<Vertex>();
+		buildGraph(medialAxisTemp.getMedialAxisPoints(),medialAxisTemp.getDistanceMap());
+		trimGraph();
+		removeSegments((int)Math.round((img.getChromoWidth()*(2.0/3.0))), -1);
+		medialAxisTemp.setMedialAxis(getMedialAxisFromGraph());
+
+
 	}
 
 	/**
@@ -19,22 +52,78 @@ public class MedialAxisGraph {
 	 * @param medialAxis
 	 *            the linked list of points to graph
 	 */
-	private void buildGraph(LinkedList<Point> medialAxis,DistanceMap distanceMap) {
+	public void buildGraph(LinkedList<Point> medialAxis,DistanceMap distanceMap) {
+		
+		int segmentID[]= new int[medialAxis.size()];
+		int sgmntCount=0;
 		if (medialAxis != null) {
 			for (int i = 0; i < medialAxis.size(); i++) {
-				Vertex tempVertex = new Vertex(medialAxis.get(i),distanceMap.getDistanceFromEdge(medialAxis.get(i)));
-				if (!axisGraph.contains(tempVertex)) {
+				if(!axisGraph.contains(medialAxis.get(i))){
+					Vertex tempVertex = new Vertex(medialAxis.get(i),distanceMap.getDistanceFromEdge(medialAxis.get(i)));
+					LinkedList<Integer> connectedList=new LinkedList<Integer>();
 					axisGraph.add(tempVertex);
+					boolean adjacent=false;
 					for (int j = 0; j < axisGraph.size(); j++) {
 						if (tempVertex.checkAdjacent(axisGraph.get(j))) {
+							adjacent=true;
+							connectedList.add(axisGraph.get(j).getMySegement());
+							if(tempVertex.getMySegement()!=-1
+									&&tempVertex.getMySegement()>getLowest(segmentID,axisGraph.get(j).getMySegement())){
+								connectedList.add(tempVertex.getMySegement());
+								tempVertex.setMySegement(getLowest(segmentID,axisGraph.get(j).getMySegement()));
+							}
+							else if(tempVertex.getMySegement()==-1){
+								tempVertex.setMySegement(getLowest(segmentID,axisGraph.get(j).getMySegement()));
+							}
 							tempVertex.addChild(axisGraph.get(j));
 							axisGraph.get(j).addChild(tempVertex);
 						}
 					}
-				}
+					if(!adjacent){
+						tempVertex.setMySegement(sgmntCount);
+						segmentID[sgmntCount]=sgmntCount++;
+					}
+					for(int k=0;k<connectedList.size();k++){
+						setAll2Lowest(segmentID,connectedList.get(k),tempVertex.getMySegement());
 
+					}
+				}
+			}
+			if(!axisGraph.isEmpty()){
+				LinkedList<Integer> segNums=new LinkedList<Integer>();
+				segNums.add(getLowest(segmentID,axisGraph.get(0).getMySegement()));
+				axisGraph.get(0).setMySegement(segNums.indexOf(getLowest(segmentID,axisGraph.get(0).getMySegement())));
+				for (int i=1;i<axisGraph.size();i++){
+					if(segNums.contains(getLowest(segmentID,axisGraph.get(i).getMySegement()))){
+						axisGraph.get(i).setMySegement(segNums.indexOf(getLowest(segmentID,axisGraph.get(i).getMySegement())));
+					}
+					else{
+						segNums.add(getLowest(segmentID,axisGraph.get(i).getMySegement()));
+						axisGraph.get(i).setMySegement(segNums.indexOf(getLowest(segmentID,axisGraph.get(i).getMySegement())));
+					}
+				}
+				this.segmentCount=segNums.size();
 			}
 		}
+	}
+	private void setAll2Lowest(int list[],int pos,int value){
+		if(list[pos]<pos){
+			setAll2Lowest(list,list[pos],value);
+			list[pos]=value;
+		}
+		else if(list[pos]==pos&&value<pos){
+			list[pos]=value;
+		}
+	}
+
+	private int getLowest(int list[],int pos){
+		if(list[pos]<pos){
+			return getLowest(list,list[pos]);
+		}
+		return list[pos];
+	}
+	public int getSegmentCount() {
+		return segmentCount;
 	}
 
 	/**
@@ -44,14 +133,32 @@ public class MedialAxisGraph {
 	 * @param tempVertex
 	 *            the vertex to be added
 	 */
+	//TODO(aamcknig): TESTTEST
 	public void addVertex(Vertex tempVertex) {
 		if (!axisGraph.contains(tempVertex)) {
+			LinkedList<Integer> connectedSegments=new LinkedList<Integer>();
+			int lowestNumConnection=-1;
 			axisGraph.add(tempVertex);
 			for (int j = 0; j < axisGraph.size(); j++) {
 				if (tempVertex.checkAdjacent(axisGraph.get(j))) {
 					tempVertex.addChild(axisGraph.get(j));
 					axisGraph.get(j).addChild(tempVertex);
+					if(!connectedSegments.contains(axisGraph.get(j).getMySegement())){
+						connectedSegments.add(this.axisGraph.get(j).getMySegement());
+						if(lowestNumConnection!=-1&&lowestNumConnection>this.axisGraph.get(j).getMySegement()){
+							lowestNumConnection=this.axisGraph.get(j).getMySegement();
+						}
+					}
 				}
+			}
+			tempVertex.setMySegement(lowestNumConnection);
+			if(connectedSegments.size()>1){
+				for(int k=0;k<axisGraph.size();k++){
+					if(connectedSegments.contains(this.axisGraph.get(k).getMySegement())){
+						this.axisGraph.get(k).setMySegement(lowestNumConnection);
+					}
+				}
+				this.segmentCount=this.segmentCount-connectedSegments.size()+1;
 			}
 		}
 
@@ -71,6 +178,9 @@ public class MedialAxisGraph {
 			}
 		}
 		return interSections;
+	}
+	public MedialAxis getMedialAxis() {
+		return medialAxis;
 	}
 
 	/**
@@ -96,7 +206,81 @@ public class MedialAxisGraph {
 		}
 		return segment;
 	}
+	/**
+	 * this gets a segment that is separated by intersections using recursion starting from the
+	 * vertex in the list at the position pos
+	 * 
+	 * @param segment
+	 *            the segment as it has grown in recursion to this point
+	 * @param pos
+	 *            the vertex that we are checking for connections to this segment on
+	 * @return a segment that is separated by 2 intersections or an 1 intersection and the end of
+	 *         the line
+	 */
+	public LinkedList<Vertex> getSegment(LinkedList<Vertex> segment, int pos,Point endPoint) {
+		int addedCount = 0;
+		for (int i = 0; i < segment.get(pos).getChildren().size(); i++) {
+			if (!segment.contains(segment.get(pos).getChildren().get(i))) {
+				if(segment.get(pos).getChildren().get(i).getPoint().equals(endPoint)){
+					segment.add(segment.get(pos).getChildren().get(i));
+					return segment;
+				}
+				segment.add(segment.get(pos).getChildren().get(i));
+				addedCount++;
+				getSegment(segment, pos + addedCount);
+				if(segment.get(segment.size()-1).getPoint().equals(endPoint)){
+					return segment;
+				}
+			}
+		}
+		return segment;
+	}
+	/**
+	 * this gets a segment that is using recursion starting from the
+	 * vertex in the list at the position pos
+	 * 
+	 * @param segment
+	 *            the segment as it has grown in recursion to this point
+	 * @param pos
+	 *            the vertex that we are checking for connections to this segment on
+	 * @return a segment that is separated by 2 intersections or an 1 intersection and the end of
+	 *         the line
+	 */
+	private LinkedList<Vertex> getNextVertex(LinkedList<Vertex> segment, int pos,int countDown) {
+		int addedCount = 0;
+		if(countDown>0){
+			for (int i = 0; i < segment.get(pos).getChildren().size(); i++) {
+				if (!segment.contains(segment.get(pos).getChildren().get(i))) {
+					segment.add(segment.get(pos).getChildren().get(i));
+					addedCount++;
+					getNextVertex(segment, pos + addedCount,--countDown);
+				}
+			}
+		}
+		return segment;
+	}
+//	public getNextVertex(Vertex vertexStart,Vertex vertexOpposite, int count){
+//		
+//	}
+//	public LinkedList<GraphSegment> getSegments() {
+//		LinkedList<GraphSegment> graphSegments=new LinkedList<GraphSegment>();
+//		LinkedList<Vertex> intersections = this.getIntersections();
+//		for (int i = 0; i < intersections.size(); i++) {
+//			for (int j = 0; j < intersections.get(i).getChildren().size(); j++) {
+//				if(!intersections.get(i).getChildren().get(j).isIntersection()){
+//					LinkedList<Vertex> tempList = new LinkedList<Vertex>();
+//					tempList.add(intersections.get(i).getChildren().get(j));
+//					LinkedList<Vertex> segment = getSegment(tempList, 0);
+//					
+//				}
+//			}
+//		}
+//		removeVertice(removeThese);
+//		removeUnconnectedSegments(4);
+//		//removeVertice(intersections);
+//	}
 
+	
 	public LinkedList<Vertex> getAxisGraph() {
 		return axisGraph;
 	}
@@ -109,7 +293,6 @@ public class MedialAxisGraph {
 	 * @param maxLength
 	 *            remove all segments larger or input -1 to not remove
 	 */
-	// TODO(aamcknig): make this remove only if one end is not an intersection
 	public void removeSegments(int minLength, int maxLength) {
 		LinkedList<Vertex> intersections = this.getIntersections();
 		LinkedList<Vertex> removeThese=new LinkedList<Vertex>();
@@ -130,25 +313,37 @@ public class MedialAxisGraph {
 			}
 		}
 		removeVertice(removeThese);
-		removeUnconnectedSegments(4);
+		removeUnconnectedSegments(this.chromoWidth*1.5);
 		//removeVertice(intersections);
 	}
-	private void removeUnconnectedSegments(int length){
+	/**
+	 * this removes segments that have no intersections with a length less
+	 * than length
+	 * @param length remove segments shorter than or equal to this length
+	 */
+	//TODO(aamcknig): make this work by when segments are removed the remaining segment id's are changed to be correct
+	public void removeUnconnectedSegments(double minLength){
 		LinkedList<Vertex> removeThese=new LinkedList<Vertex>();
-		for(int i=0;i<this.axisGraph.size();i++){
-			boolean hasIntersection=false;
-			if(!axisGraph.get(i).isIntersection()){
-				LinkedList<Vertex> segment=new LinkedList<Vertex>();
-				segment.add(axisGraph.get(i));
-				segment=this.getSegment(segment, 0);
-				if(segment.size()<=length){
-					for(int j=0;!hasIntersection&&j<segment.size();j++){
-						if(this.getIntersectionCount(segment.get(j).getChildren())!=0){
-							hasIntersection=true;
-						}
-					}
-					if(!hasIntersection){
-						removeThese=combine(removeThese,segment);
+		LinkedList<GraphSegment> segments=new LinkedList<GraphSegment>();
+		if(this.segmentCount>1){
+			boolean segHasIntersect[]=new boolean[this.segmentCount];
+			for(int k=0;k<this.segmentCount;k++){
+				segHasIntersect[k]=false;
+				segments.add(new GraphSegment(k));
+				
+			}
+			for(int j=0;j<this.axisGraph.size();j++){
+				if(!axisGraph.get(j).isIntersection()&&!segHasIntersect[axisGraph.get(j).getMySegement()]){
+					segments.get(axisGraph.get(j).getMySegement()).addVertex(axisGraph.get(j));
+				}
+				else{
+					segHasIntersect[axisGraph.get(j).getMySegement()]=true;
+				}
+			}
+			for(int i=0;i<this.segmentCount;i++){
+				if(!segHasIntersect[i]){
+					if(segments.get(i).getSegment().size()<=minLength){
+						removeThese=combine(removeThese,segments.get(i).getSegment());
 					}
 				}
 			}
@@ -227,7 +422,7 @@ public class MedialAxisGraph {
 	 * 
 	 * @return a linked list of points that represent the graph
 	 */
-	public LinkedList<Point> getMedialAxis() {
+	public LinkedList<Point> getMedialAxisFromGraph() {
 		LinkedList<Point> medialAxis = new LinkedList<Point>();
 		for (int i = 0; i < this.axisGraph.size(); i++) {
 			medialAxis.add(this.axisGraph.get(i).getPoint());
