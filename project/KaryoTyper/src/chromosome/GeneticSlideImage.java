@@ -20,7 +20,8 @@ public class GeneticSlideImage {
 
 	private String comments;
 	private BufferedImage img;
-	private int[] grayScale;
+	private int[] intensityHistogram;
+
 	private int[] edgeHistogram;
 	private LinkedList<Double> chromosomeWidth;
 	private boolean[][] pixelChecked;
@@ -36,12 +37,12 @@ public class GeneticSlideImage {
 	private boolean[][] pixelFound;
 
 	public GeneticSlideImage(String filename) {
-		grayScale = new int[256];
+		intensityHistogram = new int[256];
 		edgeHistogram = new int[256];
 		img = null;
 		imageName = filename;
-		for (int i = 0; i < grayScale.length; i++) {
-			grayScale[i] = 0;
+		for (int i = 0; i < intensityHistogram.length; i++) {
+			intensityHistogram[i] = 0;
 		}
 		try {
 			if (filename.contains("imag")) {
@@ -84,6 +85,10 @@ public class GeneticSlideImage {
 
 	public void setBackgroundThreshold(int backgroundThreshold) {
 		this.backgroundThreshold = backgroundThreshold;
+	}
+	
+	public int[] getHistogram() {
+		return intensityHistogram.clone();
 	}
 
 	public void markPixelChecked(Point temp) {
@@ -232,12 +237,12 @@ public class GeneticSlideImage {
 		// TODO(ahkeslin): Pull out magic numbers for grayscale conversion into something more
 		// understandable.
 		Color tempColor = new Color(0, 0, 0);
-		for (int i = 100; i < this.getImgWidth(); i++) {
-			for (int j = 100; j < this.getImgHeight(); j++) {
+		for (int i = 0; i < this.getImgWidth(); i++) {
+			for (int j = 0; j < this.getImgHeight(); j++) {
 				tempColor = this.getColorAt(i, j);
 				double tempGreyPixel = (.299 * tempColor.getRed()) + (.587 * tempColor.getGreen())
 						+ (.114 * tempColor.getBlue());
-				this.grayScale[(int) Math.round(tempGreyPixel)]++;
+				this.intensityHistogram[(int) Math.round(tempGreyPixel)]++;
 			}
 		}
 	}
@@ -257,10 +262,10 @@ public class GeneticSlideImage {
 		int sumIndex = 0;
 		int intervalSize = 10;
 
-		for (int x = this.grayScale.length - 1; x >= 0; x--) {
+		for (int x = this.intensityHistogram.length - 1; x >= 0; x--) {
 			int sum = 0;
-			for (int dx = 0; dx < intervalSize && dx + x < this.grayScale.length; dx++) {
-				sum += this.grayScale[x + dx];
+			for (int dx = 0; dx < intervalSize && dx + x < this.intensityHistogram.length; dx++) {
+				sum += this.intensityHistogram[x + dx];
 			}
 			if (sum >= maxSum) {
 				maxSum = sum;
@@ -281,8 +286,8 @@ public class GeneticSlideImage {
 			FileWriter fstream = new FileWriter("GrayScale.txt", true);
 			BufferedWriter out = new BufferedWriter(fstream);
 			String buffer = "";
-			for (int i = 0; i < this.grayScale.length; i++) {// out.write("Hello Java");
-				buffer += "" + this.grayScale[i] + ",";
+			for (int i = 0; i < this.intensityHistogram.length; i++) {// out.write("Hello Java");
+				buffer += "" + this.intensityHistogram[i] + ",";
 			}
 			out.write(buffer);
 			out.write("\n");
