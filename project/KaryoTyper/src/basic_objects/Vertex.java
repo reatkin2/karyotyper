@@ -107,7 +107,7 @@ public class Vertex {
 		Vertex q = getNearbyVertex(lowerLimitPrecision, upperLimitPrecision);
 
 		try {
-			tangentSlope = (myVertex.y - q.getPoint().y)
+			tangentSlope = (double)(myVertex.y - q.getPoint().y)
 					/ (myVertex.x - q.getPoint().x);
 			noTanSlope = false;
 		} catch (ArithmeticException e) {
@@ -116,9 +116,9 @@ public class Vertex {
 		}
 
 		if (noTanSlope) {
-			tangentYIntercept = myVertex.x;
+			tangentYIntercept = (double)myVertex.x;
 		} else {
-			tangentYIntercept = myVertex.y - tangentSlope * myVertex.x;
+			tangentYIntercept = (double)myVertex.y - tangentSlope * myVertex.x;
 		}
 
 		tangentIsCalculated = true;
@@ -145,7 +145,7 @@ public class Vertex {
 		}
 
 		try {
-			orthogonalSlope = -1 / tangentSlope;
+			orthogonalSlope = -1.0 / tangentSlope;
 			noOrthoSlope = false;
 		} catch (ArithmeticException e) {
 			orthogonalSlope = Integer.MAX_VALUE;
@@ -157,9 +157,9 @@ public class Vertex {
 		}
 
 		if (noOrthoSlope) {
-			orthogonalYIntercept = myVertex.x;
+			orthogonalYIntercept = (double)myVertex.x;
 		} else {
-			orthogonalYIntercept = myVertex.y - orthogonalSlope * myVertex.x;
+			orthogonalYIntercept = (double)myVertex.y - orthogonalSlope * myVertex.x;
 		}
 
 		return new double[] { orthogonalSlope, orthogonalYIntercept };
