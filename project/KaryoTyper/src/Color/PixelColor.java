@@ -25,6 +25,11 @@ public class PixelColor {
 	 * @return
 	 */
 	public static boolean isBelowThreshold(Color newPixel, int threshold) {
+		if (threshold > 255 || threshold < 0) {
+			throw new IllegalArgumentException(String.format(
+					"Threshold provided (%s) was not in the valid range of 0-255", threshold));
+		}
+
 		double tempGreyPixel = (.299 * newPixel.getRed()) + (.587 * newPixel.getGreen())
 				+ (.114 * newPixel.getBlue());
 		if (tempGreyPixel > threshold) {
