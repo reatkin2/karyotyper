@@ -51,7 +51,7 @@ public class RegressionLib {
 			}
 
 			RegressionLib regressor = new RegressionLib();
-			DifferentiableUnivariateFunction approximation = regressor.ApproxByPolynomial(DEGREE,
+			DifferentiableUnivariateFunction approximation = regressor.approxByPolynomial(DEGREE,
 					points);
 			System.out.printf("RMS error: %s\n", regressor.getFitError());
 
@@ -80,7 +80,7 @@ public class RegressionLib {
 		}
 	}
 
-	public DifferentiableUnivariateFunction ApproxByPolynomial(int degree, ArrayList<Point> points) {
+	public DifferentiableUnivariateFunction approxByPolynomial(int degree, ArrayList<Point> points) {
 		LevenbergMarquardtOptimizer optimizer = new LevenbergMarquardtOptimizer();
 		PolynomialFitter fitter = new PolynomialFitter(degree, optimizer);
 

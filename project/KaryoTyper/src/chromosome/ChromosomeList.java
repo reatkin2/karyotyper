@@ -81,8 +81,7 @@ public class ChromosomeList {
 			File outputfile = new File(curDir.getCanonicalPath() + "/shapeData/Keep/"
 					+ imageName.substring(0, imageName.indexOf('.')) + "_"
 					+ (tempCluster.getClusterNimageID()) + ".png");
-			BufferedImage tempImg = img.getSubImage(tempCluster, colorPoints, paintColor);// ,targetImgBorderSize);//30pixel
-																							// border
+			BufferedImage tempImg = img.getSubImage(tempCluster, colorPoints, paintColor);
 			ImageIO.write(tempImg, "png", outputfile);
 		} catch (IOException e) {
 			System.out.println(e);
