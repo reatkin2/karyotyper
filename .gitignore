@@ -6,7 +6,12 @@
 bin/*
 GrayScale.txt
 EdgeScale.txt
+diffProblem.txt
+diffProblem.diff
 .metadata
+
+# Class Diagrams
+*.ucls
 
 # Required repo for input
 shapeData/

@@ -3,6 +3,7 @@ package chromosome;
 import java.awt.Point;
 
 import medial_axis.MedialAxis;
+import medial_axis.MedialAxisGraph;
 
 import basic_objects.Cluster;
 
@@ -13,6 +14,7 @@ public class ChromosomeCluster extends Cluster {
 	private int colorCount;
 	private ChromosomeCluster next;
 	private MedialAxis medialAxis;
+	private MedialAxisGraph medialAxisGraph;
 
 	public ChromosomeCluster(int ChromosomeNum) {
 		super();
@@ -43,16 +45,16 @@ public class ChromosomeCluster extends Cluster {
 
 	private void initChromosomeCluster() {
 		this.colorCount = 0;
-		this.medialAxis = new MedialAxis();
 		next = null;
 	}
-
-	public MedialAxis getMedialAxis() {
-		return medialAxis;
+	public void createSkeleton(GeneticSlideImage image){
+		this.medialAxis=new MedialAxis(this,image);
 	}
-
-	public void setMedialAxis(MedialAxis medialAxis) {
-		this.medialAxis = medialAxis;
+	public void createMedialAxisGraph(GeneticSlideImage image){
+		this.medialAxisGraph=new MedialAxisGraph(this.medialAxis,this,image);
+	}
+	public MedialAxisGraph getMedialAxisGraph() {
+		return medialAxisGraph;
 	}
 
 	public void setImgHeading(double newHeading) {
@@ -91,7 +93,7 @@ public class ChromosomeCluster extends Cluster {
 		this.colorCount = copyChromosome.getColorCount();
 		this.clusterNimageID = copyChromosome.getClusterNimageID();
 		this.imgHeading = copyChromosome.imgHeading;
-		this.medialAxis = new MedialAxis(copyChromosome.medialAxis);
+		this.medialAxis = copyChromosome.medialAxis;
 
 	}
 }

@@ -8,9 +8,11 @@ public class Vertex {
 	private Point myVertex;
 	private boolean wasIntersection;
 	private int distanceFromEdge;
+	private int mySegement;
 
 
 	public Vertex(Point vertex,int distance) {
+		mySegement=-1;
 		distanceFromEdge=distance;
 		myVertex = new Point(vertex);
 		children = new LinkedList<Vertex>();
@@ -66,4 +68,13 @@ public class Vertex {
 	public LinkedList<Vertex> getChildren() {
 		return children;
 	}
+	public int getMySegement() {
+		return mySegement;
+	}
+
+	public void setMySegement(int mySegement) {
+		this.mySegement = mySegement;
+	}
+
+
 }

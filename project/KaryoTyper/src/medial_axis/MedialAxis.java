@@ -86,7 +86,7 @@ public class MedialAxis {
 		LinkedList<ErosionPoint> removeEdgePointsVert = new LinkedList<ErosionPoint>();
 		LinkedList<ErosionPoint> removeEdgePointsHorz = new LinkedList<ErosionPoint>();
 		this.skeleton = new LinkedList<Point>();
-		AroundPixel aroundPixel=new AroundPixel();
+//		AroundPixel aroundPixel=new AroundPixel();
 		LinkedList<Point> addThisRound = new LinkedList<Point>();
 		Cluster temp = new Cluster(myCluster);
 		this.distanceMap = new DistanceMap(myCluster.getSize().x, myCluster.getSize().y);
@@ -228,6 +228,7 @@ public class MedialAxis {
 			distanceFromEdgeCount++;
 		}
 		addBackSkeleton(temp);
+		this.distanceMap.mapOut();
        this.objectWidth[0]=(this.biggestIncreaseSkeletonAtWidthCount+.75)*2;
        this.objectWidth[1]=(this.most2LeastRemovedAtWidthCount+.75)*2;
 	}
@@ -447,17 +448,16 @@ public class MedialAxis {
 	 *            the distance from edge that axis must be or be removed
 	 * @return a linklist of points of the trimmed medial axis
 	 */
-	public LinkedList<Point> trimMedialAxis(int minDistance) {
-		LinkedList<Point> trimmedAxis = new LinkedList<Point>();
+	public LinkedList<Point> getPossibleBreaks(int minDistance) {
+		LinkedList<Point> possibleBreaks=new LinkedList<Point>();
 		if (this.skeleton != null) {
 			for (int i = 0; i < this.skeleton.size(); i++) {
-				if (distanceMap.getDistanceFromEdge(this.skeleton.get(i)) >= minDistance) {
-					trimmedAxis.add(this.skeleton.get(i));
+				if (distanceMap.getDistanceFromEdge(this.skeleton.get(i)) <= minDistance) {
+					possibleBreaks.add(this.skeleton.get(i));
 				}
 			}
 		}
-		return trimmedAxis;
-
+		return possibleBreaks;
 	}
 
 	/**
