@@ -154,8 +154,9 @@ public class SymmetryTests {
 		int tanLineLengths = 10;
 
 		ChromosomeCluster cluster = TestShape.getCluster(imagePath);
-		cluster.getMedialAxis().createSkeleton(cluster, TestShape.getGeneticSlideImage());
-		LinkedList<Point> axisPoints = cluster.getMedialAxis().getMedialAxisPoints();
+		cluster.createSkeleton(TestShape.getGeneticSlideImage());
+		cluster.createMedialAxisGraph(TestShape.getGeneticSlideImage());
+		LinkedList<Point> axisPoints = cluster.getMedialAxisGraph().getMedialAxisFromGraph();
 		
 		// Debug code
 		// getter.writeTargetImage(shape, shape.getSkeltonPoints(),
@@ -163,7 +164,7 @@ public class SymmetryTests {
 		// System.out.println("Reached here");
 		// End Debug
 
-		MedialAxisGraph axisGraph = new MedialAxisGraph(axisPoints, cluster.getMedialAxis().getDistanceMap());
+		MedialAxisGraph axisGraph = cluster.getMedialAxisGraph();
 
 		// Debug code
 		// getter.writeTargetImage(shape, axisGraph.trimMedialAxis(3,
@@ -184,7 +185,7 @@ public class SymmetryTests {
 		int counter = 0;
 		while (vertices.peek() != null) {
 			Vertex v = vertices.poll();
-			if (counter % 30 == 0) {
+			if (counter % 10 == 0) {
 				try {
 					tanLines.addAll(v.tangentLine(tanLineLengths));
 				} catch (Exception e) {
@@ -204,9 +205,8 @@ public class SymmetryTests {
 			System.out.println("(" + p.x + ", " + p.y + ")");
 		}
 		//End debug
-		
-		chromoList.writeTargetImage(cluster, tanLines, Color.GREEN);
+		String writePath = "//shapeData//tangentLines//";
+		chromoList.writeTargetImage(writePath, cluster, tanLines, Color.GREEN);
 		//TODO: Causes IndexOutofBounds
 	}
-
 }
