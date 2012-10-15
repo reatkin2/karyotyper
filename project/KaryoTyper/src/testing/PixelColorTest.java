@@ -1,6 +1,8 @@
-package color;
+package testing;
 
 import java.awt.Color;
+
+import color.PixelColor;
 
 import junit.framework.TestCase;
 

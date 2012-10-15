@@ -1,8 +1,10 @@
-package medial_axis;
+package testing;
 
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import medial_axis.RegressionLib;
 
 import org.apache.commons.math3.analysis.DifferentiableUnivariateFunction;
 

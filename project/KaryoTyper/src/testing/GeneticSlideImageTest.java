@@ -1,7 +1,9 @@
-package chromosome;
+package testing;
 
 import java.io.File;
 import java.io.IOException;
+
+import chromosome.GeneticSlideImage;
 
 import junit.framework.TestCase;
 

@@ -1,14 +1,12 @@
 package testing;
 
 import java.awt.Point;
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 
-import basic_objects.Vertex;
-
+import junit.framework.TestCase;
 import medial_axis.DistanceMap;
 import medial_axis.MedialAxisGraph;
-import junit.framework.TestCase;
+import basic_objects.Vertex;
 
 public class MedialAxisGraphTest extends TestCase {
 	private LinkedList<Point> straightLine;
