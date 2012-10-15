@@ -41,7 +41,7 @@ public class MedialAxisGraph {
 		buildGraph(medialAxisTemp.getMedialAxisPoints(),medialAxisTemp.getDistanceMap());
 		trimGraph();
 		removeSegments((int)Math.round((img.getChromoWidth()*(2.0/3.0))), -1);
-		medialAxisTemp.setMedialAxis(getMedialAxisFromGraph());
+		medialAxisTemp.setMedialAxis(this.axisGraph);
 
 
 	}

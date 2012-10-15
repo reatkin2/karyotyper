@@ -11,7 +11,7 @@ import chromosome.ChromosomeCluster;
 import chromosome.GeneticSlideImage;
 
 public class MedialAxis {
-	private LinkedList<Point> skeleton;
+	private SkeletonList skeleton;
 	private double objectWidth[];
 	private DistanceMap distanceMap;
 	private int biggestIncreaseSkeletonAtWidthCount;
@@ -33,7 +33,7 @@ public class MedialAxis {
 
 	private void initMedialAxis() {
 		distanceMap = new DistanceMap();
-		skeleton = new LinkedList<Point>();
+		skeleton = new SkeletonList();
 		biggestIncreaseSkeletonAtWidthCount = -1;
 		most2LeastRemovedAtWidthCount = 1;
 		objectWidth = new double[2];
@@ -41,13 +41,13 @@ public class MedialAxis {
 		objectWidth[1] = -1;
 	}
 
-	public void setMedialAxis(LinkedList<Point> tempMedialAxis) {
-		this.skeleton = tempMedialAxis;
+	public void setMedialAxis(LinkedList<Vertex> tempMedialAxis) {
+		this.skeleton = new SkeletonList(tempMedialAxis);
 	}
 
 	private void copyMedialAxis(MedialAxis copyMedialAxis) {
 		this.distanceMap = new DistanceMap(copyMedialAxis.distanceMap);
-		this.skeleton = copyMedialAxis.getMedialAxisPoints();
+		this.skeleton = copyMedialAxis.skeleton;
 		this.biggestIncreaseSkeletonAtWidthCount = copyMedialAxis.biggestIncreaseSkeletonAtWidthCount;
 		this.most2LeastRemovedAtWidthCount = copyMedialAxis.most2LeastRemovedAtWidthCount;
 		objectWidth[0] = copyMedialAxis.objectWidth[0];
@@ -66,7 +66,7 @@ public class MedialAxis {
 	}
 
 	public LinkedList<Point> getMedialAxisPoints() {
-		return this.skeleton;
+		return this.skeleton.getOneList();
 	}
 
 	public DistanceMap getDistanceMap() {
@@ -85,7 +85,7 @@ public class MedialAxis {
 		// create a linked list to store Clusters in
 		LinkedList<ErosionPoint> removeEdgePointsVert = new LinkedList<ErosionPoint>();
 		LinkedList<ErosionPoint> removeEdgePointsHorz = new LinkedList<ErosionPoint>();
-		this.skeleton = new LinkedList<Point>();
+		this.skeleton = new SkeletonList();
 //		AroundPixel aroundPixel=new AroundPixel();
 		LinkedList<Point> addThisRound = new LinkedList<Point>();
 		Cluster temp = new Cluster(myCluster);
@@ -121,7 +121,7 @@ public class MedialAxis {
 							if (objectWidth <= 2) {
 								Point tempPoint = removeEdgePointsVert.pop();
 								if (!skeleton.contains(tempPoint)) {
-									skeleton.add(tempPoint);
+									skeleton.add(tempPoint,distanceFromEdgeCount);
 									addThisRound.add(tempPoint);
 								}
 							}
@@ -137,7 +137,7 @@ public class MedialAxis {
 					if (objectWidth <= 2) {
 						Point tempPoint = removeEdgePointsVert.pop();
 						if (!skeleton.contains(tempPoint)) {
-							skeleton.add(tempPoint);
+							skeleton.add(tempPoint,distanceFromEdgeCount);
 							addThisRound.add(tempPoint);
 						}
 					}
@@ -165,7 +165,7 @@ public class MedialAxis {
 							if (objectWidth <= 2) {
 								Point tempPoint = removeEdgePointsHorz.pop();
 								if (!skeleton.contains(tempPoint)) {
-									skeleton.add(tempPoint);
+									skeleton.add(tempPoint,distanceFromEdgeCount);
 									addThisRound.add(tempPoint);
 								}
 							}
@@ -181,7 +181,7 @@ public class MedialAxis {
 					if (objectWidth <= 2) {
 						Point tempPoint = removeEdgePointsHorz.pop();
 						if (!skeleton.contains(tempPoint)) {
-							skeleton.add(tempPoint);
+							skeleton.add(tempPoint,distanceFromEdgeCount);
 							addThisRound.add(tempPoint);
 						}
 					}
@@ -207,9 +207,7 @@ public class MedialAxis {
 					distanceMap.setDistanceFormEdge(removePoint, distanceFromEdgeCount);
 				}
 			}
-			if (distanceFromEdgeCount < 2) {
-				skeleton = new LinkedList<Point>();
-			} else {
+			if (distanceFromEdgeCount >= 2){ 
 				addBackSkeleton(temp);
 			}
 			if (distanceFromEdgeCount > 2) {// do everytime after first run
@@ -241,8 +239,9 @@ public class MedialAxis {
 	 *            the cluster to add back the medial axis points too
 	 */
 	private void addBackSkeleton(Cluster temp) {
-		for (int i = 0; i < skeleton.size(); i++) {
-			temp.setPixel(skeleton.get(i), true);
+		LinkedList<Point> tempList=skeleton.getOneList();
+		for (int i = 0; i < tempList.size(); i++) {
+			temp.setPixel(tempList.get(i), true);
 		}
 	}
 
@@ -257,10 +256,11 @@ public class MedialAxis {
 	public void fillInSkeleton(ChromosomeCluster myCluster, MedialAxisGraph graph) {
 		AroundPixel aroundPixel = new AroundPixel();
 		//for each pixel in skeleton/medial axis
-		for (int i = 0; i < skeleton.size(); i++) {
+		LinkedList<Point> tempList=skeleton.getOneList();
+		for (int i = 0; i < tempList.size(); i++) {
 			int mostCenteredConnection = 0;
 			int connections = 0;
-			Point tempPoint = skeleton.get(i);
+			Point tempPoint = tempList.get(i);
 			int addPoint = -1;
 			boolean added = false;
 			Point mostConnected = new Point(-1, -1);
@@ -272,7 +272,7 @@ public class MedialAxis {
 				//if there not off the edge of the cluster box
 				if (tempAround.x >= 0 && tempAround.x < myCluster.getSize().x && tempAround.y >= 0
 						&& tempAround.y < myCluster.getSize().y) {
-					if (skeleton.contains(tempAround)) {
+					if (tempList.contains(tempAround)) {
 						connectionPos[j] = true;
 						connections++;
 					}
@@ -311,13 +311,14 @@ public class MedialAxis {
 				if (connections < 2) {
 					//if there is a point that connects or bridges back to another part of the skeleton
 					if (mostNewConnections > 0 && mostConnected.x != -1) {
-						skeleton.add(mostConnected);
+						tempList.add(mostConnected);
 						graph.addVertex(new Vertex(mostConnected,distanceMap.getDistanceFromEdge(mostConnected)));
 						added = true;
 						//if there is a point to add that is centered in chromosome
 					} else if (addPoint >= 0) {
 						Point newTempPoint = aroundPixel.getPoint(addPoint, tempPoint);
-						skeleton.add(newTempPoint);
+						skeleton.add(newTempPoint,distanceMap.getDistanceFromEdge(newTempPoint));
+						tempList=skeleton.getOneList();
 						graph.addVertex(new Vertex(newTempPoint,distanceMap.getDistanceFromEdge(newTempPoint)));
 						added = true;
 					}
@@ -326,7 +327,8 @@ public class MedialAxis {
 				if (!added && mostConnected.x != -1) {
 					//if that bridge point connects to a seperate part of the medial axis
 					if (!graph.isConnected(tempPoint, newConnectionPoint)) {
-						skeleton.add(mostConnected);
+						skeleton.add(mostConnected,distanceMap.getDistanceFromEdge(mostConnected));
+						tempList=skeleton.getOneList();
 						graph.addVertex(new Vertex(mostConnected,distanceMap.getDistanceFromEdge(mostConnected)));
 					}
 				}
@@ -438,26 +440,6 @@ public class MedialAxis {
 			connectionCount++;
 		}
 		return connectionCount;
-	}
-
-	/**
-	 * returns a list of points of this medial axis trimmed by removing points from the medial axis
-	 * based on the distance from the edge any point that is less than minDistance will be removed
-	 * 
-	 * @param minDistance
-	 *            the distance from edge that axis must be or be removed
-	 * @return a linklist of points of the trimmed medial axis
-	 */
-	public LinkedList<Point> getPossibleBreaks(int minDistance) {
-		LinkedList<Point> possibleBreaks=new LinkedList<Point>();
-		if (this.skeleton != null) {
-			for (int i = 0; i < this.skeleton.size(); i++) {
-				if (distanceMap.getDistanceFromEdge(this.skeleton.get(i)) <= minDistance) {
-					possibleBreaks.add(this.skeleton.get(i));
-				}
-			}
-		}
-		return possibleBreaks;
 	}
 
 	/**
