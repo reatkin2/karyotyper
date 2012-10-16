@@ -153,7 +153,7 @@ public class ChromosomeList {
 			File outputfile = new File(curDir.getCanonicalPath() + "/shapeData/Keep/"
 					+ imageName.substring(0, imageName.indexOf('.')) + "_"
 					+ (tempCluster.getClusterNimageID()) + "ISO" + ".png");// ,tempShape.getTitle().indexOf(".jpg"))+"_"+(inImageTargetCount)+".png"
-			BufferedImage tempImg = img.getISOcline(tempCluster.getMedialAxisGraph().getMedialAxis().getDistanceMap());// ,targetImgBorderSize);//30pixel
+			BufferedImage tempImg = img.getISOcline(tempCluster.getMedialAxisGraph().getDistanceMap());// ,targetImgBorderSize);//30pixel
 																									// border
 			ImageIO.write(tempImg, "png", outputfile);
 		} catch (IOException e) {
