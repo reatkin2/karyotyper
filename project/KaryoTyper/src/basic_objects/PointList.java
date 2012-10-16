@@ -16,7 +16,7 @@ public class PointList {
 		pointList.add(tempPoint);
 	}
 	public void setList(PointList tempList){
-		pointList=tempList.getList();
+		pointList=(LinkedList<Point>)tempList.getList().clone();
 		distanceFromEdge=tempList.getDistanceFromEdge();
 	}
 	public boolean addPoint(Point tempPoint, int distance){

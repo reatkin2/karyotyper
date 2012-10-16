@@ -62,6 +62,40 @@ public class SkeletonListTest extends TestCase {
 		assertEquals(skelList.size(),5);
 		assertEquals(skelList.getListAtDistance(6).getList().size(),3);
 
-		
 	}
+	public void testGetListAtDistance(){
+		SkeletonList skelList=new SkeletonList();
+		skelList.add(new Point(4,4), 6);
+		skelList.add(new Point(6,6), 2);
+		skelList.add(new Point(7,7), 6);
+		skelList.add(new Point(7,8), 10);
+		skelList.add(new Point(9,9), 6);
+		
+		
+		PointList tempList=skelList.getListAtDistance(6);
+		assertEquals(tempList.getList().size(),3);
+		assertTrue(tempList.getList().contains(new Point(4,4)));
+		assertFalse(tempList.getList().contains(new Point(6,6)));
+		assertTrue(tempList.getList().contains(new Point(7,7)));		
+
+	}
+	public void testGetOneList(){
+		SkeletonList skelList=new SkeletonList();
+		skelList.add(new Point(4,4), 6);
+		skelList.add(new Point(6,6), 2);
+		skelList.add(new Point(7,7), 6);
+		skelList.add(new Point(7,8), 10);
+		skelList.add(new Point(9,9), 6);
+		
+		
+		LinkedList<Point> tempList=skelList.getOneList();
+		assertEquals(tempList.size(),5);
+		assertTrue(tempList.contains(new Point(4,4)));
+		assertTrue(tempList.contains(new Point(6,6)));
+		assertTrue(tempList.contains(new Point(7,7)));	
+		assertTrue(tempList.contains(new Point(7,8)));	
+		assertTrue(tempList.contains(new Point(9,9)));		
+
+	}
+
 }
