@@ -35,14 +35,17 @@ public class MedialAxisGraph {
 		axisGraph = new LinkedList<Vertex>();
 		medialAxis=medialAxisTemp;
 		buildGraph(medialAxisTemp.getMedialAxisPoints(),medialAxisTemp.getDistanceMap());
-		medialAxisTemp.fillInSkeleton(myCluster, this);
+		cleanGraph(myCluster,img);
+
+	}
+	public void cleanGraph(ChromosomeCluster myCluster,GeneticSlideImage img){
+		medialAxis.fillInSkeleton(myCluster, this);
 		segmentCount=0;
 		axisGraph = new LinkedList<Vertex>();
-		buildGraph(medialAxisTemp.getMedialAxisPoints(),medialAxisTemp.getDistanceMap());
+		buildGraph(medialAxis.getMedialAxisPoints(),medialAxis.getDistanceMap());
 		trimGraph();
 		removeSegments((int)Math.round((img.getChromoWidth()*(2.0/3.0))), -1);
-		medialAxisTemp.setMedialAxis(this.axisGraph);
-
+		medialAxis.setMedialAxis(this.axisGraph);
 
 	}
 
