@@ -57,7 +57,7 @@ public class ChromosomeList {
 			}
 		}
 		this.chromosomeList = new LinkedList<ChromosomeCluster>();
-		img.graphEdgeScale();
+		//img.graphEdgeScale();
 	}
 
 	/**
