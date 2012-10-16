@@ -4,6 +4,8 @@ import java.awt.Point;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 
+import chromosome.ChromosomeCluster;
+
 import basic_objects.Vertex;
 
 import medial_axis.DistanceMap;
@@ -232,5 +234,8 @@ public class MedialAxisGraphTest extends TestCase {
 		assertEquals(pointList.size(),16);
 	
 		
+	}
+	public void testFillInSkeleton(){
+		//TODO(aamcknig): add some tests
 	}
 }
