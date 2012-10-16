@@ -148,7 +148,8 @@ public class Vertex {
 	 *            The greatest acceptable distance for a nearby point.
 	 * @return A double array containing the orthogonal slope and orthogonal
 	 *         y-intercept.
-	 * @throws DistanceException
+	 * @throws Exception
+	 * 			  Thrown if there is no vertex that satisfies the limit.
 	 */
 	public double[] calculateOrthogonalLine(double lowerLimitPrecision,
 			double upperLimitPrecision) throws Exception {

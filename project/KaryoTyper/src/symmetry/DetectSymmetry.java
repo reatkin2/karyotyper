@@ -1,10 +1,18 @@
-//package symmetry;
-//import java.awt.Point;
-//import java.util.ArrayList;
-//import java.util.Collection;
-//
-//public class DetectSymmetry {
-//
+package symmetry;
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
+
+import basic_objects.Vertex;
+
+import chromosome.GeneticSlideImage;
+
+import medial_axis.MedialAxisGraph;
+
+public class DetectSymmetry {
+
 //	/**
 //	 * Detects if the chromosome is symmetric about the medial axis, given that the
 //	 * medial axis has been defined.  The method checks for symmetry of the
@@ -96,7 +104,7 @@
 //		}
 //		return false;
 //	}
-//	
+	
 //	public static boolean detectWidthSymmetry(Image image, Axis axis, double threshold) {
 //		Collection<Point> axisPoints = axis.getPoints();
 //		double[] leftWidth = new double[axis.getLength()];
@@ -220,4 +228,39 @@
 //		
 //		//TODO:  Testing is confusing, maybe use debugger.
 //	}
-//}
+	
+	/**
+	 * The Medial Axis Graph must be built before passing in, and tangents/orthogonals
+	 * be calculated.
+	 * @param axisGraph
+	 * @param image
+	 * @return
+	 */
+	public boolean detectWidthSymmetry(MedialAxisGraph axisGraph, GeneticSlideImage image) {
+		try {
+			axisGraph.generateOrthogonals(3, 5);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
+		
+		HashMap<Vertex, LinkedList<Point>> vertexToOrthoMap = new HashMap<Vertex, LinkedList<Point>>(50);
+		
+		for (Vertex v : axisGraph.getAxisGraph()) {
+			try {
+				LinkedList<Point> orthoPoints = v.orthogonalLine(v.getDistanceFromEdge() * 2);
+				vertexToOrthoMap.put(v, orthoPoints);
+			} catch (Exception e) {
+				System.out.println(e.getMessage());
+				e.printStackTrace();
+			}
+		}
+		
+		Vertex vertex = axisGraph.getAxisGraph().getFirst();
+		
+		//TODO: Finish
+		
+		return false;
+		
+	}
+}
