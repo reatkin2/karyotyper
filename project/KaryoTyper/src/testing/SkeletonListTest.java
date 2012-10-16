@@ -97,5 +97,5 @@ public class SkeletonListTest extends TestCase {
 		assertTrue(tempList.contains(new Point(9,9)));		
 
 	}
-	
+
 }

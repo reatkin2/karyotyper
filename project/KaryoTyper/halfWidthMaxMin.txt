@@ -1,4 +1,0 @@
-30,30 smallest blob middle 5,12--1,1--(problematic)
-
-4,4 smallest chromo
-14,9 biggest chromo

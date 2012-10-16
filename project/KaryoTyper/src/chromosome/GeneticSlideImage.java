@@ -11,6 +11,9 @@ import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 
+import color.ISOClineColor;
+
+
 import medial_axis.DistanceMap;
 import medial_axis.MedialAxisGraph;
 import basic_objects.Cluster;

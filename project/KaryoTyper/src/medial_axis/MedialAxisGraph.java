@@ -35,14 +35,17 @@ public class MedialAxisGraph {
 		axisGraph = new LinkedList<Vertex>();
 		medialAxis=medialAxisTemp;
 		buildGraph(medialAxisTemp.getMedialAxisPoints(),medialAxisTemp.getDistanceMap());
-		medialAxisTemp.fillInSkeleton(myCluster, this);
+		cleanGraph(myCluster,img);
+
+	}
+	public void cleanGraph(ChromosomeCluster myCluster,GeneticSlideImage img){
+		medialAxis.fillInSkeleton(myCluster, this);
 		segmentCount=0;
 		axisGraph = new LinkedList<Vertex>();
-		buildGraph(medialAxisTemp.getMedialAxisPoints(),medialAxisTemp.getDistanceMap());
+		buildGraph(medialAxis.getMedialAxisPoints(),medialAxis.getDistanceMap());
 		trimGraph();
 		removeSegments((int)Math.round((img.getChromoWidth()*(2.0/3.0))), -1);
-		medialAxisTemp.setMedialAxis(getMedialAxisFromGraph());
-
+		medialAxis.setMedialAxis(this.axisGraph);
 
 	}
 
@@ -529,6 +532,32 @@ public class MedialAxisGraph {
 			if(removeVertex!=-1){
 				removeVertex(intersections.get(i).getChildren().get(removeVertex));
 			}
+		}
+	}
+	
+	public void generateTangents(double lowerLimitDistance, double upperLimitDistance) throws Exception {
+		resetChecks();
+		for (Vertex v : axisGraph) {
+			v.calculateTangentLine(lowerLimitDistance, upperLimitDistance);
+			resetChecks();
+		}
+	}
+	
+	public void generateOrthogonals(double lowerLimitDistance, double upperLimitDistance) throws Exception {
+		resetChecks();
+		for (Vertex v : axisGraph) {
+			v.calculateOrthogonalLine(lowerLimitDistance, upperLimitDistance);
+			resetChecks();
+		}
+	}
+	
+	/**
+	 * Resets hasBeenChecked flag of all vertices to false. Should be used before and after
+	 * graph traversals to prevent unintended results.
+	 */
+	public void resetChecks() {
+		for (Vertex v : axisGraph) {
+			v.setHasBeenChecked(false);
 		}
 	}
 }
