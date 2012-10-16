@@ -52,6 +52,7 @@ public class ChromosomeList {
 //				writeTargetImage(tempCluster, tempCluster.getMedialAxisGraph().getMedialAxis().getMedialAxisPoints(),
 //						new Color(255, 0, 0),tempCluster.getMedialAxisGraph().getMedialAxis().
 //						getPossibleBreaks((int)Math.round((image.getAverage()/2)-4)),new Color(255,0,255));
+
 			} else {
 				writeTargetImage("/shapeData/Removed/",tempCluster,null,null);
 			}
