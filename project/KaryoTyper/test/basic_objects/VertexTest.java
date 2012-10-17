@@ -7,7 +7,6 @@ import java.awt.Point;
 import java.util.LinkedList;
 
 import medial_axis.DistanceMap;
-import medial_axis.MedialAxis;
 import medial_axis.MedialAxisGraph;
 
 import junit.framework.TestCase;
@@ -47,7 +46,8 @@ public class VertexTest extends TestCase {
 	
 	private void buildAxisGraph() {
 		buildPointList();
-		MedialAxisGraph graph = new MedialAxisGraph(pointList, new DistanceMap(100, 100));
+		MedialAxisGraph graph = new MedialAxisGraph();
+		graph.buildGraph(pointList,  new DistanceMap(100, 100));
 		vertex = graph.getAxisGraph().getFirst();
 	}
 	
