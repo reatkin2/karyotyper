@@ -1,7 +1,6 @@
 package testing;
 
 import java.awt.Point;
-import java.util.LinkedList;
 
 import basic_objects.PointList;
 

@@ -6,7 +6,9 @@ import java.util.LinkedList;
 public class PointList {
 	private LinkedList<Point> pointList;
 	private int distanceFromEdge;
+	private Point axisPoint;
 	public PointList(){
+		axisPoint=new Point(-1,-1);
 		pointList=null;
 		distanceFromEdge=-1;
 	}
@@ -32,5 +34,12 @@ public class PointList {
 	public int getDistanceFromEdge() {
 		return distanceFromEdge;
 	}
+	public Point getAxisPoint() {
+		return axisPoint;
+	}
+	public void setAxisPoint(Point axisPoint) {
+		this.axisPoint = axisPoint;
+	}
+
 
 }

@@ -10,8 +10,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+
 import chromosome.ChromosomeList;
 import chromosome.GeneticSlideImage;
+import extraction.Extractor;
 
 public class RunChromosomeGetter extends JFrame {
 	/**
@@ -94,9 +96,11 @@ public class RunChromosomeGetter extends JFrame {
 					ChromosomeList slideList = new ChromosomeList(extractor.getClusterList(), image);
 					// print out the slidelist
 					imgCount.setText("Calculating Medial Axis for: "+slideList.size()+" Clusters.");
-					slideList.calcMedialAxis(image);
+					//slideList.calcMedialAxis(image);
 					imgCount.setText("Writing "+slideList.size()+" images. ");
-					slideList.printChromosomes(image);
+					//slideList.printChromosomes(image);
+					//test for split lines to shapdata/keep
+					slideList.splitNWrite(image);
 
 					imgCount.setText(frame.targetsFound + " Chromosomes found in "
 							+ (++frame.imgCounter) + " slides read so far.");

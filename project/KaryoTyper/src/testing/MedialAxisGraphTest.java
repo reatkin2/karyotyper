@@ -1,10 +1,8 @@
 package testing;
 
 import java.awt.Point;
-import java.lang.reflect.Method;
 import java.util.LinkedList;
 
-import chromosome.ChromosomeCluster;
 
 import basic_objects.Vertex;
 

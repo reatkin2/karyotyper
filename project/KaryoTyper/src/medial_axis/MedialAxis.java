@@ -243,6 +243,9 @@ public class MedialAxis {
 			temp.setPixel(tempList.get(i), true);
 		}
 	}
+	public SkeletonList getSkeletonList(){
+		return this.skeleton;
+	}
 
 
 	/**
@@ -256,26 +259,25 @@ public class MedialAxis {
 	 * @return the bridging point or (-1,-1)
 	 */
 	private boolean isBridgePoint(int corner2Check, Point bridgePoint) {
-		AroundPixel aroundPixel = new AroundPixel();
 		if (this.skeleton.contains(bridgePoint)) {
 			return false;
 		}
-		if (this.skeleton.contains(aroundPixel.getPoint(corner2Check, bridgePoint))) {
+		if (this.skeleton.contains(AroundPixel.getPoint(corner2Check, bridgePoint))) {
 			return true;
 		}
 		if (corner2Check - 1 < 0) {
-			if (this.skeleton.contains(aroundPixel.getPoint(7, bridgePoint))) {
+			if (this.skeleton.contains(AroundPixel.getPoint(7, bridgePoint))) {
 				return true;
 			}
 
-		} else if (this.skeleton.contains(aroundPixel.getPoint(corner2Check - 1, bridgePoint))) {
+		} else if (this.skeleton.contains(AroundPixel.getPoint(corner2Check - 1, bridgePoint))) {
 			return true;
 		}
 		if (corner2Check + 1 > 7) {
-			if (this.skeleton.contains(aroundPixel.getPoint(0, bridgePoint))) {
+			if (this.skeleton.contains(AroundPixel.getPoint(0, bridgePoint))) {
 				return true;
 			}
-		} else if (this.skeleton.contains(aroundPixel.getPoint(corner2Check + 1, bridgePoint))) {
+		} else if (this.skeleton.contains(AroundPixel.getPoint(corner2Check + 1, bridgePoint))) {
 			return true;
 		}
 		return false;
