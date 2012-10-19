@@ -88,6 +88,5 @@ public class SymmetryTests {
 		// End debug
 		String writePath = "//shapeData//tangentLines//";
 		chromoList.writeTargetImage(writePath, cluster, tanLines, Color.GREEN);
-		// TODO: Causes IndexOutofBounds
 	}
 }

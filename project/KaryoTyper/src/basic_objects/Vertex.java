@@ -305,13 +305,13 @@ public class Vertex {
 					x = myVertex.x + (sign * ((i + 1) / 2));
 				}
 			} else {
-				y = (int) (x * tangentSlope + tangentYIntercept);
+				y = (int) (x * orthogonalSlope + orthogonalYIntercept);
 			}
 
 			Point p = new Point(x, y);
 			line.add(p);
 		}
-
+		
 		return fillLine(line);
 	}
 
@@ -403,4 +403,39 @@ public class Vertex {
 		}
 		return nextPoint;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((myVertex == null) ? 0 : myVertex.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Vertex other = (Vertex) obj;
+		if (myVertex == null) {
+			if (other.myVertex != null)
+				return false;
+		} else if (!myVertex.equals(other.myVertex))
+			return false;
+		return true;
+	}
+	
+	
+	
+	
 }
