@@ -571,14 +571,15 @@ public class MedialAxisGraph extends MedialAxis {
 			resetChecks();
 		}
 	}
-	
+
 	/**
 	 * 
 	 * @param lowerLimitDistance
 	 * @param upperLimitDistance
 	 * @throws Exception
 	 */
-	public void generateOrthogonals(double lowerLimitDistance, double upperLimitDistance) throws Exception {
+	public void generateOrthogonals(double lowerLimitDistance, double upperLimitDistance)
+			throws Exception {
 		resetChecks();
 		for (Vertex v : axisGraph) {
 			v.calculateOrthogonalLine(lowerLimitDistance, upperLimitDistance);

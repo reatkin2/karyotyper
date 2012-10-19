@@ -11,6 +11,31 @@ import chromosome.ChromosomeCluster;
 
 public class ClusterSplitter {
 
+	public static void prepCutLine(PointList cutLine) {
+		if (cutLine.getCutDir1() % 2 == 1) {
+			Point tempPoint=cutLine.getAxisPoint();
+			for (int i = 0; i < cutLine.getDir1length(); i++) {
+				cutLine.addPoint(AroundPixel.getPoint(
+						AroundPixel.handleLoop(cutLine.getCutDir1() - 1), tempPoint), 0);
+				tempPoint = AroundPixel.getPoint(cutLine.getCutDir1(), tempPoint);
+			}
+			cutLine.addPoint(AroundPixel.getPoint(
+					AroundPixel.handleLoop(cutLine.getCutDir1() - 1), tempPoint), 0);
+			cutLine.addPoint( tempPoint, 0);			
+		}
+		if (cutLine.getCutDir2() % 2 == 1) {
+			Point tempPoint=cutLine.getAxisPoint();
+			for (int i = 0; i < cutLine.getDir2length(); i++) {
+				cutLine.addPoint(AroundPixel.getPoint(
+						AroundPixel.handleLoop(cutLine.getCutDir2() - 1), tempPoint), 0);
+				tempPoint = AroundPixel.getPoint(cutLine.getCutDir2(), tempPoint);
+			}
+			cutLine.addPoint(AroundPixel.getPoint(
+					AroundPixel.handleLoop(cutLine.getCutDir2() - 1), tempPoint), 0);
+			cutLine.addPoint( tempPoint, 0);			
+		}
+	}
+
 	/**
 	 * get all the cutlines in a cluster based off medialaxis points that there distance map values
 	 * are below splitMax and the cutline is shortert than splitMax
@@ -35,6 +60,9 @@ public class ClusterSplitter {
 					}
 				}
 			}
+		}
+		for(int i=0;i<splits.size();i++){
+			ClusterSplitter.prepCutLine(splits.get(i));
 		}
 		return splits;
 	}
@@ -293,7 +321,8 @@ public class ClusterSplitter {
 	 */
 	public static PointList getCutPoints(Point cutPoint, int startSpot, int startOppisite,
 			int directionLength[]) {
-		PointList cutList = new PointList(cutPoint, 0);
+		PointList cutList = new PointList(cutPoint, 0, startSpot, startOppisite,
+				directionLength[startSpot], directionLength[startOppisite]);
 		cutList.setAxisPoint(cutPoint);
 		Point currPoint1 = AroundPixel.getPoint(startSpot, cutPoint);
 		for (int i = 0; i < directionLength[startSpot] - 1; i++) {

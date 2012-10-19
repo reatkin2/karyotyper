@@ -10,6 +10,7 @@ import color.PixelColor;
 import chromosome.ChromosomeCluster;
 import chromosome.GeneticSlideImage;
 import basic_objects.AroundPixel;
+import basic_objects.PointList;
 
 /**
  * @author andrew
@@ -68,7 +69,7 @@ public class Extractor {
 		LinkedList<Point> foundList = new LinkedList<Point>();
 		Point canvasOffset = new Point(canvasOrigin.x - currentCoord.x, canvasOrigin.y
 				- currentCoord.y);
-		img.initNextPixel();
+		img.getSearchArea().initNextPixel();
 		foundList.add(currentCoord);
 		while (!foundList.isEmpty()) {
 			currentCoord = foundList.pop();
@@ -82,7 +83,7 @@ public class Extractor {
 				if (currentCoord.x + AroundPixel.getPos(i).x < img.getImgWidth()
 						&& currentCoord.y + AroundPixel.getPos(i).y < img.getImgHeight()
 						&& currentCoord.x > 0 && currentCoord.y > 0) {
-					if (!img.isPixelChecked(new Point(currentCoord.x + AroundPixel.getPos(i).x,
+					if (!img.getSearchArea().isPixelChecked(new Point(currentCoord.x + AroundPixel.getPos(i).x,
 							currentCoord.y + AroundPixel.getPos(i).y))) {
 						// if the spot to be checked value is -5 meaning it
 						// hasn't been checked yet
@@ -97,7 +98,7 @@ public class Extractor {
 									currentCoord.y + AroundPixel.getPos(i).y);
 							// was isTargeTColor2(this.imgAvgColor,temp)
 							if (PixelColor.isBackGroundColor(temp, img.getColorThreshold())) {
-								img.markPixelChecked(new Point(currentCoord.x
+								img.getSearchArea().markPixelChecked(new Point(currentCoord.x
 										+ AroundPixel.getPos(i).x, currentCoord.y
 										+ AroundPixel.getPos(i).y));
 								this.currPixelCount++;
@@ -110,13 +111,13 @@ public class Extractor {
 											+ AroundPixel.getPos(i).x][currentCoord.y
 											+ canvasOffset.y + AroundPixel.getPos(i).y] = clusterID;
 								}
-								if (!img.isPixelFound(new Point(currentCoord.x
+								if (!img.getSearchArea().isPixelFound(new Point(currentCoord.x
 										+ AroundPixel.getPos(i).x, currentCoord.y
 										+ AroundPixel.getPos(i).y))) {
 									foundList.add(new Point(currentCoord.x
 											+ AroundPixel.getPos(i).x, currentCoord.y
 											+ AroundPixel.getPos(i).y));
-									img.addPixelFound(new Point(currentCoord.x
+									img.getSearchArea().addPixelFound(new Point(currentCoord.x
 											+ AroundPixel.getPos(i).x, currentCoord.y
 											+ AroundPixel.getPos(i).y));
 								}
@@ -151,7 +152,7 @@ public class Extractor {
 		LinkedList<Point> foundList = new LinkedList<Point>();
 		Point canvasOffset = new Point(canvasOrigin.x - currentPoint.x, canvasOrigin.y
 				- currentPoint.y);
-		img.initNextPixel();
+		img.getSearchArea().initNextPixel();
 		foundList.add(new Point(currentPoint));
 		while (!foundList.isEmpty()) {
 			currentPoint = foundList.pop();
@@ -165,7 +166,7 @@ public class Extractor {
 				if (currentPoint.x + AroundPixel.getPos(i).x < img.getImgWidth()
 						&& currentPoint.y + AroundPixel.getPos(i).y < img.getImgHeight()
 						&& currentPoint.x > 0 && currentPoint.y > 0) {
-					if (!img.isPixelChecked(new Point(currentPoint.x + AroundPixel.getPos(i).x,
+					if (!img.getSearchArea().isPixelChecked(new Point(currentPoint.x + AroundPixel.getPos(i).x,
 							currentPoint.y + AroundPixel.getPos(i).y))) {
 						// if the spot to be checked value is -5 meaning it
 						// hasn't been checked yet
@@ -176,7 +177,7 @@ public class Extractor {
 										+ canvasOffset.y + AroundPixel.getPos(i).y] == -5) {
 							// if the pixel at the position aroundDot
 							// matches the color
-							img.markPixelChecked(new Point(
+							img.getSearchArea().markPixelChecked(new Point(
 									currentPoint.x + AroundPixel.getPos(i).x, currentPoint.y
 											+ AroundPixel.getPos(i).y));
 							this.currPixelCount++;
@@ -188,12 +189,12 @@ public class Extractor {
 								canvas[currentPoint.x + canvasOffset.x + AroundPixel.getPos(i).x][currentPoint.y
 										+ canvasOffset.y + AroundPixel.getPos(i).y] = clusterID;
 							}
-							if (!img.isPixelFound(new Point(currentPoint.x
+							if (!img.getSearchArea().isPixelFound(new Point(currentPoint.x
 									+ AroundPixel.getPos(i).x, currentPoint.y
 									+ AroundPixel.getPos(i).y))) {
 								foundList.add(new Point(currentPoint.x + AroundPixel.getPos(i).x,
 										currentPoint.y + AroundPixel.getPos(i).y));
-								img.addPixelFound(new Point(currentPoint.x
+								img.getSearchArea().addPixelFound(new Point(currentPoint.x
 										+ AroundPixel.getPos(i).x, currentPoint.y
 										+ AroundPixel.getPos(i).y));
 							}
@@ -220,7 +221,7 @@ public class Extractor {
 		ChromosomeCluster temp = new ChromosomeCluster(clusterNum);
 		for (int r = pixelSpace; r < img.getImgWidth() - pixelSpace; r += pixelSpace) {
 			for (int j = pixelSpace; j < img.getImgHeight() - pixelSpace; j += pixelSpace) {
-				if (!img.isPixelChecked(new Point(r, j))) {
+				if (!img.getSearchArea().isPixelChecked(new Point(r, j))) {
 					color1 = img.getColorAt(r, j);// get pixel color from point
 					// was isTargeTColor2(this.imgAvgColor, color1)
 					if (PixelColor.isBackGroundColor(color1, img.getColorThreshold())) {
@@ -267,7 +268,56 @@ public class Extractor {
 		// made plus one change chromosomes
 		for (int r = pixelSpace + 1; r < img.getImgWidth() - pixelSpace; r += pixelSpace) {
 			for (int j = pixelSpace; j < img.getImgHeight() - pixelSpace; j += pixelSpace) {
-				if (!img.isPixelChecked(new Point(r, j))) {
+				if (!img.getSearchArea().isPixelChecked(new Point(r, j))) {
+					color1 = img.getColorAt(r, j);// get pixel color from point
+					temp = getClusterLeft(img, 500, color1, r, j, temp);
+					if (temp != null) {
+						temp = new ChromosomeCluster(temp);
+						temp.setClusterNimageID(clusterNum++);
+						temp.setTitle(img.getImageName());
+						clusterList.add(temp);
+						temp.createSkeleton(img);
+						img.addWidth(temp.getWidths(0));
+						img.addWidth(temp.getWidths(1));
+						if (((temp.getWidths(0) >= 8 && temp.getWidths(0) < 30) || (temp
+								.getWidths(1) >= 8 && temp.getWidths(1) < 30))) {
+							if ((temp.getPixelCount() < this.firstPixelMax)
+									|| (temp.getWidths(0) < 20 && temp.getWidths(1) < 20)) {
+								if (!((temp.getWidths(0) > 30 || temp.getWidths(1) > 30))) {
+									temp.setkeepThisCluster();
+								}
+							}
+						}
+						System.out.println("Image: " + temp.getTitle() + " Count: "
+								+ temp.getClusterNimageID());
+						clusterList.add(temp);
+					}
+				}
+			}
+		}
+		System.out.println("FirstPass: " + this.firstPassCount);
+		double avgChromosomewidth = img.calcFinalAverage();
+
+		System.out.println("Width: " + avgChromosomewidth);
+		return clusterNum;// targetNimgCount;
+	}
+	/**
+	 * searches image down each column and adds all found clusters to clusterList returns the number
+	 * of clusters found in the image img
+	 * 
+	 * @return the number clusters found in the image
+	 */
+
+	public int splitClusters(ChromosomeCluster myCluster,LinkedList<PointList> cutLines) {
+		int clusterNum = 0;
+		this.firstPassCount = 0;
+		this.clusterList = new LinkedList<ChromosomeCluster>();
+		Color color1 = new Color(0, 0, 0);// color that will be used to store pixel color to check
+		ChromosomeCluster temp = new ChromosomeCluster(clusterNum);
+		// made plus one change chromosomes
+		for (int r = pixelSpace + 1; r < img.getImgWidth() - pixelSpace; r += pixelSpace) {
+			for (int j = pixelSpace; j < img.getImgHeight() - pixelSpace; j += pixelSpace) {
+				if (!img.getSearchArea().isPixelChecked(new Point(r, j))) {
 					color1 = img.getColorAt(r, j);// get pixel color from point
 					temp = getClusterLeft(img, 500, color1, r, j, temp);
 					if (temp != null) {

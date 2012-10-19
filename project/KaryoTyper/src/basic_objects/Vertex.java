@@ -139,11 +139,10 @@ public class Vertex {
 	 *            The least acceptable distance for a nearby point.
 	 * @param upperLimitPrecision
 	 *            The greatest acceptable distance for a nearby point.
-
-	 * @return A double array containing the orthogonal slope and orthogonal
-	 *         y-intercept.
+	 * 
+	 * @return A double array containing the orthogonal slope and orthogonal y-intercept.
 	 * @throws Exception
-	 * 			  Thrown if there is no vertex that satisfies the limit.
+	 *             Thrown if there is no vertex that satisfies the limit.
 	 */
 	public double[] calculateOrthogonalLine(double lowerLimitPrecision, double upperLimitPrecision)
 			throws Exception {
