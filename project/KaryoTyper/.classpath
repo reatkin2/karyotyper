@@ -6,8 +6,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/MetadataExtractor"/>
-	<classpathentry kind="lib" path="C:/Users/Robert/Desktop/SchoolWork/CSC492/repo/project/KaryoTyper/lib/metadata-extractor-2.6.2.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Robert/Desktop/SchoolWork/CSC492/repo/project/KaryoTyper/lib/xmpcore.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math3-3.0-javadoc.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math3-3.0-sources.jar"/>
 	<classpathentry kind="lib" path="lib/commons-math3-3.0.jar" sourcepath="lib/commons-math3-3.0-sources.jar"/>
