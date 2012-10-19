@@ -1,11 +1,11 @@
 package extraction;
+
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.LinkedList;
 
 import color.PixelColor;
-
 
 import chromosome.ChromosomeCluster;
 import chromosome.GeneticSlideImage;
@@ -18,10 +18,9 @@ import basic_objects.AroundPixel;
 public class Extractor {
 	private LinkedList<ChromosomeCluster> clusterList;
 	/*
-	 * aroundot is an array of 8 points that is a x,y difference from the center
-	 * point pixel 107 |-1,-1| 0,-1| 1,-1| 2.6 or 
-	 *                 |-1, 0| dot | 1, 0| <--- this is a visual of around dot 345
-	 *                 |-1, 1| 0, 1| 1, 1|
+	 * aroundot is an array of 8 points that is a x,y difference from the center point pixel 107
+	 * |-1,-1| 0,-1| 1,-1| 2.6 or |-1, 0| dot | 1, 0| <--- this is a visual of around dot 345 |-1,
+	 * 1| 0, 1| 1, 1|
 	 */
 	private int currPixelCount;
 	private int pixelSpace;
@@ -77,8 +76,8 @@ public class Extractor {
 			// loop 8 times once for every position around the center pixel
 			for (int i = 0; i < 8; i++) {
 				/*
-				 * if the spot to be checked is inside of the bounds and if the
-				 * pixel is inside the visible resolution of the screen
+				 * if the spot to be checked is inside of the bounds and if the pixel is inside the
+				 * visible resolution of the screen
 				 */
 				if (currentCoord.x + AroundPixel.getPos(i).x < img.getImgWidth()
 						&& currentCoord.y + AroundPixel.getPos(i).y < img.getImgHeight()
@@ -107,14 +106,16 @@ public class Extractor {
 								if (bounds.contains(new Point(currentCoord.x + canvasOffset.x
 										+ AroundPixel.getPos(i).x, currentCoord.y + canvasOffset.y
 										+ AroundPixel.getPos(i).y))) {
-									canvas[currentCoord.x + canvasOffset.x + AroundPixel.getPos(i).x][currentCoord.y
+									canvas[currentCoord.x + canvasOffset.x
+											+ AroundPixel.getPos(i).x][currentCoord.y
 											+ canvasOffset.y + AroundPixel.getPos(i).y] = clusterID;
 								}
 								if (!img.isPixelFound(new Point(currentCoord.x
 										+ AroundPixel.getPos(i).x, currentCoord.y
 										+ AroundPixel.getPos(i).y))) {
-									foundList.add(new Point(currentCoord.x + AroundPixel.getPos(i).x,
-											currentCoord.y + AroundPixel.getPos(i).y));
+									foundList.add(new Point(currentCoord.x
+											+ AroundPixel.getPos(i).x, currentCoord.y
+											+ AroundPixel.getPos(i).y));
 									img.addPixelFound(new Point(currentCoord.x
 											+ AroundPixel.getPos(i).x, currentCoord.y
 											+ AroundPixel.getPos(i).y));
@@ -158,8 +159,8 @@ public class Extractor {
 			// loop 8 times once for every position around the center pixel
 			for (int i = 0; i < 8; i++) {
 				/*
-				 * if the spot to be checked is inside of the bounds and if
-				 * the pixel is inside the visible resolution of the screen
+				 * if the spot to be checked is inside of the bounds and if the pixel is inside the
+				 * visible resolution of the screen
 				 */
 				if (currentPoint.x + AroundPixel.getPos(i).x < img.getImgWidth()
 						&& currentPoint.y + AroundPixel.getPos(i).y < img.getImgHeight()
@@ -175,8 +176,9 @@ public class Extractor {
 										+ canvasOffset.y + AroundPixel.getPos(i).y] == -5) {
 							// if the pixel at the position aroundDot
 							// matches the color
-							img.markPixelChecked(new Point(currentPoint.x + AroundPixel.getPos(i).x,
-									currentPoint.y + AroundPixel.getPos(i).y));
+							img.markPixelChecked(new Point(
+									currentPoint.x + AroundPixel.getPos(i).x, currentPoint.y
+											+ AroundPixel.getPos(i).y));
 							this.currPixelCount++;
 							// paint the canvas at the respectful position
 							// on 2d canvas to the clusterID number
@@ -186,12 +188,14 @@ public class Extractor {
 								canvas[currentPoint.x + canvasOffset.x + AroundPixel.getPos(i).x][currentPoint.y
 										+ canvasOffset.y + AroundPixel.getPos(i).y] = clusterID;
 							}
-							if (!img.isPixelFound(new Point(currentPoint.x + AroundPixel.getPos(i).x,
-									currentPoint.y + AroundPixel.getPos(i).y))) {
+							if (!img.isPixelFound(new Point(currentPoint.x
+									+ AroundPixel.getPos(i).x, currentPoint.y
+									+ AroundPixel.getPos(i).y))) {
 								foundList.add(new Point(currentPoint.x + AroundPixel.getPos(i).x,
 										currentPoint.y + AroundPixel.getPos(i).y));
-								img.addPixelFound(new Point(currentPoint.x + AroundPixel.getPos(i).x,
-										currentPoint.y + AroundPixel.getPos(i).y));
+								img.addPixelFound(new Point(currentPoint.x
+										+ AroundPixel.getPos(i).x, currentPoint.y
+										+ AroundPixel.getPos(i).y));
 							}
 						}
 					}
@@ -334,9 +338,8 @@ public class Extractor {
 		canvas[canvasStart.x][canvasStart.y] = 0;// mark the center of the
 													// canvas as a found pixel
 		/*
-		 * find all connected matching pixels startingat the center of canvas
-		 * and the point xCor,yCormarking the matching pixels as the number 1ont
-		 * the canvas
+		 * find all connected matching pixels startingat the center of canvas and the point
+		 * xCor,yCormarking the matching pixels as the number 1ont the canvas
 		 */
 		this.currPixelCount = 0;
 		canvas = getMatchingPixel(img, canvasBounds, new Point(xCor, yCor), canvasStart, canvas,
@@ -352,8 +355,8 @@ public class Extractor {
 		// return the cluster found
 		return null;
 		/*
-		 * the number 4 has been changed -5 currently testing -5 check in
-		 * Cluster.class if work on this issue
+		 * the number 4 has been changed -5 currently testing -5 check in Cluster.class if work on
+		 * this issue
 		 */
 	}
 
@@ -393,9 +396,8 @@ public class Extractor {
 		// mark the center of the canvas as a found pixel
 		canvas[canvasStart.x][canvasStart.y] = 0;
 		/*
-		 * find all connected matching pixels startingat the center of canvas
-		 * and the point xCor,yCormarking the matching pixels as the number 1ont
-		 * the canvas
+		 * find all connected matching pixels startingat the center of canvas and the point
+		 * xCor,yCormarking the matching pixels as the number 1ont the canvas
 		 */
 		this.currPixelCount = 0;
 		canvas = getMatchingPixelLeft(img, canvasBounds, new Point(xCor, yCor), canvasStart,
@@ -410,8 +412,8 @@ public class Extractor {
 		// return the cluster found
 		return null;
 		/*
-		 * the number 4 has been changed -5 currently testing -5 check in
-		 * Cluster.class if work on this issue
+		 * the number 4 has been changed -5 currently testing -5 check in Cluster.class if work on
+		 * this issue
 		 */
 	}
 

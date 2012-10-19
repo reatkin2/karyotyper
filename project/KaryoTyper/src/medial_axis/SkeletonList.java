@@ -62,8 +62,7 @@ public class SkeletonList {
 				hasEdgeDistance[distance] = true;
 				if (skeleton.size() > distance) {
 					skeleton.get(distance).setList(new PointList(tempPoint, distance));
-				}
-				else{
+				} else {
 					skeleton.add(new PointList(tempPoint, distance));
 				}
 			} else {
@@ -95,7 +94,8 @@ public class SkeletonList {
 		}
 		return false;
 	}
-	public LinkedList<PointList> getList(){
+
+	public LinkedList<PointList> getList() {
 		return skeleton;
 	}
 }

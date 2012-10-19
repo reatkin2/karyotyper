@@ -56,11 +56,11 @@ public class TestShape {
 		}
 		return testCluster;
 	}
-	
+
 	public static GeneticSlideImage getGeneticSlideImage() {
 		return image;
 	}
-	
+
 	public static ChromosomeCluster getCluster() {
 		return cluster;
 	}

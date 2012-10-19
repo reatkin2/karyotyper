@@ -149,15 +149,15 @@ public class SymmetryTests {
 	 * Tests the tangent line calculator.
 	 */
 	public void tangentTest() {
-		String imagePath = "C:\\Users\\Robert\\Desktop\\SchoolWork\\CSC492\\repo" +
-				"\\project\\KaryoTyper\\testImages\\testImage.png";
+		String imagePath = "C:\\Users\\Robert\\Desktop\\SchoolWork\\CSC492\\repo"
+				+ "\\project\\KaryoTyper\\testImages\\testImage.png";
 		int tanLineLengths = 10;
 
 		ChromosomeCluster cluster = TestShape.getCluster(imagePath);
 		cluster.createSkeleton(TestShape.getGeneticSlideImage());
 		cluster.createMedialAxisGraph(TestShape.getGeneticSlideImage());
 		LinkedList<Point> axisPoints = cluster.getMedialAxisGraph().getMedialAxisFromGraph();
-		
+
 		// Debug code
 		// getter.writeTargetImage(shape, shape.getSkeltonPoints(),
 		// Color.GREEN);
@@ -196,17 +196,18 @@ public class SymmetryTests {
 			}
 			counter++;
 		}
-		
+
 		LinkedList<ChromosomeCluster> clusterList = new LinkedList<ChromosomeCluster>();
-		ChromosomeList chromoList = new ChromosomeList(clusterList, TestShape.getGeneticSlideImage());
-		
-		//Debug code
+		ChromosomeList chromoList = new ChromosomeList(clusterList,
+				TestShape.getGeneticSlideImage());
+
+		// Debug code
 		for (Point p : tanLines) {
 			System.out.println("(" + p.x + ", " + p.y + ")");
 		}
-		//End debug
+		// End debug
 		String writePath = "//shapeData//tangentLines//";
 		chromoList.writeTargetImage(writePath, cluster, tanLines, Color.GREEN);
-		//TODO: Causes IndexOutofBounds
+		// TODO: Causes IndexOutofBounds
 	}
 }

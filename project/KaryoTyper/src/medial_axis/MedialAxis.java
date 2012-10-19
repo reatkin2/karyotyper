@@ -86,11 +86,11 @@ public class MedialAxis {
 		LinkedList<ErosionPoint> removeEdgePointsVert = new LinkedList<ErosionPoint>();
 		LinkedList<ErosionPoint> removeEdgePointsHorz = new LinkedList<ErosionPoint>();
 		this.skeleton = new SkeletonList();
-//		AroundPixel aroundPixel=new AroundPixel();
+		// AroundPixel aroundPixel=new AroundPixel();
 		LinkedList<Point> addThisRound = new LinkedList<Point>();
 		Cluster temp = new Cluster(myCluster);
 		this.distanceMap = new DistanceMap(myCluster.getSize().x, myCluster.getSize().y);
-		ErosionPoint pointRightEdge = new ErosionPoint(0, 0,false);
+		ErosionPoint pointRightEdge = new ErosionPoint(0, 0, false);
 		int objectWidth = 0;
 		boolean inObject = false;
 		boolean beforeObjectEdge = true;
@@ -110,23 +110,23 @@ public class MedialAxis {
 				for (int j = 0; j < temp.getSize().y; j++) {
 					if (temp.getPos(i, j)) {
 						if (beforeObjectEdge) {
-							removeEdgePointsVert.push(new ErosionPoint(i, j,true));
+							removeEdgePointsVert.push(new ErosionPoint(i, j, true));
 						}
 						objectWidth++;
 						beforeObjectEdge = false;
 						inObject = true;
-						pointRightEdge = new ErosionPoint(i, j,false);
+						pointRightEdge = new ErosionPoint(i, j, false);
 					} else {
 						if (inObject) {
 							if (objectWidth <= 2) {
 								Point tempPoint = removeEdgePointsVert.pop();
 								if (!skeleton.contains(tempPoint)) {
-									skeleton.add(tempPoint,distanceFromEdgeCount);
+									skeleton.add(tempPoint, distanceFromEdgeCount);
 									addThisRound.add(tempPoint);
 								}
 							}
 							removeEdgePointsVert.push(pointRightEdge);
-							pointRightEdge = new ErosionPoint(0, 0,false);
+							pointRightEdge = new ErosionPoint(0, 0, false);
 						}
 						inObject = false;
 						beforeObjectEdge = true;
@@ -137,14 +137,14 @@ public class MedialAxis {
 					if (objectWidth <= 2) {
 						Point tempPoint = removeEdgePointsVert.pop();
 						if (!skeleton.contains(tempPoint)) {
-							skeleton.add(tempPoint,distanceFromEdgeCount);
+							skeleton.add(tempPoint, distanceFromEdgeCount);
 							addThisRound.add(tempPoint);
 						}
 					}
 					inObject = false;
 					beforeObjectEdge = true;
 					removeEdgePointsVert.push(pointRightEdge);
-					pointRightEdge = new ErosionPoint(0, 0,false);
+					pointRightEdge = new ErosionPoint(0, 0, false);
 				}
 				objectWidth = 0;
 			}
@@ -154,23 +154,23 @@ public class MedialAxis {
 				for (int j = 0; j < temp.getSize().x; j++) {// loop height
 					if (temp.getPos(j, i)) {
 						if (beforeObjectEdge) {
-							removeEdgePointsHorz.push(new ErosionPoint(j, i,true));
+							removeEdgePointsHorz.push(new ErosionPoint(j, i, true));
 						}
 						beforeObjectEdge = false;
 						inObject = true;
-						pointRightEdge = new ErosionPoint(j, i,false);
+						pointRightEdge = new ErosionPoint(j, i, false);
 						objectWidth++;
 					} else {
 						if (inObject) {
 							if (objectWidth <= 2) {
 								Point tempPoint = removeEdgePointsHorz.pop();
 								if (!skeleton.contains(tempPoint)) {
-									skeleton.add(tempPoint,distanceFromEdgeCount);
+									skeleton.add(tempPoint, distanceFromEdgeCount);
 									addThisRound.add(tempPoint);
 								}
 							}
 							removeEdgePointsHorz.push(pointRightEdge);
-							pointRightEdge = new ErosionPoint(0, 0,false);
+							pointRightEdge = new ErosionPoint(0, 0, false);
 						}
 						inObject = false;
 						beforeObjectEdge = true;
@@ -181,14 +181,14 @@ public class MedialAxis {
 					if (objectWidth <= 2) {
 						Point tempPoint = removeEdgePointsHorz.pop();
 						if (!skeleton.contains(tempPoint)) {
-							skeleton.add(tempPoint,distanceFromEdgeCount);
+							skeleton.add(tempPoint, distanceFromEdgeCount);
 							addThisRound.add(tempPoint);
 						}
 					}
 					inObject = false;
 					beforeObjectEdge = true;
 					removeEdgePointsHorz.push(pointRightEdge);
-					pointRightEdge = new ErosionPoint(0, 0,false);
+					pointRightEdge = new ErosionPoint(0, 0, false);
 				}
 				objectWidth = 0;
 			}
@@ -207,7 +207,7 @@ public class MedialAxis {
 					distanceMap.setDistanceFormEdge(removePoint, distanceFromEdgeCount);
 				}
 			}
-			if (distanceFromEdgeCount >= 2){ 
+			if (distanceFromEdgeCount >= 2) {
 				addBackSkeleton(temp);
 			}
 			if (distanceFromEdgeCount > 2) {// do everytime after first run
@@ -226,8 +226,8 @@ public class MedialAxis {
 			distanceFromEdgeCount++;
 		}
 		addBackSkeleton(temp);
-       this.objectWidth[0]=(this.biggestIncreaseSkeletonAtWidthCount+.75)*2;
-       this.objectWidth[1]=(this.most2LeastRemovedAtWidthCount+.75)*2;
+		this.objectWidth[0] = (this.biggestIncreaseSkeletonAtWidthCount + .75) * 2;
+		this.objectWidth[1] = (this.most2LeastRemovedAtWidthCount + .75) * 2;
 	}
 
 	/**
@@ -238,15 +238,15 @@ public class MedialAxis {
 	 *            the cluster to add back the medial axis points too
 	 */
 	private void addBackSkeleton(Cluster temp) {
-		LinkedList<Point> tempList=skeleton.getOneList();
+		LinkedList<Point> tempList = skeleton.getOneList();
 		for (int i = 0; i < tempList.size(); i++) {
 			temp.setPixel(tempList.get(i), true);
 		}
 	}
-	public SkeletonList getSkeletonList(){
+
+	public SkeletonList getSkeletonList() {
 		return this.skeleton;
 	}
-
 
 	/**
 	 * this gets a point that is the bridge connection to another part of the medial axis and
@@ -292,8 +292,8 @@ public class MedialAxis {
 	 * @return a linklist of points of the trimmed medial axis
 	 */
 	public LinkedList<Point> getPossibleBreaks(int minDistance) {
-		LinkedList<Point> possibleBreaks=new LinkedList<Point>();
-		LinkedList<Point> skelPoints=this.skeleton.getOneList();
+		LinkedList<Point> possibleBreaks = new LinkedList<Point>();
+		LinkedList<Point> skelPoints = this.skeleton.getOneList();
 		if (skelPoints != null) {
 			for (int i = 0; i < skelPoints.size(); i++) {
 				if (distanceMap.getDistanceFromEdge(skelPoints.get(i)) <= minDistance) {

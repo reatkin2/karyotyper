@@ -46,14 +46,17 @@ public class ChromosomeCluster extends Cluster {
 		this.colorCount = 0;
 		next = null;
 	}
-	public void createSkeleton(GeneticSlideImage image){
-		this.medialAxisGraph=new MedialAxisGraph(this,image);
+
+	public void createSkeleton(GeneticSlideImage image) {
+		this.medialAxisGraph = new MedialAxisGraph(this, image);
 	}
-	public void createMedialAxisGraph(GeneticSlideImage image){
-		this.medialAxisGraph=new MedialAxisGraph(this,image);
+
+	public void createMedialAxisGraph(GeneticSlideImage image) {
+		this.medialAxisGraph = new MedialAxisGraph(this, image);
 		this.medialAxisGraph.createAxisGraph(this, image);
-		//this.medialAxisGraph.buildGraph(this.medialAxisGraph.getMedialAxisPoints(),this.medialAxisGraph.getDistanceMap());
+		// this.medialAxisGraph.buildGraph(this.medialAxisGraph.getMedialAxisPoints(),this.medialAxisGraph.getDistanceMap());
 	}
+
 	public MedialAxisGraph getMedialAxisGraph() {
 		return medialAxisGraph;
 	}

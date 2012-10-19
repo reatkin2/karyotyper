@@ -11,11 +11,10 @@ import chromosome.ChromosomeCluster;
 
 public class ClusterSplitter {
 
-	
 	/**
-	 * get all the cutlines in a cluster based off medialaxis points that there
-	 * distance map values are below splitMax and the cutline is shortert than 
-	 * splitMax
+	 * get all the cutlines in a cluster based off medialaxis points that there distance map values
+	 * are below splitMax and the cutline is shortert than splitMax
+	 * 
 	 * @param myCluster
 	 * @param splitMax
 	 * @return
@@ -114,6 +113,7 @@ public class ClusterSplitter {
 
 	/**
 	 * gets a cutline if there is one at the point startPoint
+	 * 
 	 * @param chessboard
 	 * @param startPoint
 	 * @param maxCut
@@ -159,13 +159,17 @@ public class ClusterSplitter {
 	}
 
 	/**
-	 * find the length moving from point xy in the direction of pos
-	 * that is the farthest you can go till you hit the edge of the cluster
-	 * or the countdown runs out
-	 * @param chessboard a rectangular area that contains a cluster
-	 * @param xy the point to start from
-	 * @param pos the direction to go from point xy
-	 * @param countDown the largest length to get
+	 * find the length moving from point xy in the direction of pos that is the farthest you can go
+	 * till you hit the edge of the cluster or the countdown runs out
+	 * 
+	 * @param chessboard
+	 *            a rectangular area that contains a cluster
+	 * @param xy
+	 *            the point to start from
+	 * @param pos
+	 *            the direction to go from point xy
+	 * @param countDown
+	 *            the largest length to get
 	 * @return
 	 */
 	public static int getQueenMoveLength(ChromosomeCluster chessboard, Point xy, int pos,
@@ -186,9 +190,10 @@ public class ClusterSplitter {
 	}
 
 	/**
-	 * this takes the array and returns the 4 lowest integer values
-	 * in order from lowest to highest
-	 * @param direction the array of integers to go thru
+	 * this takes the array and returns the 4 lowest integer values in order from lowest to highest
+	 * 
+	 * @param direction
+	 *            the array of integers to go thru
 	 * @return linkedlist of 4 integers that are lowest to highest
 	 */
 	public static LinkedList<Integer> get4Lowest(int[] direction) {
