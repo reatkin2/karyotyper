@@ -1,6 +1,7 @@
 package basic_objects;
 
 import java.awt.Point;
+import java.util.LinkedList;
 
 /**
  * @author andrew
@@ -8,26 +9,14 @@ import java.awt.Point;
  */
 public class AroundPixel {
 	/*
-	 * aroundot is an array of 8 points that is a x,y difference from the center
-	 * point pixel 107 |-1,-1| 0,-1| 1,-1| 2.6 or 
-	 *                 |-1, 0| dot | 1, 0| <--- this is a visual of around dot 345
-	 *                 |-1, 1| 0, 1| 1, 1|
+	 * aroundot is an array of 8 points that is a x,y difference from the center point pixel 107
+	 * |-1,-1| 0,-1| 1,-1| 2.6 or |-1, 0| dot | 1, 0| <--- this is a visual of around dot 345 |-1,
+	 * 1| 0, 1| 1, 1|
 	 */
 
-	private Point aroundDot[];
-
-	public AroundPixel() {
-		aroundDot = new Point[8];
-		aroundDot[0] = new Point(0, -1);// top middle
-		aroundDot[1] = new Point(-1, -1);// top left
-		aroundDot[2] = new Point(-1, 0);// middle left
-		aroundDot[3] = new Point(-1, 1);// bottom left
-		aroundDot[4] = new Point(0, 1);// bottom middle
-		aroundDot[5] = new Point(1, 1);// bottom right
-		aroundDot[6] = new Point(1, 0);// middle right
-		aroundDot[7] = new Point(1, -1);// top right
-
-	}
+	private final static Point[] aroundDot = { new Point(0, -1), new Point(-1, -1),
+			new Point(-1, 0), new Point(-1, 1), new Point(0, 1), new Point(1, 1), new Point(1, 0),
+			new Point(1, -1) };
 
 	/**
 	 * get a point that values can be added to another point to be the adjacent position from the
@@ -38,7 +27,7 @@ public class AroundPixel {
 	 * @return point that values can be added to another point to be the adjacent position from the
 	 *         point you add the return point too
 	 */
-	public Point getPos(int pos) {
+	public static Point getPos(int pos) {
 		return aroundDot[pos];
 	}
 
@@ -51,7 +40,7 @@ public class AroundPixel {
 	 *            the point that your trying to find an adjacent point of
 	 * @return the adjacent point
 	 */
-	public Point getPoint(int pos, Point fromPoint) {
+	public static Point getPoint(int pos, Point fromPoint) {
 		return new Point(fromPoint.x + aroundDot[pos].x, fromPoint.y + aroundDot[pos].y);
 	}
 
@@ -65,7 +54,7 @@ public class AroundPixel {
 	 *            a position around a point
 	 * @return true if the positions are adjacent
 	 */
-	public boolean isAdjacent(int pos1, int pos2) {
+	public static boolean isAdjacent(int pos1, int pos2) {
 		if ((pos1 == 0 && pos2 == 7) || pos1 == 7 && pos2 == 0) {
 			return true;
 		} else {
@@ -84,13 +73,13 @@ public class AroundPixel {
 	 *            the number to be checked and returned
 	 * @return a number between 0-7 7 if pos is -1 and 0 if pos is 8
 	 */
-	public int handleLoop(int pos) {
-		if (pos <0) {
-			pos+=8;
+	public static int handleLoop(int pos) {
+		if (pos < 0) {
+			pos += 8;
 			return pos;
 		}
-		if (pos >7) {
-			pos-=8;
+		if (pos > 7) {
+			pos -= 8;
 			return pos;
 		}
 		return pos;
@@ -105,7 +94,7 @@ public class AroundPixel {
 	 *            position to be checked
 	 * @return true if the positions are opposite corners
 	 */
-	public boolean isOppisiteCorner(int pos1, int pos2) {
+	public static boolean isOppisiteCorner(int pos1, int pos2) {
 		if (pos1 % 2 == 0 || pos2 % 2 == 0) {
 			return false;
 		}
@@ -114,9 +103,76 @@ public class AroundPixel {
 		}
 		return false;
 	}
-	public Point getOppisiteCorner(int pos,Point xy){
-		int oppisiteCorner=pos-4;
-		oppisiteCorner=handleLoop(oppisiteCorner);
-		return this.getPoint(oppisiteCorner, xy);
+
+	/**
+	 * returns the oppisite corner of the position specified
+	 * 
+	 * @param pos
+	 *            the pos to get the oppisite corner of
+	 * @param xy
+	 *            the center point the oppisite will be across
+	 * @return the Point that is the oppisite corner
+	 */
+	public static Point getOppisiteCorner(int pos, Point xy) {
+		int oppisiteCorner = pos - 4;
+		oppisiteCorner = handleLoop(oppisiteCorner);
+		return AroundPixel.getPoint(oppisiteCorner, xy);
 	}
+
+	/**
+	 * returns the oppisite corner position of the position specified
+	 * 
+	 * @param pos
+	 *            the pos to get the oppisite corner of
+	 * @return the oppisite position of pos
+	 */
+	public static int getOppisitePos(int pos) {
+		int oppisiteCorner = pos - 4;
+		return handleLoop(oppisiteCorner);
+	}
+
+	/**
+	 * returns a list of integers that represent positions aroundPixel that are between startPos and
+	 * otherPos by adding +1 to startPos till it equals otherPos
+	 * 
+	 * @param startPos
+	 *            the position to start from and move toward otherPos
+	 * @param otherPos
+	 *            the position to stop when all positions have been gooten
+	 * @return list of integers between startPos and otherPos from start in plus direction
+	 */
+	public static LinkedList<Integer> getPositionsBetweenPlus(int startPos, int otherPos) {
+		LinkedList<Integer> betweenList = new LinkedList<Integer>();
+		int betweenCurr = startPos;
+		do {
+			if (AroundPixel.handleLoop(betweenCurr + 1) != otherPos) {
+				betweenList.add(AroundPixel.handleLoop(betweenCurr + 1));
+			}
+			betweenCurr++;
+		} while (AroundPixel.handleLoop(betweenCurr + 1) != otherPos);
+		return betweenList;
+	}
+
+	/**
+	 * returns a list of integers that represent positions aroundPixel that are between startPos and
+	 * otherPos by subtracting 1 from startPos till it equals otherPos
+	 * 
+	 * @param startPos
+	 *            the position to start from and move toward otherPos
+	 * @param otherPos
+	 *            the position to stop when all positions have been gooten
+	 * @return list of integers between startPos and otherPos from start in negative direction
+	 */
+	public static LinkedList<Integer> getPositionsBetweenNeg(int startPos, int otherPos) {
+		LinkedList<Integer> betweenList = new LinkedList<Integer>();
+		int betweenCurr = startPos;
+		do {
+			if (AroundPixel.handleLoop(betweenCurr - 1) != otherPos) {
+				betweenList.add(AroundPixel.handleLoop(betweenCurr - 1));
+			}
+			betweenCurr--;
+		} while (AroundPixel.handleLoop(betweenCurr - 1) != otherPos);
+		return betweenList;
+	}
+
 }

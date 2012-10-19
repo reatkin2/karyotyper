@@ -13,7 +13,6 @@ import javax.imageio.ImageIO;
 
 import color.ISOClineColor;
 
-
 import medial_axis.DistanceMap;
 import medial_axis.MedialAxisGraph;
 import basic_objects.Cluster;
@@ -32,16 +31,15 @@ public class GeneticSlideImage {
 	private int colorThreshold;
 	private String imageName;
 	/*
-	 * pixelFound is a memory versus time in get matching pixel
-	 * spotNext stores a 2D array of what pixels should be added to
-	 * the ones to check next without searching the foundList of
-	 * next ones to be checked
+	 * pixelFound is a memory versus time in get matching pixel spotNext stores a 2D array of what
+	 * pixels should be added to the ones to check next without searching the foundList of next ones
+	 * to be checked
 	 */
 	private boolean[][] pixelFound;
 
 	public GeneticSlideImage(String filename) {
 		grayScale = new int[256];
-		edgeScale=new int[256];
+		edgeScale = new int[256];
 		img = null;
 		imageName = filename;
 		for (int i = 0; i < grayScale.length; i++) {
@@ -70,11 +68,11 @@ public class GeneticSlideImage {
 		this.colorThreshold = 245;
 
 	}
-	
+
 	public int getImgHeight() {
 		return this.img.getHeight();
 	}
-	
+
 	public int getImgWidth() {
 		return this.img.getWidth();
 	}
@@ -166,6 +164,7 @@ public class GeneticSlideImage {
 
 		return tempImg;
 	}
+
 	/**
 	 * this returns a bufferedImage of the square cluster area with the original image of the
 	 * cluster inside the square and all points in the square area that are not part of the cluster
@@ -200,9 +199,10 @@ public class GeneticSlideImage {
 
 		if (graphList != null && !graphList.getAxisGraph().isEmpty()) {
 			for (int i = 0; i < graphList.getAxisGraph().size(); i++) {
-				tempImg.setRGB(graphList.getAxisGraph().get(i).getPoint().x,
-						graphList.getAxisGraph().get(i).getPoint().y,
-						RainbowColors.tasteRainbow(graphList.getAxisGraph().get(i).getMySegement()).getRGB());
+				tempImg.setRGB(graphList.getAxisGraph().get(i).getPoint().x, graphList
+						.getAxisGraph().get(i).getPoint().y,
+						RainbowColors.tasteRainbow(graphList.getAxisGraph().get(i).getMySegement())
+								.getRGB());
 			}
 		}
 
@@ -223,7 +223,7 @@ public class GeneticSlideImage {
 	 * @return a buffered image of the cluster area with points painted over
 	 */
 	public BufferedImage getSubImage(Cluster targetCluster, LinkedList<Point> pointList,
-			Color drawColor,LinkedList<Point> pointList2,Color drawColor2) {
+			Color drawColor, LinkedList<Point> pointList2, Color drawColor2) {
 		BufferedImage tempImg = new BufferedImage(targetCluster.getSize().x,
 				targetCluster.getSize().y, BufferedImage.TYPE_3BYTE_BGR);
 		for (int i = targetCluster.getImageLocation().x; i < (targetCluster.getImageLocation().x + targetCluster
@@ -252,10 +252,10 @@ public class GeneticSlideImage {
 				tempImg.setRGB(pointList2.get(i).x, pointList2.get(i).y, (drawColor2).getRGB());
 			}
 		}
-		
 
 		return tempImg;
 	}
+
 	/**
 	 * this returns a graphical representation of a distance map as a bufferedImage
 	 * 
@@ -406,16 +406,17 @@ public class GeneticSlideImage {
 		}
 		System.out.println("AverageWidth: " + this.chromoWidth);
 	}
+
 	/**
 	 * this creates a histogram of the grayscale of colors from around the edge of chromosomes
 	 */
 	public void computeEdgeScale(LinkedList<Point> edgePoints) {
 		Color tempColor = new Color(0, 0, 0);
 		for (int i = 100; i < edgePoints.size(); i++) {
-				tempColor = this.getColorAt(edgePoints.get(i).x,edgePoints.get(i).y);
-				double tempGreyPixel = (.299 * tempColor.getRed()) + (.587 * tempColor.getGreen())
-						+ (.114 * tempColor.getBlue());
-				this.edgeScale[(int) Math.round(tempGreyPixel)]++;
+			tempColor = this.getColorAt(edgePoints.get(i).x, edgePoints.get(i).y);
+			double tempGreyPixel = (.299 * tempColor.getRed()) + (.587 * tempColor.getGreen())
+					+ (.114 * tempColor.getBlue());
+			this.edgeScale[(int) Math.round(tempGreyPixel)]++;
 		}
 	}
 
@@ -443,6 +444,5 @@ public class GeneticSlideImage {
 		}
 
 	}
-
 
 }

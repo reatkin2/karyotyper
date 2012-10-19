@@ -1,10 +1,10 @@
 package basic_objects;
 
 /*
-* cluster.java
-*
-* Created on December 14, 2004, 7:09 PM
-*/
+ * cluster.java
+ *
+ * Created on December 14, 2004, 7:09 PM
+ */
 import java.awt.Point;
 
 /**

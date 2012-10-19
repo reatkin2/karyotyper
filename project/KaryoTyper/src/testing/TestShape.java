@@ -1,9 +1,9 @@
 package testing;
 
-import runner.Extractor;
 import runner.ImageQueue;
 import chromosome.ChromosomeCluster;
 import chromosome.GeneticSlideImage;
+import extraction.Extractor;
 
 public class TestShape {
 	private static GeneticSlideImage image = null;
@@ -56,11 +56,11 @@ public class TestShape {
 		}
 		return testCluster;
 	}
-	
+
 	public static GeneticSlideImage getGeneticSlideImage() {
 		return image;
 	}
-	
+
 	public static ChromosomeCluster getCluster() {
 		return cluster;
 	}

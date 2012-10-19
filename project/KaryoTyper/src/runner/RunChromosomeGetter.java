@@ -1,4 +1,5 @@
 package runner;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -12,6 +13,7 @@ import javax.swing.JPanel;
 
 import chromosome.ChromosomeList;
 import chromosome.GeneticSlideImage;
+import extraction.Extractor;
 
 public class RunChromosomeGetter extends JFrame {
 	/**
@@ -93,10 +95,13 @@ public class RunChromosomeGetter extends JFrame {
 					// pass the list of clusters on to slidelist
 					ChromosomeList slideList = new ChromosomeList(extractor.getClusterList(), image);
 					// print out the slidelist
-					imgCount.setText("Calculating Medial Axis for: "+slideList.size()+" Clusters.");
-					slideList.calcMedialAxis(image);
-					imgCount.setText("Writing "+slideList.size()+" images. ");
-					slideList.printChromosomes(image);
+					imgCount.setText("Calculating Medial Axis for: " + slideList.size()
+							+ " Clusters.");
+					// slideList.calcMedialAxis(image);
+					imgCount.setText("Writing " + slideList.size() + " images. ");
+					// slideList.printChromosomes(image);
+					// test for split lines to shapdata/keep
+					slideList.splitNWrite(image);
 
 					imgCount.setText(frame.targetsFound + " Chromosomes found in "
 							+ (++frame.imgCounter) + " slides read so far.");
