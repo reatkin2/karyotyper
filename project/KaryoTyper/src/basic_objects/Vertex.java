@@ -139,8 +139,11 @@ public class Vertex {
 	 *            The least acceptable distance for a nearby point.
 	 * @param upperLimitPrecision
 	 *            The greatest acceptable distance for a nearby point.
-	 * @return A double array containing the orthogonal slope and orthogonal y-intercept.
-	 * @throws DistanceException
+
+	 * @return A double array containing the orthogonal slope and orthogonal
+	 *         y-intercept.
+	 * @throws Exception
+	 * 			  Thrown if there is no vertex that satisfies the limit.
 	 */
 	public double[] calculateOrthogonalLine(double lowerLimitPrecision, double upperLimitPrecision)
 			throws Exception {
@@ -337,9 +340,6 @@ public class Vertex {
 		});
 
 		for (int i = 0; i < line.size() - 1; i++) {
-			// Debugging code
-			System.out.println("On index " + i);
-			// End debug
 			Point nextPoint = getNextPointToFill(line, i);
 			if (!line.contains(nextPoint)) {
 				line.add(i + 1, nextPoint);
