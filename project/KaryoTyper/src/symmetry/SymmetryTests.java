@@ -34,7 +34,7 @@ public class SymmetryTests {
 		int tanLineLengths = 10;
 
 		ChromosomeCluster cluster = TestShape.getCluster(imagePath);
-		cluster.createSkeleton(TestShape.getGeneticSlideImage());
+		cluster.createSkeleton();
 		cluster.createMedialAxisGraph(TestShape.getGeneticSlideImage());
 		LinkedList<Point> axisPoints = cluster.getMedialAxisGraph().getMedialAxisFromGraph();
 

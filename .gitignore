@@ -7,7 +7,7 @@
 bin/*
 GrayScale.txt
 .metadata
-project/KaryoTyper/.classpath
+.classpath
 
 # Required repo for input
 shapeData/

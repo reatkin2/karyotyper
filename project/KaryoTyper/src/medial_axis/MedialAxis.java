@@ -26,9 +26,8 @@ public class MedialAxis {
 		copyMedialAxis(newAxis);
 	}
 
-	public MedialAxis(Cluster myCluster, GeneticSlideImage image) {
+	public MedialAxis(Cluster myCluster) {
 		initMedialAxis();
-		createSkeleton(myCluster, image);
 	}
 
 	private void initMedialAxis() {
@@ -81,7 +80,7 @@ public class MedialAxis {
 	 * @param img
 	 *            the image to the cluster is from
 	 */
-	public void createSkeleton(Cluster myCluster, GeneticSlideImage image) {
+	public void createSkeleton(Cluster myCluster) {
 		// create a linked list to store Clusters in
 		LinkedList<ErosionPoint> removeEdgePointsVert = new LinkedList<ErosionPoint>();
 		LinkedList<ErosionPoint> removeEdgePointsHorz = new LinkedList<ErosionPoint>();
