@@ -24,21 +24,28 @@ public class GeneticSlideImage {
 
 	private String comments;
 	private BufferedImage img;
-	private int[] grayScale;
-	private int[] edgeScale;
+	private int[] intensityHistogram;
+
+	private int[] edgeHistogram;
 	private LinkedList<Double> chromosomeWidth;
 	private double chromoWidth;
-	private int colorThreshold;
+	private int backgroundThreshold;
 	private String imageName;
 	private SearchArea searchArea;
+/*
+ * pixelFound is a memory versus time in get matching pixel spotNext stores a 2D array of what
+ * pixels should be added to the ones to check next without searching the foundList of next ones
+ * to be checked
+ */
+private boolean[][] pixelFound;
 
 	public GeneticSlideImage(String filename) {
-		grayScale = new int[256];
-		edgeScale = new int[256];
+		intensityHistogram = new int[256];
+		edgeHistogram = new int[256];
 		img = null;
 		imageName = filename;
-		for (int i = 0; i < grayScale.length; i++) {
-			grayScale[i] = 0;
+		for (int i = 0; i < intensityHistogram.length; i++) {
+			intensityHistogram[i] = 0;
 		}
 		try {
 			if (filename.contains("imag")) {
@@ -55,11 +62,10 @@ public class GeneticSlideImage {
 		chromoWidth = -1;
 		chromosomeWidth = new LinkedList<Double>();
 		searchArea=new SearchArea(this);
-		this.computeScale();
+		this.computeHistogram();
 		this.graphScale();
 		// TODO(aamcknig): make this run on linear regressed function and not a static number
-		this.colorThreshold = 245;
-
+		this.backgroundThreshold = this.computeBackgroundThreshold();
 	}
 
 	public int getImgHeight() {
@@ -74,26 +80,30 @@ public class GeneticSlideImage {
 		return imageName;
 	}
 
-	public int getColorThreshold() {
-		return colorThreshold;
+	public int getBackgroundThreshold() {
+		return backgroundThreshold;
 	}
 
-	public void setColorThreshold(int colorThreshold) {
-		this.colorThreshold = colorThreshold;
+	public void setBackgroundThreshold(int backgroundThreshold) {
+		this.backgroundThreshold = backgroundThreshold;
+	}
+
+	public int[] getHistogram() {
+		return intensityHistogram.clone();
 	}
 
 
 
 
 	/**
-	 * this returns a bufferedImage of the square cluster area with the original image of the
+	 * This returns a bufferedImage of the square cluster area with the original image of the
 	 * cluster inside the square and all points in the square area that are not part of the cluster
 	 * are painted white and all points in pointList are painted the color drawColor if not null
 	 * 
 	 * @param targetCluster
 	 *            the cluster to create a buffered image of
 	 * @param pointList
-	 *            the pointlist of points to paint over the image if not null
+	 *            the LinkedList of points to paint over the image if not null
 	 * @param drawColor
 	 *            the color to paint the points in point list if not null
 	 * @return a buffered image of the cluster area with points painted over
@@ -221,11 +231,11 @@ public class GeneticSlideImage {
 	}
 
 	/**
-	 * this returns a graphical representation of a distance map as a bufferedImage
+	 * This returns a graphical representation of a distance map as a BufferedImage
 	 * 
 	 * @param distanceMap
 	 *            the distance map to be represented
-	 * @return a bufferedimage representing the distancemap
+	 * @return a BufferedImage representing the distance map
 	 */
 	public BufferedImage getISOcline(DistanceMap distanceMap) {
 		BufferedImage tempImg = new BufferedImage(distanceMap.getWidth(), distanceMap.getHeight(),
@@ -269,11 +279,11 @@ public class GeneticSlideImage {
 	}
 
 	/**
-	 * required to convert the number representing a color in a jpeg image to a number that can be
+	 * Required to convert the number representing a color in a JPEG image to a number that can be
 	 * stored as java Color object
 	 * 
 	 * @param pixel
-	 *            the number of representing the rgb value of a pixel in a jpeg image
+	 *            the number of representing the RGB value of a pixel in a JPEG image
 	 * @return a java Color object that represents the color of the jpeg's pixel
 	 */
 	public Color convertPixel(int pixel) {
@@ -284,24 +294,54 @@ public class GeneticSlideImage {
 	}
 
 	/**
-	 * this creates a histogram of the grayscale of colors in the this image called in the
-	 * constructor
+	 * This creates a histogram of the grayscale of colors in the image called in the constructor
 	 */
-	private void computeScale() {
+	private void computeHistogram() {
+		// TODO(ahkeslin): Pull out magic numbers for grayscale conversion into something more
+		// understandable.
 		Color tempColor = new Color(0, 0, 0);
-		for (int i = 100; i < this.getImgWidth(); i++) {
-			for (int j = 100; j < this.getImgHeight(); j++) {
+		for (int i = 0; i < this.getImgWidth(); i++) {
+			for (int j = 0; j < this.getImgHeight(); j++) {
 				tempColor = this.getColorAt(i, j);
 				double tempGreyPixel = (.299 * tempColor.getRed()) + (.587 * tempColor.getGreen())
 						+ (.114 * tempColor.getBlue());
-				this.grayScale[(int) Math.round(tempGreyPixel)]++;
-
+				this.intensityHistogram[(int) Math.round(tempGreyPixel)]++;
 			}
 		}
 	}
 
 	/**
-	 * this appends to a comma separated file of values of the grayscale found in each image, called
+	 * This uses the image's histogram to determine up to what threshold to extend the background
+	 * color.
+	 * 
+	 * @return The threshold value at which to separate background from foreground.
+	 */
+	private int computeBackgroundThreshold() {
+		// For a good frame of reference... a threshold 245 was determined by manual analysis of an
+		// image histogram
+
+		// Sliding integral approach:
+		// The following code sums a sliding interval and keeps track of the largest left index
+		int maxSum = 0;
+		int sumIndex = 0;
+		int intervalSize = 10;
+
+		for (int x = this.intensityHistogram.length - 1; x >= 0; x--) {
+			int sum = 0;
+			for (int dx = 0; dx < intervalSize && dx + x < this.intensityHistogram.length; dx++) {
+				sum += this.intensityHistogram[x + dx];
+			}
+			if (sum >= maxSum) {
+				maxSum = sum;
+				sumIndex = x;
+			}
+		}
+
+		return sumIndex;
+	}
+
+	/**
+	 * This appends to a comma separated file of values of the grayscale found in each image, called
 	 * in constructor
 	 */
 	private void graphScale() {
@@ -310,8 +350,8 @@ public class GeneticSlideImage {
 			FileWriter fstream = new FileWriter("GrayScale.txt", true);
 			BufferedWriter out = new BufferedWriter(fstream);
 			String buffer = "";
-			for (int i = 0; i < this.grayScale.length; i++) {// out.write("Hello Java");
-				buffer += "" + this.grayScale[i] + ",";
+			for (int i = 0; i < this.intensityHistogram.length; i++) {// out.write("Hello Java");
+				buffer += "" + this.intensityHistogram[i] + ",";
 			}
 			out.write(buffer);
 			out.write("\n");
@@ -326,7 +366,7 @@ public class GeneticSlideImage {
 	}
 
 	/**
-	 * this is for testing, outputs the average width of chromosomes in the current image
+	 * This is for testing, outputs the average width of chromosomes in the current image
 	 */
 	public void writeChromosomesWidth() {
 		System.out.print("Widths for this image: ");
@@ -336,7 +376,7 @@ public class GeneticSlideImage {
 	}
 
 	/**
-	 * averages in a new value to get the average width of chromosomes in this image
+	 * Averages in a new value to get the average width of chromosomes in this image
 	 * 
 	 * @param newWidth
 	 *            the new width to average in
@@ -351,7 +391,7 @@ public class GeneticSlideImage {
 	}
 
 	/**
-	 * this removes outliers and recalcs the average width of chromosomes in this image
+	 * This removes outliers and recalculates the average width of chromosomes in this image
 	 */
 	public void recalcAvgWidth() {
 		double temp = -1;
@@ -372,37 +412,34 @@ public class GeneticSlideImage {
 	}
 
 	/**
-	 * this creates a histogram of the grayscale of colors from around the edge of chromosomes
+	 * This creates a histogram of the grayscale of colors from around the edge of chromosomes
 	 */
-	public void computeEdgeScale(LinkedList<Point> edgePoints) {
+	public void computeEdgeHistogram(LinkedList<Point> edgePoints) {
 		Color tempColor = new Color(0, 0, 0);
 		for (int i = 100; i < edgePoints.size(); i++) {
 			tempColor = this.getColorAt(edgePoints.get(i).x, edgePoints.get(i).y);
 			double tempGreyPixel = (.299 * tempColor.getRed()) + (.587 * tempColor.getGreen())
 					+ (.114 * tempColor.getBlue());
-			this.edgeScale[(int) Math.round(tempGreyPixel)]++;
+			this.edgeHistogram[(int) Math.round(tempGreyPixel)]++;
 		}
 	}
 
 	/**
-	 * this appends to a comma separated file of values of the grayscale found in each image, called
+	 * This appends to a comma separated file of values of the grayscale found in each image, called
 	 * in constructor
 	 */
-	public void graphEdgeScale() {
+	public void graphEdgeHistogram() {
 		try {
-			// Create file
 			FileWriter fstream = new FileWriter("EdgeScale.txt", true);
 			BufferedWriter out = new BufferedWriter(fstream);
 			String buffer = "";
-			for (int i = 0; i < this.edgeScale.length; i++) {// out.write("Hello Java");
-				buffer += "" + this.edgeScale[i] + ",";
+			for (int i = 0; i < this.edgeHistogram.length; i++) {
+				buffer += "" + this.edgeHistogram[i] + ",";
 			}
 			out.write(buffer);
 			out.write("\n");
 
-			// Close the output stream
 			out.close();
-			// Catch exception if any
 		} catch (Exception e) {
 			System.err.println("Error: " + e.getMessage());
 		}
