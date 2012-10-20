@@ -11,6 +11,7 @@ import chromosome.ChromosomeCluster;
 import chromosome.GeneticSlideImage;
 import basic_objects.AroundPixel;
 import basic_objects.PointList;
+import basic_objects.SearchArea;
 
 /**
  * @author andrew
@@ -18,6 +19,7 @@ import basic_objects.PointList;
  */
 public class Extractor {
 	private LinkedList<ChromosomeCluster> clusterList;
+	private LinkedList<ChromosomeCluster> splitList;
 	/*
 	 * aroundot is an array of 8 points that is a x,y difference from the center point pixel 107
 	 * |-1,-1| 0,-1| 1,-1| 2.6 or |-1, 0| dot | 1, 0| <--- this is a visual of around dot 345 |-1,
@@ -34,6 +36,7 @@ public class Extractor {
 		this.firstPixelMin = 30;
 		this.pixelSpace = 3;
 		clusterList = new LinkedList<ChromosomeCluster>();
+		splitList = new LinkedList<ChromosomeCluster>();
 		currPixelCount = 0;
 
 	}
@@ -45,6 +48,14 @@ public class Extractor {
 	 */
 	public LinkedList<ChromosomeCluster> getClusterList() {
 		return clusterList;
+	}
+	/**
+	 * this is a getter for the list of clusters split out
+	 * 
+	 * @return list of clusters extracted from image
+	 */
+	public LinkedList<ChromosomeCluster> getSplitList() {
+		return splitList;
 	}
 
 	/**
@@ -147,12 +158,12 @@ public class Extractor {
 	 *            is the number entered on canvas that represents matching connected pixels
 	 * @return the 2d integer canvas that represents the cluster
 	 */
-	private short[][] getMatchingPixelLeft(GeneticSlideImage img, Rectangle bounds,
+	private short[][] getMatchingPixelLeft(SearchArea searchArea, Rectangle bounds,
 			Point currentPoint, Point canvasOrigin, short[][] canvas, short clusterID) {
 		LinkedList<Point> foundList = new LinkedList<Point>();
 		Point canvasOffset = new Point(canvasOrigin.x - currentPoint.x, canvasOrigin.y
 				- currentPoint.y);
-		img.getSearchArea().initNextPixel();
+		searchArea.initNextPixel();
 		foundList.add(new Point(currentPoint));
 		while (!foundList.isEmpty()) {
 			currentPoint = foundList.pop();
@@ -163,10 +174,10 @@ public class Extractor {
 				 * if the spot to be checked is inside of the bounds and if the pixel is inside the
 				 * visible resolution of the screen
 				 */
-				if (currentPoint.x + AroundPixel.getPos(i).x < img.getImgWidth()
-						&& currentPoint.y + AroundPixel.getPos(i).y < img.getImgHeight()
+				if (currentPoint.x + AroundPixel.getPos(i).x < searchArea.getWidth()
+						&& currentPoint.y + AroundPixel.getPos(i).y < searchArea.getHeight()
 						&& currentPoint.x > 0 && currentPoint.y > 0) {
-					if (!img.getSearchArea().isPixelChecked(new Point(currentPoint.x + AroundPixel.getPos(i).x,
+					if (!searchArea.isPixelChecked(new Point(currentPoint.x + AroundPixel.getPos(i).x,
 							currentPoint.y + AroundPixel.getPos(i).y))) {
 						// if the spot to be checked value is -5 meaning it
 						// hasn't been checked yet
@@ -177,7 +188,7 @@ public class Extractor {
 										+ canvasOffset.y + AroundPixel.getPos(i).y] == -5) {
 							// if the pixel at the position aroundDot
 							// matches the color
-							img.getSearchArea().markPixelChecked(new Point(
+							searchArea.markPixelChecked(new Point(
 									currentPoint.x + AroundPixel.getPos(i).x, currentPoint.y
 											+ AroundPixel.getPos(i).y));
 							this.currPixelCount++;
@@ -189,12 +200,12 @@ public class Extractor {
 								canvas[currentPoint.x + canvasOffset.x + AroundPixel.getPos(i).x][currentPoint.y
 										+ canvasOffset.y + AroundPixel.getPos(i).y] = clusterID;
 							}
-							if (!img.getSearchArea().isPixelFound(new Point(currentPoint.x
+							if (!searchArea.isPixelFound(new Point(currentPoint.x
 									+ AroundPixel.getPos(i).x, currentPoint.y
 									+ AroundPixel.getPos(i).y))) {
 								foundList.add(new Point(currentPoint.x + AroundPixel.getPos(i).x,
 										currentPoint.y + AroundPixel.getPos(i).y));
-								img.getSearchArea().addPixelFound(new Point(currentPoint.x
+								searchArea.addPixelFound(new Point(currentPoint.x
 										+ AroundPixel.getPos(i).x, currentPoint.y
 										+ AroundPixel.getPos(i).y));
 							}
@@ -270,13 +281,13 @@ public class Extractor {
 			for (int j = pixelSpace; j < img.getImgHeight() - pixelSpace; j += pixelSpace) {
 				if (!img.getSearchArea().isPixelChecked(new Point(r, j))) {
 					color1 = img.getColorAt(r, j);// get pixel color from point
-					temp = getClusterLeft(img, 500, color1, r, j, temp);
+					temp = getClusterLeft(img.getSearchArea(), 500, color1, r, j, temp);
 					if (temp != null) {
 						temp = new ChromosomeCluster(temp);
 						temp.setClusterNimageID(clusterNum++);
 						temp.setTitle(img.getImageName());
 						clusterList.add(temp);
-						temp.createSkeleton(img);
+						temp.createSkeleton();
 						img.addWidth(temp.getWidths(0));
 						img.addWidth(temp.getWidths(1));
 						if (((temp.getWidths(0) >= 8 && temp.getWidths(0) < 30) || (temp
@@ -290,7 +301,6 @@ public class Extractor {
 						}
 						System.out.println("Image: " + temp.getTitle() + " Count: "
 								+ temp.getClusterNimageID());
-						clusterList.add(temp);
 					}
 				}
 			}
@@ -308,26 +318,27 @@ public class Extractor {
 	 * @return the number clusters found in the image
 	 */
 
-	public int splitClusters(ChromosomeCluster myCluster,LinkedList<PointList> cutLines) {
-		int clusterNum = 0;
+	public int splitClusters(ChromosomeCluster myCluster,LinkedList<PointList> cutLines,GeneticSlideImage image) {
 		this.firstPassCount = 0;
-		this.clusterList = new LinkedList<ChromosomeCluster>();
-		Color color1 = new Color(0, 0, 0);// color that will be used to store pixel color to check
-		ChromosomeCluster temp = new ChromosomeCluster(clusterNum);
+		int splitCount=0;
+		LinkedList<ChromosomeCluster> tempClusters=new LinkedList<ChromosomeCluster>();
+		SearchArea clusterArea=new SearchArea(myCluster.getSize().x,myCluster.getSize().y);
+		clusterArea.prepForCluster(myCluster, cutLines);
+		ChromosomeCluster temp = new ChromosomeCluster(splitCount);
 		// made plus one change chromosomes
-		for (int r = pixelSpace + 1; r < img.getImgWidth() - pixelSpace; r += pixelSpace) {
-			for (int j = pixelSpace; j < img.getImgHeight() - pixelSpace; j += pixelSpace) {
-				if (!img.getSearchArea().isPixelChecked(new Point(r, j))) {
-					color1 = img.getColorAt(r, j);// get pixel color from point
-					temp = getClusterLeft(img, 500, color1, r, j, temp);
+		for (int r = pixelSpace + 1; r < myCluster.getSize().x - pixelSpace; r += 2) {
+			for (int j = pixelSpace; j < myCluster.getSize().y - pixelSpace; j += 2) {
+				if (!clusterArea.isPixelChecked(new Point(r, j))) {
+					//color1 = img.getColorAt(r, j);// get pixel color from point
+					Color tempColor=new Color(0,0,0);
+					temp = getClusterLeft(clusterArea, 500, tempColor, r, j, temp);
 					if (temp != null) {
 						temp = new ChromosomeCluster(temp);
-						temp.setClusterNimageID(clusterNum++);
-						temp.setTitle(img.getImageName());
-						clusterList.add(temp);
-						temp.createSkeleton(img);
-						img.addWidth(temp.getWidths(0));
-						img.addWidth(temp.getWidths(1));
+						temp.setClusterNimageID(myCluster.getClusterNimageID()+(1000*splitCount)+1000);
+						temp.setTitle(myCluster.getTitle().substring(0,myCluster.getTitle().indexOf('.')-1)+"_"+splitCount+'_');
+						splitCount++;
+						tempClusters.add(temp);
+						temp.createSkeleton();
 						if (((temp.getWidths(0) >= 8 && temp.getWidths(0) < 30) || (temp
 								.getWidths(1) >= 8 && temp.getWidths(1) < 30))) {
 							if ((temp.getPixelCount() < this.firstPixelMax)
@@ -339,16 +350,16 @@ public class Extractor {
 						}
 						System.out.println("Image: " + temp.getTitle() + " Count: "
 								+ temp.getClusterNimageID());
-						clusterList.add(temp);
 					}
 				}
 			}
 		}
-		System.out.println("FirstPass: " + this.firstPassCount);
-		double avgChromosomewidth = img.calcFinalAverage();
-
-		System.out.println("Width: " + avgChromosomewidth);
-		return clusterNum;// targetNimgCount;
+		if(tempClusters.size()>1){
+			for(int i=0;i<tempClusters.size();i++){
+				this.splitList.add(tempClusters.get(i));
+			}
+		}
+		return splitCount;// targetNimgCount;
 	}
 
 	/**
@@ -426,7 +437,7 @@ public class Extractor {
 	 *            place found cluster is stored
 	 * @return returns the cluster if found and null if no cluster found
 	 */
-	public ChromosomeCluster getClusterLeft(GeneticSlideImage img, int searchWidth,
+	public ChromosomeCluster getClusterLeft(SearchArea searchArea, int searchWidth,
 			Color colorOItem, int xCor, int yCor, ChromosomeCluster shpN) {
 		if (xCor < 0 || yCor < 0) {// if the point has cordinates less than zero
 									// or off screen in neg direction
@@ -450,7 +461,7 @@ public class Extractor {
 		 * xCor,yCormarking the matching pixels as the number 1ont the canvas
 		 */
 		this.currPixelCount = 0;
-		canvas = getMatchingPixelLeft(img, canvasBounds, new Point(xCor, yCor), canvasStart,
+		canvas = getMatchingPixelLeft(searchArea, canvasBounds, new Point(xCor, yCor), canvasStart,
 				canvas, (short) 0);
 		if (/* !this.onImgEdge&& */this.currPixelCount > this.firstPixelMin) {
 			shpN = new ChromosomeCluster(new Point(sizeSquared, sizeSquared));

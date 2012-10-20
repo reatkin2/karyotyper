@@ -11,7 +11,7 @@ import chromosome.ChromosomeCluster;
 
 public class ClusterSplitter {
 
-	public static void prepCutLine(PointList cutLine) {
+	public static void prepCutLine(PointList cutLine,ChromosomeCluster myCluster) {
 		if (cutLine.getCutDir1() % 2 == 1) {
 			Point tempPoint=cutLine.getAxisPoint();
 			for (int i = 0; i < cutLine.getDir1length(); i++) {
@@ -19,9 +19,13 @@ public class ClusterSplitter {
 						AroundPixel.handleLoop(cutLine.getCutDir1() - 1), tempPoint), 0);
 				tempPoint = AroundPixel.getPoint(cutLine.getCutDir1(), tempPoint);
 			}
-			cutLine.addPoint(AroundPixel.getPoint(
-					AroundPixel.handleLoop(cutLine.getCutDir1() - 1), tempPoint), 0);
-			cutLine.addPoint( tempPoint, 0);			
+			Point tempPoint2=AroundPixel.getPoint(AroundPixel.handleLoop(cutLine.getCutDir1() - 1),tempPoint);
+			if(tempPoint2.x>=0&&tempPoint2.y>=0&&tempPoint2.x<myCluster.getSize().x&&tempPoint2.y<myCluster.getSize().y){
+				cutLine.addPoint(tempPoint2, 0);
+			}
+			if(tempPoint.x>=0&&tempPoint.y>=0&&tempPoint.x<myCluster.getSize().x&&tempPoint.y<myCluster.getSize().y){
+				cutLine.addPoint( tempPoint, 0);			
+			}
 		}
 		if (cutLine.getCutDir2() % 2 == 1) {
 			Point tempPoint=cutLine.getAxisPoint();
@@ -30,9 +34,13 @@ public class ClusterSplitter {
 						AroundPixel.handleLoop(cutLine.getCutDir2() - 1), tempPoint), 0);
 				tempPoint = AroundPixel.getPoint(cutLine.getCutDir2(), tempPoint);
 			}
-			cutLine.addPoint(AroundPixel.getPoint(
-					AroundPixel.handleLoop(cutLine.getCutDir2() - 1), tempPoint), 0);
-			cutLine.addPoint( tempPoint, 0);			
+			Point tempPoint2=AroundPixel.getPoint(AroundPixel.handleLoop(cutLine.getCutDir2() - 1),tempPoint);
+			if(tempPoint2.x>=0&&tempPoint2.y>=0&&tempPoint2.x<myCluster.getSize().x&&tempPoint2.y<myCluster.getSize().y){
+				cutLine.addPoint(tempPoint2, 0);
+			}
+			if(tempPoint.x>=0&&tempPoint.y>=0&&tempPoint.x<myCluster.getSize().x&&tempPoint.y<myCluster.getSize().y){
+				cutLine.addPoint( tempPoint, 0);			
+			}
 		}
 	}
 
@@ -62,7 +70,7 @@ public class ClusterSplitter {
 			}
 		}
 		for(int i=0;i<splits.size();i++){
-			ClusterSplitter.prepCutLine(splits.get(i));
+			ClusterSplitter.prepCutLine(splits.get(i),myCluster);
 		}
 		return splits;
 	}

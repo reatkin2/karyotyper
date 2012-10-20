@@ -6,13 +6,17 @@ import java.awt.FlowLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.LinkedList;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import basic_objects.PointList;
+
 import chromosome.ChromosomeList;
 import chromosome.GeneticSlideImage;
+import extraction.ClusterSplitter;
 import extraction.Extractor;
 
 public class RunChromosomeGetter extends JFrame {
@@ -93,15 +97,25 @@ public class RunChromosomeGetter extends JFrame {
 					// get clusters from the image and keep a count of how many
 					frame.targetsFound += extractor.findClusters(image);
 					// pass the list of clusters on to slidelist
-					ChromosomeList slideList = new ChromosomeList(extractor.getClusterList(), image);
+					ChromosomeList slideList1 = new ChromosomeList(extractor.getClusterList(), image);
+					for(int i=0;i<slideList1.getChromosomeList().size();i++){
+						LinkedList<PointList> cutList=ClusterSplitter.getSplitPoints(slideList1.getChromosomeList().get(i), (int) Math.round(image.getChromoWidth()/3));
+						if(!cutList.isEmpty()){
+							extractor.splitClusters(slideList1.getChromosomeList().get(i), cutList, image);
+						}
+					}
+					ChromosomeList splitList=new ChromosomeList(extractor.getSplitList(),image);
+					splitList.calcMedialAxis(image);
+					splitList.printSplits(image);
+					
 					// print out the slidelist
-					imgCount.setText("Calculating Medial Axis for: " + slideList.size()
+					imgCount.setText("Calculating Medial Axis for: " + slideList1.size()
 							+ " Clusters.");
-					// slideList.calcMedialAxis(image);
-					imgCount.setText("Writing " + slideList.size() + " images. ");
-					// slideList.printChromosomes(image);
+					slideList1.calcMedialAxis(image);
+					imgCount.setText("Writing " + slideList1.size() + " images. ");
+					slideList1.printChromosomes(image);
 					// test for split lines to shapdata/keep
-					slideList.splitNWrite(image);
+					//slideList1.splitNWrite(image);
 
 					imgCount.setText(frame.targetsFound + " Chromosomes found in "
 							+ (++frame.imgCounter) + " slides read so far.");

@@ -1,7 +1,9 @@
 package basic_objects;
 
 import java.awt.Point;
+import java.util.LinkedList;
 
+import chromosome.ChromosomeCluster;
 import chromosome.GeneticSlideImage;
 
 public class SearchArea {
@@ -19,7 +21,25 @@ public class SearchArea {
 		initPixelsChecked();
 
 	}
-	
+	public SearchArea(int width,int height){
+		pixelChecked = new boolean[width][height];
+		pixelFound = new boolean[width][height];
+		initPixelsChecked();	
+	}
+	public void prepForCluster(ChromosomeCluster myCluster, LinkedList<PointList> cutLines){
+		for(int i=0;i<myCluster.getSize().x;i++){
+			for(int j=0;j<myCluster.getSize().y;j++){
+				if(!myCluster.getValue(i,j)){
+					this.pixelChecked[i][j]=true;
+				}
+			}
+		}
+		for(int i=0;i<cutLines.size();i++){
+			for(int j=0;j<cutLines.get(i).getList().size();j++){
+				this.pixelChecked[cutLines.get(i).getList().get(j).x][cutLines.get(i).getList().get(j).x]=true;
+			}
+		}
+	}
 	public boolean isPixelChecked(Point temp) {
 		return pixelChecked[temp.x][temp.y];
 	}
@@ -51,6 +71,12 @@ public class SearchArea {
 	}
 	public void markPixelChecked(Point temp) {
 		pixelChecked[temp.x][temp.y] = true;
+	}
+	public int getWidth(){
+		return pixelChecked.length;
+	}
+	public int getHeight(){
+		return pixelChecked[0].length;
 	}
 
 

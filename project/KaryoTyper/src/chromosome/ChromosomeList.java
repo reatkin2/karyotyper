@@ -17,6 +17,7 @@ import medial_axis.MedialAxisGraph;
 
 public class ChromosomeList {
 	private LinkedList<ChromosomeCluster> chromosomeList;
+
 	private GeneticSlideImage img;
 
 	public ChromosomeList(LinkedList<ChromosomeCluster> newList, GeneticSlideImage newImg) {
@@ -52,6 +53,16 @@ public class ChromosomeList {
 
 	public int size() {
 		return chromosomeList.size();
+	}
+	public LinkedList<ChromosomeCluster> getChromosomeList() {
+		return chromosomeList;
+	}
+	public void printSplits(GeneticSlideImage image){
+		for (int i = 0; i < this.chromosomeList.size(); i++) {
+			ChromosomeCluster tempCluster = this.chromosomeList.get(i);
+			writeRainbowImage("/shapeData/Chromosome/", tempCluster,
+				tempCluster.getMedialAxisGraph());
+		}
 	}
 
 	/**

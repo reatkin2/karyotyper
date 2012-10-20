@@ -30,21 +30,21 @@ public class MedialAxisGraph extends MedialAxis {
 		buildGraph(medialAxisTemp.getMedialAxisPoints(), medialAxisTemp.getDistanceMap());
 	}
 
-	public MedialAxisGraph(ChromosomeCluster myCluster, GeneticSlideImage img) {
-		super(myCluster, img);
-		chromoWidth = img.getChromoWidth();
+	public MedialAxisGraph(ChromosomeCluster myCluster) {
+		super(myCluster);
+		chromoWidth = -1;
 		segmentCount = 0;
 		axisGraph = new LinkedList<Vertex>();
 	}
 
-	public void createAxisGraph(ChromosomeCluster myCluster, GeneticSlideImage img) {
+	public void createAxisGraph(ChromosomeCluster myCluster, double chromoWidth) {
 		buildGraph(getMedialAxisPoints(), getDistanceMap());
 		fillInSkeleton(myCluster);
 		segmentCount = 0;
 		axisGraph = new LinkedList<Vertex>();
 		buildGraph(getMedialAxisPoints(), getDistanceMap());
 		trimGraph();
-		removeSegments((int) Math.round((img.getChromoWidth() * (2.0 / 3.0))), -1);
+		removeSegments((int) Math.round((chromoWidth * (2.0 / 3.0))), -1);
 		setMedialAxis(this.axisGraph);
 	}
 

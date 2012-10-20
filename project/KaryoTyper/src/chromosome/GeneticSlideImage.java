@@ -120,7 +120,9 @@ public class GeneticSlideImage {
 
 		if (pointList != null && !pointList.isEmpty()) {
 			for (int i = 0; i < pointList.size(); i++) {
-				tempImg.setRGB(pointList.get(i).x, pointList.get(i).y, (drawColor).getRGB());
+				if(pointList.get(i).x>=0&&pointList.get(i).y>=0){
+					tempImg.setRGB(pointList.get(i).x, pointList.get(i).y, (drawColor).getRGB());
+				}
 			}
 		}
 

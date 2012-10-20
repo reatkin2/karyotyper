@@ -47,13 +47,13 @@ public class ChromosomeCluster extends Cluster {
 		next = null;
 	}
 
-	public void createSkeleton(GeneticSlideImage image) {
-		this.medialAxisGraph = new MedialAxisGraph(this, image);
+	public void createSkeleton() {
+		this.medialAxisGraph = new MedialAxisGraph(this);
+		this.medialAxisGraph.createSkeleton(this);
 	}
 
 	public void createMedialAxisGraph(GeneticSlideImage image) {
-		this.medialAxisGraph = new MedialAxisGraph(this, image);
-		this.medialAxisGraph.createAxisGraph(this, image);
+		this.medialAxisGraph.createAxisGraph(this, image.getChromoWidth());
 		// this.medialAxisGraph.buildGraph(this.medialAxisGraph.getMedialAxisPoints(),this.medialAxisGraph.getDistanceMap());
 	}
 
