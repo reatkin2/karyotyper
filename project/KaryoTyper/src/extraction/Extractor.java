@@ -325,22 +325,20 @@ public class Extractor {
 		SearchArea clusterArea=new SearchArea(myCluster.getSize().x,myCluster.getSize().y);
 		clusterArea.prepForCluster(myCluster, cutLines);
 		ChromosomeCluster temp = new ChromosomeCluster(splitCount);
-		Point imageReference=new Point(myCluster.getImageLocation().x-myCluster.getFirstPixel().x,
-										myCluster.getImageLocation().y-myCluster.getFirstPixel().y);
 		// made plus one change chromosomes
-		for (int r = 0; r < myCluster.getSize().x - pixelSpace; r += 2) {
-			for (int j = 0; j < myCluster.getSize().y - pixelSpace; j += 2) {
+		for (int r = 0; r < myCluster.getSize().x ; r += 2) {
+			for (int j = 0; j < myCluster.getSize().y ; j += 2) {
 				if (!clusterArea.isPixelChecked(new Point(r, j))) {
 					//color1 = img.getColorAt(r, j);// get pixel color from point
 					Color tempColor=new Color(0,0,0);
 					temp = getClusterLeft(clusterArea, 500, tempColor, r, j, temp);
 					if (temp != null) {
-						Point imageLocation=new Point(temp.getImageLocation().x+imageReference.x,temp.getImageLocation().y+imageReference.y);
+						Point imageLocation=new Point(temp.getImageLocation().x+myCluster.getImageLocation().x,temp.getImageLocation().y+myCluster.getImageLocation().y);
 						temp.setImageLocation(imageLocation);
 						//TODO(aamcknig):figure out what is broke with output images
 						temp = new ChromosomeCluster(temp);
-						temp.setClusterNimageID(myCluster.getClusterNimageID()+(1000*splitCount)+1000);
-						temp.setTitle(myCluster.getTitle().substring(0,myCluster.getTitle().indexOf('.')-1)+"_"+splitCount+"_.");
+						temp.setClusterNimageID(splitCount);
+						temp.setTitle(myCluster.getTitle().substring(0,myCluster.getTitle().indexOf('.'))+"_"+myCluster.getClusterNimageID()+"_.");
 						splitCount++;
 						tempClusters.add(temp);
 						temp.createSkeleton();

@@ -60,8 +60,10 @@ public class ChromosomeList {
 	public void printSplits(GeneticSlideImage image){
 		for (int i = 0; i < this.chromosomeList.size(); i++) {
 			ChromosomeCluster tempCluster = this.chromosomeList.get(i);
-			writeRainbowImage("/shapeData/Splits/", tempCluster,
-				tempCluster.getMedialAxisGraph());
+			if (this.chromosomeList.get(i).checkKeepThisCluster()) {
+				writeRainbowImage("/shapeData/Splits/", tempCluster,
+					tempCluster.getMedialAxisGraph());
+			}
 		}
 	}
 
