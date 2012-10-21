@@ -9,7 +9,7 @@ public class ChromosomeBand {
 	private final int length;
 	
 	public ChromosomeBand(Type type, int length) {
-		if (type == this.type.CENTROMERE && length != 0) {
+		if (type == this.type.CENTROMERE && length == 0) {
 			throw new IllegalArgumentException("Length of a centromere band cannot be non-zero.");
 		}
 		

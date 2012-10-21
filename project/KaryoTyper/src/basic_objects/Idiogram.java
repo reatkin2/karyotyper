@@ -6,17 +6,21 @@ import java.util.LinkedList;
 public class Idiogram {
 	private LinkedList<ChromosomeBand> myBands;
 	private int length;
-	
+	private int chromosomeNumber;
+	private int resolution;
+
 	public Idiogram() {
 		this.myBands = new LinkedList<ChromosomeBand>();
 		this.length = 0;
+		this.chromosomeNumber = 0;
 	}
 	
 	public Idiogram(Idiogram i) {
 		this.length = i.length();
 		this.myBands = i.getBands();
+		this.chromosomeNumber = i.getChromosomeNumber();
 	}
-	
+
 	public Idiogram(Collection<ChromosomeBand> c) {
 		this();
 		this.addAll(c);
@@ -94,6 +98,42 @@ public class Idiogram {
 		return true;
 	}
 	
+	public int getChromosomeNumber() {
+		return chromosomeNumber;
+	}
+	
+	public void setChromosomeNumber(int number) {
+		chromosomeNumber = number;
+	}
+	
+	/**
+	 * @return the resolution
+	 */
+	public int getResolution() {
+		return resolution;
+	}
+
+	/**
+	 * @param resolution the resolution to set
+	 */
+	public void setResolution(int resolution) {
+		this.resolution = resolution;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		String bandString = "";
+		
+		for (ChromosomeBand band : myBands) {
+			bandString += "(" + band.type() + ", " + band.length() + ")";
+		}
+		
+		return "Idiogram [myBands= [" + bandString + "], length=" + length + ", chromosomeNumber="
+				+ chromosomeNumber + ", resolution=" + resolution + "]";
+	}
 	
 	
 	
