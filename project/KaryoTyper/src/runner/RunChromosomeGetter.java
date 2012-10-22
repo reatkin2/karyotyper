@@ -80,7 +80,6 @@ public class RunChromosomeGetter extends JFrame {
 			// initialize the que
 			ImageQueue images = new ImageQueue();
 			// initialize the extractor
-			Extractor extractor = new Extractor();
 			while (!RunChromosomeGetter.closing) {
 				// System.out.println(args[i]+"---------nextFilestarts Here---------------");
 				// put images in the que and return next file in the path from string args
@@ -90,6 +89,7 @@ public class RunChromosomeGetter extends JFrame {
 						RunChromosomeGetter.currentStatus
 								.setText("Finding Chromosomes in slide image: " + filename);
 					}
+					Extractor extractor = new Extractor();
 					// use the current image in the que and create a slideImage
 					GeneticSlideImage image = new GeneticSlideImage(filename);
 					// extract the background from the image

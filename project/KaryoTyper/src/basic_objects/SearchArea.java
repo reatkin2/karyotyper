@@ -26,6 +26,13 @@ public class SearchArea {
 		pixelFound = new boolean[width][height];
 		initPixelsChecked();	
 	}
+	
+	/**
+	 * prepare the search area with already checked all places that
+	 * are not a part of the cluster in the cluster square area
+	 * @param myCluster
+	 * @param cutLines
+	 */
 	public void prepForCluster(ChromosomeCluster myCluster, LinkedList<PointList> cutLines){
 		for(int i=0;i<myCluster.getSize().x;i++){
 			for(int j=0;j<myCluster.getSize().y;j++){
@@ -36,7 +43,7 @@ public class SearchArea {
 		}
 		for(int i=0;i<cutLines.size();i++){
 			for(int j=0;j<cutLines.get(i).getList().size();j++){
-				this.pixelChecked[cutLines.get(i).getList().get(j).x][cutLines.get(i).getList().get(j).x]=true;
+				this.pixelChecked[cutLines.get(i).getList().get(j).x][cutLines.get(i).getList().get(j).y]=true;
 			}
 		}
 	}
@@ -62,7 +69,7 @@ public class SearchArea {
 	}
 
 	public void initNextPixel() {
-		for (int i = 0; i < pixelChecked.length; i++) {
+		for (int i = 0; i < pixelFound.length; i++) {
 			for (int j = 0; j < pixelFound[0].length; j++) {
 				this.pixelFound[i][j] = false;
 			}
