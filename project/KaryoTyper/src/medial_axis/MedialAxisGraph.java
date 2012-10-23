@@ -38,6 +38,7 @@ public class MedialAxisGraph extends MedialAxis {
 	}
 
 	public void createAxisGraph(ChromosomeCluster myCluster, double chromoWidth) {
+		this.chromoWidth=chromoWidth;
 		buildGraph(getMedialAxisPoints(), getDistanceMap());
 		fillInSkeleton(myCluster);
 		segmentCount = 0;
@@ -45,6 +46,7 @@ public class MedialAxisGraph extends MedialAxis {
 		buildGraph(getMedialAxisPoints(), getDistanceMap());
 		trimGraph();
 		removeSegments((int) Math.round((chromoWidth * (2.0 / 3.0))), -1);
+		trimGraph();
 		setMedialAxis(this.axisGraph);
 	}
 
@@ -143,7 +145,6 @@ public class MedialAxisGraph extends MedialAxis {
 	 * @param tempVertex
 	 *            the vertex to be added
 	 */
-	// TODO(aamcknig): TESTTEST
 	public void addVertex(Vertex tempVertex) {
 		if (!axisGraph.contains(tempVertex)) {
 			LinkedList<Integer> connectedSegments = new LinkedList<Integer>();
