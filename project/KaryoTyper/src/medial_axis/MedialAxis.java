@@ -71,6 +71,9 @@ public class MedialAxis {
 	public DistanceMap getDistanceMap() {
 		return distanceMap;
 	}
+	public void setDistanceMap(DistanceMap tempMap) {
+		this.distanceMap=tempMap;
+	}
 
 	/**
 	 * this does the erosion and distanceMap creation similtaniously

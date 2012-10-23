@@ -37,17 +37,25 @@ public class MedialAxisGraph extends MedialAxis {
 		axisGraph = new LinkedList<Vertex>();
 	}
 
-	public void createAxisGraph(ChromosomeCluster myCluster, double chromoWidth) {
-		this.chromoWidth=chromoWidth;
+	public void createAxisGraph( double chromoWidth) {
+		this.chromoWidth = chromoWidth;
 		buildGraph(getMedialAxisPoints(), getDistanceMap());
-		fillInSkeleton(myCluster);
+		fillInSkeleton();
 		segmentCount = 0;
 		axisGraph = new LinkedList<Vertex>();
 		buildGraph(getMedialAxisPoints(), getDistanceMap());
 		trimGraph();
 		removeSegments((int) Math.round((chromoWidth * (2.0 / 3.0))), -1);
-		trimGraph();
 		setMedialAxis(this.axisGraph);
+		// trimTinyLoop();
+		// trimGraph();
+		// removeUnconnectedSegments(this.chromoWidth * 1.5);
+		// setMedialAxis(this.axisGraph);
+		// axisGraph = new LinkedList<Vertex>();
+		// segmentCount = 0;
+		// buildGraph(getMedialAxisPoints(), getDistanceMap());
+		// setMedialAxis(this.axisGraph);
+
 	}
 
 	/**
@@ -145,6 +153,7 @@ public class MedialAxisGraph extends MedialAxis {
 	 * @param tempVertex
 	 *            the vertex to be added
 	 */
+	//TODO(aamcknig): bug in segments when added
 	public void addVertex(Vertex tempVertex) {
 		if (!axisGraph.contains(tempVertex)) {
 			LinkedList<Integer> connectedSegments = new LinkedList<Integer>();
@@ -339,6 +348,11 @@ public class MedialAxisGraph extends MedialAxis {
 	public void removeUnconnectedSegments(double minLength) {
 		LinkedList<Vertex> removeThese = new LinkedList<Vertex>();
 		LinkedList<GraphSegment> segments = new LinkedList<GraphSegment>();
+		int removedSegment[] = new int[this.segmentCount];
+		int removedCount = 0;
+		for (int i = 0; i < removedSegment.length; i++) {
+			removedSegment[i] = i;
+		}
 		if (this.segmentCount > 1) {
 			boolean segHasIntersect[] = new boolean[this.segmentCount];
 			for (int k = 0; k < this.segmentCount; k++) {
@@ -358,11 +372,22 @@ public class MedialAxisGraph extends MedialAxis {
 				if (!segHasIntersect[i]) {
 					if (segments.get(i).getSegment().size() <= minLength) {
 						removeThese = combine(removeThese, segments.get(i).getSegment());
+						for (int j = i + 1; j < this.segmentCount; j++) {
+							removedSegment[j] = removedSegment[j - 1];
+						}
+						removedCount++;
 					}
 				}
 			}
 		}
-		this.removeVertice(removeThese);
+		if (removedCount > 0) {
+			this.removeVertice(removeThese);
+			for (int i = 0; i < this.axisGraph.size(); i++) {
+				this.axisGraph.get(i).setMySegement(
+						removedSegment[this.axisGraph.get(i).getMySegement()]);
+			}
+			this.segmentCount = this.segmentCount - removedCount;
+		}
 	}
 
 	private LinkedList<Vertex> combine(LinkedList<Vertex> list1, LinkedList<Vertex> list2) {
@@ -459,7 +484,7 @@ public class MedialAxisGraph extends MedialAxis {
 	 *            the point to find the index of
 	 * @return the position in the linkedlist graph of vertex or -1 if not in list
 	 */
-	private int indexOfVertexWithPoint(Point tempPoint) {
+	public int indexOfVertexWithPoint(Point tempPoint) {
 		for (int i = 0; i < axisGraph.size(); i++) {
 			if (axisGraph.get(i).getPoint().equals(tempPoint)) {
 				return i;
@@ -564,6 +589,48 @@ public class MedialAxisGraph extends MedialAxis {
 		}
 	}
 
+	public void trimTinyLoop() {
+		LinkedList<Vertex> intersections = this.getIntersections();
+		// foreach intersection
+		for (int i = 0; i < intersections.size(); i++) {
+			if (null != checkTinyLoop(intersections.get(i))) {
+				removeVertex(checkTinyLoop(intersections.get(i)));
+			}
+		}
+
+	}
+
+	/**
+	 * check for tiny loop on end of medial axis
+	 * 
+	 * @param intersection
+	 */
+	public Vertex checkTinyLoop(Vertex intersection) {
+		for (int i = 0; i < intersection.getChildren().size(); i++) {
+			for (int j = 0; j < intersection.getChildren().size(); j++) {
+				if (!intersection.getChildren().get(i).getPoint()
+						.equals(intersection.getChildren().get(j).getPoint())) {
+					for (int k = 0; k < intersection.getChildren().get(j).getChildren().size(); k++) {
+						if (!intersection.getChildren().get(j).getChildren().get(k).getPoint()
+								.equals(intersection.getPoint())) {
+							if (intersection
+									.getChildren()
+									.get(i)
+									.getChildren()
+									.contains(
+											intersection.getChildren().get(j).getChildren().get(k))) {
+								if (!intersection.getChildren().get(j).isIntersection()) {
+									return intersection.getChildren().get(j);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
 	public void generateTangents(double lowerLimitDistance, double upperLimitDistance)
 			throws Exception {
 		resetChecks();
@@ -606,7 +673,7 @@ public class MedialAxisGraph extends MedialAxis {
 	 * @param graph
 	 *            the graph of the medialAxis
 	 */
-	public void fillInSkeleton(ChromosomeCluster myCluster) {
+	public void fillInSkeleton() {
 		if (this.segmentCount > 1) {
 			LinkedList<Point> skelPoints = skeleton.getOneList();
 			// for each pixel in skeleton/medial axis
@@ -620,35 +687,26 @@ public class MedialAxisGraph extends MedialAxis {
 				Point newConnectionPoint = new Point(-1, -1);
 				int mostNewConnections = 0;
 				boolean connectionPos[] = { false, false, false, false, false, false, false, false };
-				for (int j = 0; j < 8; j++) {
-					Point tempAround = AroundPixel.getPoint(j, tempPoint);
-					// if there not off the edge of the cluster box
-					if (tempAround.x >= 0 && tempAround.x < myCluster.getSize().x
-							&& tempAround.y >= 0 && tempAround.y < myCluster.getSize().y) {
-						if (skelPoints.contains(tempAround)) {
-							connectionPos[j] = true;
-							connections++;
-						}
-					}
-				}
+				connections=this.getConnections(connectionPos, skelPoints, tempPoint);
 				// for each pixel around the current skeleton pixel tempAround
 				for (int j = 0; j < 8; j++) {
 					// this pixel is not part of skeleton and the two next to it aren't a part of
 					// skeleton
 					if (!connectionPos[j]
 							&& !connectionPos[AroundPixel.handleLoop(j + 1)]
-							&& !connectionPos[AroundPixel.handleLoop(j - 1)]
-							&& (!connectionPos[AroundPixel.handleLoop(j - 2)] || !connectionPos[AroundPixel
-									.handleLoop(j + 2)])) {
+							&& !connectionPos[AroundPixel.handleLoop(j - 1)]) {
 						Point tempAround = AroundPixel.getPoint(j, tempPoint);
 						// if there not off the edge of the cluster box
-						if (tempAround.x >= 0 && tempAround.x < myCluster.getSize().x
-								&& tempAround.y >= 0 && tempAround.y < myCluster.getSize().y) {
+						if (tempAround.x >= 0 && tempAround.x < distanceMap.getWidth()
+								&& tempAround.y >= 0 && tempAround.y < distanceMap.getHeight()) {
 							// if this pixel has a more centered value based on distanceMap
-							if (distanceMap.getDistanceFromEdge(tempAround) > mostCenteredConnection) {
-								mostCenteredConnection = distanceMap
-										.getDistanceFromEdge(tempAround);
-								addPoint = j;
+							if(!connectionPos[AroundPixel.handleLoop(j - 2)] 
+									&&!connectionPos[AroundPixel.handleLoop(j + 2)]){
+								if (distanceMap.getDistanceFromEdge(tempAround) > mostCenteredConnection) {
+									mostCenteredConnection = distanceMap
+											.getDistanceFromEdge(tempAround);
+									addPoint = j;
+								}
 							}
 							int currConnections = checkForMostNewConnection(j, tempPoint);
 							if (currConnections > mostNewConnections) {
@@ -675,6 +733,8 @@ public class MedialAxisGraph extends MedialAxis {
 									distanceMap.getDistanceFromEdge(mostConnected)));
 							added = true;
 							// if there is a point to add that is centered in chromosome
+							//TODO(aamcknig): fix problem adding a new pixel that will need
+							//trimmed later
 						} else if (addPoint >= 0) {
 							Point newTempPoint = AroundPixel.getPoint(addPoint, tempPoint);
 							skeleton.add(newTempPoint,
@@ -695,6 +755,7 @@ public class MedialAxisGraph extends MedialAxis {
 							addVertex(new Vertex(mostConnected,
 									distanceMap.getDistanceFromEdge(mostConnected)));
 						}
+						added=true;
 					}
 
 				}
@@ -703,7 +764,21 @@ public class MedialAxisGraph extends MedialAxis {
 		}
 
 	}
-
+	public int getConnections(boolean connectionPos[],LinkedList<Point> skelPoints,Point tempPoint){
+		int connections=0;
+		for (int j = 0; j < 8; j++) {
+			Point tempAround = AroundPixel.getPoint(j, tempPoint);
+			// if there not off the edge of the cluster box
+			if (tempAround.x >= 0 && tempAround.x < distanceMap.getWidth()
+					&& tempAround.y >= 0 && tempAround.y < distanceMap.getHeight()) {
+				if (skelPoints.contains(tempAround)) {
+					connectionPos[j] = true;
+					connections++;
+				}
+			}
+		}
+		return connections;
+	}
 	/**
 	 * this gets a point that is the bridge connection to another part of the medial axis and
 	 * returns the point(-1,-1) if there wasn't a bridge point
@@ -714,7 +789,7 @@ public class MedialAxisGraph extends MedialAxis {
 	 *            a point on the medialAxis
 	 * @return the bridging point or (-1,-1)
 	 */
-	private Point getBridgePoint(int corner2Check, Point axisPoint) {
+	public Point getBridgePoint(int corner2Check, Point axisPoint) {
 
 		Point cornerConnection = new Point(-1, -1);
 		Point tempPoint = AroundPixel.getPoint(corner2Check, axisPoint);
@@ -722,24 +797,49 @@ public class MedialAxisGraph extends MedialAxis {
 			return cornerConnection;
 		}
 		if (this.skeleton.contains(AroundPixel.getPoint(corner2Check, tempPoint))) {
-			return AroundPixel.getPoint(corner2Check, tempPoint);
-		}
-		if (corner2Check - 1 < 0) {
-			if (this.skeleton.contains(AroundPixel.getPoint(7, tempPoint))) {
-				return AroundPixel.getPoint(7, tempPoint);
+			if(!sameSegment(axisPoint,AroundPixel.getPoint(corner2Check, tempPoint))){
+				return tempPoint;
 			}
+		}
+		if (this.skeleton.contains(AroundPixel.getPoint(AroundPixel.handleLoop(corner2Check-1), tempPoint))) {
+			if(!sameSegment(axisPoint,AroundPixel.getPoint(AroundPixel.handleLoop(corner2Check-1), tempPoint))){
+			return tempPoint;
+			}
+		}
 
-		} else if (this.skeleton.contains(AroundPixel.getPoint(corner2Check - 1, tempPoint))) {
-			return AroundPixel.getPoint(corner2Check - 1, tempPoint);
-		}
-		if (corner2Check + 1 > 7) {
-			if (this.skeleton.contains(AroundPixel.getPoint(0, tempPoint))) {
-				return AroundPixel.getPoint(0, tempPoint);
+		if (this.skeleton.contains(AroundPixel.getPoint(AroundPixel.handleLoop(corner2Check+1), tempPoint))) {
+			if(!sameSegment(axisPoint,AroundPixel.getPoint(AroundPixel.handleLoop(corner2Check+1), tempPoint))){
+				return  tempPoint;
 			}
-		} else if (this.skeleton.contains(AroundPixel.getPoint(corner2Check + 1, tempPoint))) {
-			return AroundPixel.getPoint(corner2Check + 1, tempPoint);
 		}
+		if(corner2Check%2==1){	
+			if (this.skeleton.contains(AroundPixel.getPoint(AroundPixel.handleLoop(corner2Check-2), tempPoint))) {
+				if(!sameSegment(axisPoint,AroundPixel.getPoint(AroundPixel.handleLoop(corner2Check-2), tempPoint))){
+				return tempPoint;
+				}
+			}
+	
+			if (this.skeleton.contains(AroundPixel.getPoint(AroundPixel.handleLoop(corner2Check+2), tempPoint))) {
+				if(!sameSegment(axisPoint,AroundPixel.getPoint(AroundPixel.handleLoop(corner2Check+2), tempPoint))){
+					return  tempPoint;
+				}
+			}
+		}
+
+
 		return cornerConnection;
+	}
+
+	public boolean sameSegment(Point point1, Point point2) {
+		int point1Index=this.indexOfVertexWithPoint(point1);
+		int point2Index=this.indexOfVertexWithPoint(point2);
+		if(-1!=point1Index&&-1!=point2Index){
+			if (this.axisGraph.get(point1Index).getMySegement() == this.axisGraph
+					.get(point2Index).getMySegement()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -751,7 +851,7 @@ public class MedialAxisGraph extends MedialAxis {
 	 *            the point on the medial axis to bridge from
 	 * @return the number of connections the corner2Check has
 	 */
-	private int checkForMostNewConnection(int cornerToCheck, Point axisPoint) {
+	public int checkForMostNewConnection(int cornerToCheck, Point axisPoint) {
 
 		int connectionCount = 0;
 		Point tempPoint = AroundPixel.getPoint(cornerToCheck, axisPoint);
@@ -759,18 +859,40 @@ public class MedialAxisGraph extends MedialAxis {
 			return 0;
 		}
 		if (this.skeleton.contains(AroundPixel.getPoint(cornerToCheck, tempPoint))) {
-			connectionCount++;
+			if(!sameSegment(axisPoint,AroundPixel.getPoint(cornerToCheck, tempPoint))){
+				connectionCount++;
+			}
 		}
 
 		if (this.skeleton.contains(AroundPixel.getPoint(AroundPixel.handleLoop(cornerToCheck - 1),
 				tempPoint))) {
-			connectionCount++;
+			if(!sameSegment(axisPoint,AroundPixel.getPoint(AroundPixel.handleLoop(cornerToCheck - 1), tempPoint))){
+				connectionCount++;
+			}
 		}
 
 		if (this.skeleton.contains(AroundPixel.getPoint(AroundPixel.handleLoop(cornerToCheck + 1),
 				tempPoint))) {
-			connectionCount++;
+			if(!sameSegment(axisPoint,AroundPixel.getPoint(AroundPixel.handleLoop(cornerToCheck + 1), tempPoint))){
+				connectionCount++;
+			}
 		}
+		if(cornerToCheck%2==1){
+			if (this.skeleton.contains(AroundPixel.getPoint(AroundPixel.handleLoop(cornerToCheck - 2),
+					tempPoint))) {
+				if(!sameSegment(axisPoint,AroundPixel.getPoint(AroundPixel.handleLoop(cornerToCheck - 2), tempPoint))){
+					connectionCount++;
+				}
+			}
+	
+			if (this.skeleton.contains(AroundPixel.getPoint(AroundPixel.handleLoop(cornerToCheck + 2),
+					tempPoint))) {
+				if(!sameSegment(axisPoint,AroundPixel.getPoint(AroundPixel.handleLoop(cornerToCheck + 2), tempPoint))){
+					connectionCount++;
+				}
+			}
+		}
+
 		return connectionCount;
 	}
 
