@@ -10,8 +10,9 @@ import java.util.LinkedList;
 public class AroundPixel {
 	/*
 	 * aroundot is an array of 8 points that is a x,y difference from the center point pixel 107
-	 * |-1,-1| 0,-1| 1,-1| 2.6 or |-1, 0| dot | 1, 0| <--- this is a visual of around dot 345 |-1,
-	 * 1| 0, 1| 1, 1|
+	 * |-1,-1| 0,-1| 1,-1| 2.6 or
+	 * |-1, 0| dot | 1, 0| <--- this is a visual of around dot 345 
+	 * |-1, 1| 0, 1| 1, 1|
 	 */
 
 	private final static Point[] aroundDot = { new Point(0, -1), new Point(-1, -1),
@@ -173,6 +174,20 @@ public class AroundPixel {
 			betweenCurr--;
 		} while (AroundPixel.handleLoop(betweenCurr - 1) != otherPos);
 		return betweenList;
+	}
+	/**
+	 * returns the position fo point2 around point1 or -1 if point2
+	 * is not around point1
+	 * @param point1
+	 * @param point2
+	 */
+	public static int getPosOfSecondPoint(Point point1,Point point2){
+		for(int i=0;i<8;i++){
+			if(AroundPixel.getPoint(i, point1).equals(point2)){
+				return i;
+			}
+		}
+		return -1;
 	}
 
 }

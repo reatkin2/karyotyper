@@ -286,7 +286,7 @@ public class MedialAxisGraphTest extends TestCase {
 		testGraph.setMedialAxis(testGraph.getAxisGraph());
 		assertEquals(testGraph.getSegmentCount(), 3);
 		assertEquals(testGraph.getIntersectionCount(testGraph.getAxisGraph()), 0);
-		testGraph.fillInSkeleton();
+		testGraph.fillInSkeleton(14);
 		pointList = testGraph.getMedialAxisFromGraph();
 		assertTrue(pointList.contains(new Point(10, 10)));
 		assertEquals(testGraph.getSegmentCount(), 1);
