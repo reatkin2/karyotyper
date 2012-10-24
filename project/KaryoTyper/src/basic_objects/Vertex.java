@@ -184,7 +184,7 @@ public class Vertex {
 	 * @throws Exception
 	 *             Thrown if there is no vertex that satisfies the limit.
 	 */
-	private Vertex getNearbyVertex(double lowerLimitPrecision, double upperLimitPrecision)
+	public Vertex getNearbyVertex(double lowerLimitPrecision, double upperLimitPrecision)
 			throws Exception {
 		Queue<Vertex> fringe = new LinkedList<Vertex>();
 		fringe.addAll(children);
@@ -204,7 +204,6 @@ public class Vertex {
 			}
 		} while (Point.distance(myVertex.x, myVertex.y, v.getPoint().x, v.getPoint().y) < lowerLimitPrecision);
 		return v;
-		// TODO: Added code to reset checks
 	}
 
 	public boolean hasBeenChecked() {
