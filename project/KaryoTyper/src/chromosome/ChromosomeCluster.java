@@ -53,7 +53,7 @@ public class ChromosomeCluster extends Cluster {
 	}
 
 	public void createMedialAxisGraph(GeneticSlideImage image) {
-		this.medialAxisGraph.createAxisGraph(this, image.getChromoWidth());
+		this.medialAxisGraph.createAxisGraph( image.getChromoWidth());
 		// this.medialAxisGraph.buildGraph(this.medialAxisGraph.getMedialAxisPoints(),this.medialAxisGraph.getDistanceMap());
 	}
 
