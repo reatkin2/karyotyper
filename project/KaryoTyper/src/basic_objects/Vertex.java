@@ -48,6 +48,14 @@ public class Vertex {
 			return false;
 		}
 	}
+	public boolean isChild(Point vertPoint) {
+		for(int i=0;i<children.size();i++){
+			if (children.get(i).getPoint().equals(vertPoint)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	public int getDistanceFromEdge() {
 		return distanceFromEdge;

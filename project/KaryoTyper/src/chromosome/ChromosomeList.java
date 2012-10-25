@@ -59,7 +59,21 @@ public class ChromosomeList {
 	}
 	public void printSplits(GeneticSlideImage image){
 		for (int i = 0; i < this.chromosomeList.size(); i++) {
+			boolean goodChromosome = false;
 			ChromosomeCluster tempCluster = this.chromosomeList.get(i);
+			if (tempCluster.checkKeepThisCluster()
+					&& 0 == tempCluster.getMedialAxisGraph().getIntersectionCount(
+							tempCluster.getMedialAxisGraph().getAxisGraph())
+					&& 1 == tempCluster.getMedialAxisGraph().getSegmentCount()) {
+				goodChromosome = true;
+			}
+			if (tempCluster.checkKeepThisCluster() && goodChromosome) {
+				writeRainbowImage("/shapeData/Chromosome/", tempCluster,
+						tempCluster.getMedialAxisGraph());
+				// writeTargetImage("/shapeData/Chromosome/",tempCluster,
+				// tempCluster.getMedialAxisGraph().getMedialAxis().getMedialAxisPoints(),
+				// new Color(255, 0, 0));
+			}
 			if (this.chromosomeList.get(i).checkKeepThisCluster()) {
 				writeRainbowImage("/shapeData/Splits/", tempCluster,
 					tempCluster.getMedialAxisGraph());
