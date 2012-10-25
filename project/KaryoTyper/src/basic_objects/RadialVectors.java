@@ -6,28 +6,29 @@ import java.util.LinkedList;
 
 public class RadialVectors {
 
+	private final double CIRC = 2 * Math.PI;
+
 	private ArrayList<Vector> vectorList;
 	private Point centerPoint;
+	private double theta;
 
-	public RadialVectors(Point centerPoint) {
+	public RadialVectors(Point centerPoint, int numVectors, double distance) {
 		this.centerPoint = centerPoint;
-		vectorList = new ArrayList<Vector>();
-		
+		vectorList = new ArrayList<Vector>(numVectors);
+		generateVectors(numVectors, distance);
 	}
 
-	public void generateVectors(int numVectors, double distance) {
+	private void generateVectors(int numVectors, double distance) {
 		if (numVectors < 0) {
 			System.out.println("Number of vectors must be positive.");
 			System.exit(1);
 		}
 
-		final double CIRC = 2 * Math.PI;
-
-		double theta = CIRC / numVectors;
+		theta = CIRC / numVectors;
 
 		double aggregateAngle = 0;
 
-		Vector firstVector = new Vector(0, distance);
+		Vector firstVector = new Vector(distance, 0);
 		vectorList.add(firstVector);
 
 		while (aggregateAngle < CIRC) {
@@ -65,7 +66,31 @@ public class RadialVectors {
 	 * @return the centerPoint
 	 */
 	public Point getCenterPoint() {
-		return new Point((int) centerPoint.x, (int) centerPoint.y);
+		return centerPoint;
+	}
+	
+	public ArrayList<Point> getRange(Point endPoint, double angle) {
+		ArrayList<Point> pointsInRange = new ArrayList<Point>();
+		pointsInRange.add(endPoint);
+		
+		Vector vector = new Vector(endPoint.x, endPoint.y);
+		
+		//TODO: Need getRange based on angle and endPoint
+		
+		
+		return pointsInRange;
+	}
+	
+	public double getTheta() {
+		return theta;
+	}
+	
+	public Point getOpposite(Point point) {
+		Point oppositePoint = new Point(0,0);
+		//TODO: Finish method
+		return oppositePoint;
 	}
 
+	
+	//TODO: Need to get multiples of unit vectors within range.
 }
