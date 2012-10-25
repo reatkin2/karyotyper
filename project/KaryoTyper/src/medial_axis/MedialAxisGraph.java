@@ -4,7 +4,6 @@ import java.awt.Point;
 import java.util.LinkedList;
 
 import chromosome.ChromosomeCluster;
-import chromosome.GeneticSlideImage;
 
 import basic_objects.AroundPixel;
 import basic_objects.GraphSegment;
@@ -639,7 +638,7 @@ public class MedialAxisGraph extends MedialAxis {
 			resetChecks();
 		}
 	}
-
+	
 	/**
 	 * 
 	 * @param lowerLimitDistance

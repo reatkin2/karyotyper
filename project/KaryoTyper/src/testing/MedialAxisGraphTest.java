@@ -3,11 +3,10 @@ package testing;
 import java.awt.Point;
 import java.util.LinkedList;
 
-import basic_objects.Vertex;
-
+import junit.framework.TestCase;
 import medial_axis.DistanceMap;
 import medial_axis.MedialAxisGraph;
-import junit.framework.TestCase;
+import basic_objects.Vertex;
 
 public class MedialAxisGraphTest extends TestCase {
 	private LinkedList<Point> straightLine;
@@ -75,7 +74,6 @@ public class MedialAxisGraphTest extends TestCase {
 		diagonalLine.add(new Point(8, 8));
 		diagonalLine.add(new Point(9, 9));
 		diagonalLine.add(new Point(10, 10));
-
 		oneIntersection4branches = new LinkedList<Point>();
 		// intersection
 		oneIntersection4branches.add(new Point(10, 10));

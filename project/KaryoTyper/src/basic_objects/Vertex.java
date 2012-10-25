@@ -147,10 +147,10 @@ public class Vertex {
 	 *            The least acceptable distance for a nearby point.
 	 * @param upperLimitPrecision
 	 *            The greatest acceptable distance for a nearby point.
-	 * 
-	 * @return A double array containing the orthogonal slope and orthogonal y-intercept.
+	 * @return A double array containing the orthogonal slope and orthogonal
+	 *         y-intercept.
 	 * @throws Exception
-	 *             Thrown if there is no vertex that satisfies the limit.
+	 * 			  Thrown if there is no vertex that satisfies the limit.
 	 */
 	public double[] calculateOrthogonalLine(double lowerLimitPrecision, double upperLimitPrecision)
 			throws Exception {
@@ -192,7 +192,7 @@ public class Vertex {
 	 * @throws Exception
 	 *             Thrown if there is no vertex that satisfies the limit.
 	 */
-	private Vertex getNearbyVertex(double lowerLimitPrecision, double upperLimitPrecision)
+	public Vertex getNearbyVertex(double lowerLimitPrecision, double upperLimitPrecision)
 			throws Exception {
 		Queue<Vertex> fringe = new LinkedList<Vertex>();
 		fringe.addAll(children);
@@ -212,7 +212,6 @@ public class Vertex {
 			}
 		} while (Point.distance(myVertex.x, myVertex.y, v.getPoint().x, v.getPoint().y) < lowerLimitPrecision);
 		return v;
-		// TODO: Added code to reset checks
 	}
 
 	public boolean hasBeenChecked() {
@@ -313,13 +312,13 @@ public class Vertex {
 					x = myVertex.x + (sign * ((i + 1) / 2));
 				}
 			} else {
-				y = (int) (x * tangentSlope + tangentYIntercept);
+				y = (int) (x * orthogonalSlope + orthogonalYIntercept);
 			}
 
 			Point p = new Point(x, y);
 			line.add(p);
 		}
-
+		
 		return fillLine(line);
 	}
 
@@ -411,4 +410,39 @@ public class Vertex {
 		}
 		return nextPoint;
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((myVertex == null) ? 0 : myVertex.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Vertex other = (Vertex) obj;
+		if (myVertex == null) {
+			if (other.myVertex != null)
+				return false;
+		} else if (!myVertex.equals(other.myVertex))
+			return false;
+		return true;
+	}
+	
+	
+	
+	
 }
