@@ -1,7 +1,11 @@
-package basic_objects;
+package idiogram;
 
 import java.util.Collection;
 import java.util.LinkedList;
+
+import characterization.ChromosomeBand;
+
+import basic_objects.Chromosome;
 
 public class Idiogram {
 	private LinkedList<ChromosomeBand> myBands;

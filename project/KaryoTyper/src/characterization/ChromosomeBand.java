@@ -1,4 +1,4 @@
-package basic_objects;
+package characterization;
 
 public class ChromosomeBand {
 	public static enum Type {

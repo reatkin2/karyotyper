@@ -1,4 +1,4 @@
-package basic_objects;
+package characterization;
 
 import java.util.LinkedList;
 
