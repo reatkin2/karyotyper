@@ -93,4 +93,5 @@ public class RadialVectors {
 
 	
 	//TODO: Need to get multiples of unit vectors within range.
+	//TODO: Index based on angle multiple. Make method to get Vector based on angle multiple.
 }
