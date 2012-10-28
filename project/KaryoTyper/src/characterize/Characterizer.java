@@ -4,13 +4,19 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 public class Characterizer {
+	private enum Direction {
+		LEFT, RIGHT, INLINE
+	};
+	
+	public static double FLOATING_POINT_THRESHOLD = 0.0001;
+
 	// Offsets for getting neighbor pixels in clockwise order starting at 12 o'clock
 	public static final int[] xOffset = { 0, 1, 1, 1, 0, -1, -1, -1 };
 	public static final int[] yOffset = { 1, 1, 0, -1, -1, -1, 0, 1 };
 
 	private static double[] normalizeVector(double xComp, double yComp) {
 		double magnitude = Math.sqrt((xComp * xComp) + (yComp * yComp));
-		
+
 		if (magnitude != 0) {
 			xComp = xComp / magnitude;
 			yComp = yComp / magnitude;
@@ -27,30 +33,53 @@ public class Characterizer {
 		return normalizeVector(vec[0], vec[1]);
 	}
 
-	private static double[] orthogonalVector(double xComp, double yComp, boolean isRight) {
-		/*
+	private static double[] orthogonalVector(double xComp, double yComp, Direction dir) {
+		// Effectively computes the cross-product of the vector with an appropriate vector for
+		// generating right or left orthogonal
+		// B: [Right: <0, 0, 1>, Left: <0, 0, -1>]
 		double[] result = new double[2];
-		if (isRight) {
-			result[0] = ;
-			result[1] = ;
-		} else {
-			result[0] = ;
-			result[1] = ;
+		switch (dir) {
+		case RIGHT:
+			// (a_2*b_3 - a_3*b_2)*i
+			result[0] = yComp;
+			// (a_3*b_1 - a_1*b_3)*j
+			result[1] = -xComp;
+			break;
+		case LEFT:
+			// (a_2*b_3 - a_3*b_2)*i
+			result[0] = -yComp;
+			// (a_3*b_1 - a_1*b_3)*j
+			result[1] = xComp;
+			break;
+		case INLINE:
+			// This is inline with the vector... so don't orthogonalize it
+			result[0] = xComp;
+			result[1] = yComp;
+			break;
 		}
-		return result;
-		*/
-		double[] result = {xComp, yComp};
 		return result;
 	}
 
-	private static double[] orthoNormalVector(double xComp, double yComp, boolean isRight) {
-		return normalizeVector(orthogonalVector(xComp, yComp, isRight));
+	private static Direction flowDirection(double[] midlineSlope, double[] compareSlope) {
+		// (a_1*b_2 - a_2*b_1)*k
+		double zComp = midlineSlope[0] * compareSlope[1] - midlineSlope[1] * compareSlope[0];
+		if (zComp > 0+FLOATING_POINT_THRESHOLD) {
+			return Direction.LEFT;
+		} else if (zComp < 0-FLOATING_POINT_THRESHOLD) {
+			return Direction.RIGHT;
+		} else {
+			return Direction.INLINE;
+		}
+	}
+
+	private static double[] orthoNormalVector(double xComp, double yComp, Direction dir) {
+		return normalizeVector(orthogonalVector(xComp, yComp, dir));
 	}
 
 	/**
 	 * 
 	 * 
-	 * Note that NaN represents a vertical slope.
+	 * 
 	 * 
 	 * @param chromBuffer
 	 * @param chromMidline
@@ -88,7 +117,7 @@ public class Characterizer {
 			}
 
 			Point previous = chromMidline.get(prevIndex);
-			double[] prevSlope = normalizeVector((y - previous.y), (x - previous.x));
+			double[] prevSlope = normalizeVector((x - previous.x), (y - previous.y));
 
 			int nextIndex = i + 1;
 			if (nextIndex > chromMidline.size() - 1) {
@@ -96,11 +125,11 @@ public class Characterizer {
 			}
 
 			Point next = chromMidline.get(nextIndex);
-			double[] nextSlope = normalizeVector((next.y - y), (next.x - x));
+			double[] nextSlope = normalizeVector((next.x - x), (next.y - y));
 
 			isSet[x][y] = true;
-			double[] thisSlope = normalizeVector(prevSlope[0] + nextSlope[0] / 2, prevSlope[1]
-					+ nextSlope[1] / 2);
+			double[] thisSlope = normalizeVector((prevSlope[0] + nextSlope[0]) / 2,
+					(prevSlope[1] + nextSlope[1]) / 2);
 			slopeField[x][y] = thisSlope;
 
 			// Initialize the frontier
@@ -109,6 +138,7 @@ public class Characterizer {
 				int neighborX = current.x + xOffset[j];
 				int neighborY = current.y + yOffset[j];
 
+				// TODO(ahkeslin): Refactor this so it doesn't add the same point more than once
 				if ((neighborX != previous.x || neighborY != previous.y)
 						&& (neighborX != next.x || neighborY != next.y)) {
 					if (neighborX >= 0 && neighborX < width && neighborY >= 0 && neighborY < height) {
@@ -123,29 +153,37 @@ public class Characterizer {
 		for (Point p : currentFrontier) {
 			// Accumulate all the slopes of surrounding cells that were set previously.
 			int count = 0;
-			double[] slope = { 0, 0 };
+			double[] accSlope = { 0, 0 };
+			// This is to handle figuring where we are in relation to the midline
+			double[] adjacencySlope = { 0, 0 };
 			for (int j = 0; j < 8; j++) {
 				int neighborX = p.x + xOffset[j];
 				int neighborY = p.y + yOffset[j];
 				if (neighborX >= 0 && neighborX < width && neighborY >= 0 && neighborY < height) {
 					if (isSet[neighborX][neighborY]) {
-						slope[0] += slopeField[neighborX][neighborY][0];
-						slope[1] += slopeField[neighborX][neighborY][1];
+						accSlope[0] += slopeField[neighborX][neighborY][0];
+						accSlope[1] += slopeField[neighborX][neighborY][1];
+						adjacencySlope[0] = (p.x - neighborX);
+						adjacencySlope[1] =  (p.y - neighborY);
+						count++;
 					}
 				}
 			}
-			
+
 			// Set up initial frontier slope vectors so we have a clean flow pattern
 			// orthogonal to and point away from the midline
 			// TODO(ahkeslin): actually make this point in the correct direction.
-			slopeField[p.x][p.y] = orthoNormalVector(slope[0], slope[1], true);
+			accSlope[0] /= count;
+			accSlope[1] /= count;
+			slopeField[p.x][p.y] = orthoNormalVector(accSlope[0], accSlope[1],
+					flowDirection(accSlope, adjacencySlope));
 		}
-		
+
 		// Mark all cells as having their slopes set
 		for (Point p : currentFrontier) {
 			isSet[p.x][p.y] = true;
 		}
-		
+
 		// Build up next frontier
 		for (Point p : currentFrontier) {
 			for (int j = 0; j < 8; j++) {
@@ -158,7 +196,7 @@ public class Characterizer {
 				}
 			}
 		}
-		
+
 		// Flip frontier buffers
 		ArrayList<Point> tempNext = new ArrayList<Point>(nextFrontier.size());
 		currentFrontier = nextFrontier;
@@ -186,6 +224,7 @@ public class Characterizer {
 						if (isSet[neighborX][neighborY]) {
 							slope[0] += slopeField[neighborX][neighborY][0];
 							slope[1] += slopeField[neighborX][neighborY][1];
+							count++;
 						}
 					}
 				}
@@ -199,12 +238,12 @@ public class Characterizer {
 			// Though it means that we have to walk the frontier three times, we must do so to
 			// assure slopes are only informed by cells closer to the midline and that we only add
 			// new cells to the frontier.
-			
+
 			// Mark all cells as having their slopes set
 			for (Point p : currentFrontier) {
 				isSet[p.x][p.y] = true;
 			}
-			
+
 			// Build up next frontier
 			for (Point p : currentFrontier) {
 				for (int j = 0; j < 8; j++) {
