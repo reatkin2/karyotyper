@@ -40,7 +40,10 @@ public class CharacterizerTest extends TestCase {
 		ArrayList<Point> midlineBuffer = new ArrayList<Point>(Arrays.asList(midlineArray));
 		double[][][] slopeBuffer = Characterizer.buildSlopeBuffer(chromosomeBuffer, midlineBuffer);
 
-		// As we are checking vertically, expected values are indexed in terms of x... scanning left to right
+		// Characterizer.printSlopeBuffer(slopeBuffer);
+
+		// As we are checking vertically, expected values are indexed in terms of x... scanning left
+		// to right
 		double[] expectedX = { -1, -1, -1, -1, 0, 1, 1, 1, 1 };
 		double[] expectedY = { 0, 0, 0, 0, 1, 0, 0, 0, 0 };
 		for (int y = 0; y < chromosomeBuffer.height; y++) {
@@ -63,7 +66,7 @@ public class CharacterizerTest extends TestCase {
 			}
 		}
 	}
-	
+
 	public void testBuildSlopeBufferHorizontal() {
 
 		/******** Test a basic linear buffer horizontally *********************************** */
@@ -77,7 +80,7 @@ public class CharacterizerTest extends TestCase {
 				chromosomeArray[row] = middle;
 			}
 		}
-		
+
 		// Flip coordinates as chromosomeArray is the transpose of what we want
 		// Note that the chromosomeArray coords are already flipped for setting simplicity
 		GrayBuffer chromosomeBuffer = new GrayBuffer(chromosomeArray.length,
@@ -97,7 +100,10 @@ public class CharacterizerTest extends TestCase {
 		ArrayList<Point> midlineBuffer = new ArrayList<Point>(Arrays.asList(midlineArray));
 		double[][][] slopeBuffer = Characterizer.buildSlopeBuffer(chromosomeBuffer, midlineBuffer);
 
-		// As we are checking horizontally, expected values are indexed in terms of y... scanning bottom to top
+		// Characterizer.printSlopeBuffer(slopeBuffer);
+
+		// As we are checking horizontally, expected values are indexed in terms of y... scanning
+		// bottom to top
 		double[] expectedX = { 0, 0, 0, 0, 1, 0, 0, 0, 0 };
 		double[] expectedY = { -1, -1, -1, -1, 0, 1, 1, 1, 1 };
 		for (int y = 0; y < chromosomeBuffer.height; y++) {

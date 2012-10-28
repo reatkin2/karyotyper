@@ -7,7 +7,7 @@ public class Characterizer {
 	private enum Direction {
 		LEFT, RIGHT, INLINE
 	};
-	
+
 	public static double FLOATING_POINT_THRESHOLD = 0.0001;
 
 	// Offsets for getting neighbor pixels in clockwise order starting at 12 o'clock
@@ -63,9 +63,9 @@ public class Characterizer {
 	private static Direction flowDirection(double[] midlineSlope, double[] compareSlope) {
 		// (a_1*b_2 - a_2*b_1)*k
 		double zComp = midlineSlope[0] * compareSlope[1] - midlineSlope[1] * compareSlope[0];
-		if (zComp > 0+FLOATING_POINT_THRESHOLD) {
+		if (zComp > 0 + FLOATING_POINT_THRESHOLD) {
 			return Direction.LEFT;
-		} else if (zComp < 0-FLOATING_POINT_THRESHOLD) {
+		} else if (zComp < 0 - FLOATING_POINT_THRESHOLD) {
 			return Direction.RIGHT;
 		} else {
 			return Direction.INLINE;
@@ -164,7 +164,7 @@ public class Characterizer {
 						accSlope[0] += slopeField[neighborX][neighborY][0];
 						accSlope[1] += slopeField[neighborX][neighborY][1];
 						adjacencySlope[0] = (p.x - neighborX);
-						adjacencySlope[1] =  (p.y - neighborY);
+						adjacencySlope[1] = (p.y - neighborY);
 						count++;
 					}
 				}
@@ -264,6 +264,16 @@ public class Characterizer {
 		}
 
 		return slopeField;
+	}
+
+	public static void printSlopeBuffer(double[][][] buffer) {
+		for (int y = buffer[0].length - 1; y >= 0; y--) {
+			System.out.print('\n');
+			for (int x = 0; x < buffer.length; x++) {
+				double[] slopeVector = buffer[x][y];
+				System.out.print(String.format("(%f, %f) ", slopeVector[0], slopeVector[1]));
+			}
+		}
 	}
 
 	public static GrayBuffer linearizeChromosome(GrayBuffer chromBuffer,
