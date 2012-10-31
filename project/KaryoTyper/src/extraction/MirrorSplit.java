@@ -15,6 +15,14 @@ public class MirrorSplit {
 		this.medialAxisGraph = graph;
 	}
 
+	
+	//TODO(aamcknig): need to find a start point that is a stable start
+	//point where the width on both sides the chromosome are half the width
+	//of the chromosome
+	//TODO(aamcknig): need to have two types of stop points where 
+	// the chromosome comes to an end or you reach another stable part 
+	// of the chromsome where the width on both sides of the medial axis
+	// are half the width of the chromosome
 	public void markSplit(Vertex startVertex) {
 		double upperDistanceAvg=-1;
 		double lowerDistanceAvg=-1;
@@ -25,19 +33,22 @@ public class MirrorSplit {
 		LinkedList<OrthogonalLine> orthoList=new LinkedList<OrthogonalLine>();
 		try{
 			for (int i = 0; i < this.medialAxisGraph.getAxisGraph().size(); i++) {
+				Vertex medialPoint=this.medialAxisGraph.getAxisGraph().get(i);
 				OrthogonalLine tempOrtho;
 				//use small angle rather than 360
-				if(lastStable-1==i){
-					tempOrtho=getShortestDistance(this.medialAxisGraph.
+				if(i>0&&lastStable==i-1){
+					tempOrtho=getShortestDistance(true,this.medialAxisGraph.
 							getAxisGraph().get(i),this.medialAxisGraph.getChromoWidth());
 
 				}
 				//use 360 angle
 				else{
-					tempOrtho=getShortestDistance(this.medialAxisGraph.
+					tempOrtho=getShortestDistance(false,this.medialAxisGraph.
 						getAxisGraph().get(i),this.medialAxisGraph.getChromoWidth());
 				}
 				if(tempOrtho!=null){
+					//if we are stable and dont have both lines inside the width of chromosome
+					//use last good
 					if(stableCount>stableValue&&
 						(tempOrtho.isTwoLines()
 							||tempOrtho.getlength()>this.medialAxisGraph.
@@ -46,9 +57,12 @@ public class MirrorSplit {
 						//draw a cutline here
 						if(tempOrtho.getUpperDistance()!=-1&&tempOrtho.getLowerDistance()!=-1){
 							//see if upper or lower are closer to correct width
+							
 						}
 					}
 					else{
+						//center on ortho line and project new point
+						//based on perpendicular to ortho line
 						//everything is normal here with chromosome
 						//walk along medial axis
 						orthoList.addFirst(tempOrtho);
@@ -59,11 +73,11 @@ public class MirrorSplit {
 						else{
 							upperDistanceAvg=((upperDistanceAvg*stableCount)+tempOrtho.getUpperDistance())/(stableCount+1);
 						}
-						if(upperDistanceAvg==-1){
-							upperDistanceAvg=tempOrtho.getUpperDistance();
+						if(lowerDistanceAvg==-1){
+							lowerDistanceAvg=tempOrtho.getLowerDistance();
 						}
 						else{
-							upperDistanceAvg=((upperDistanceAvg*stableCount)+tempOrtho.getUpperDistance())/(stableCount+1);
+							lowerDistanceAvg=((lowerDistanceAvg*stableCount)+tempOrtho.getLowerDistance())/(stableCount+1);
 						}
 						lastStable=i;
 
@@ -77,7 +91,7 @@ public class MirrorSplit {
 
 	}
 
-	public OrthogonalLine getShortestDistance(Vertex axisPoint,double checkDistance) throws Exception{
+	public OrthogonalLine getShortestDistance(boolean smallAngle,Vertex axisPoint,double checkDistance) throws Exception{
 		boolean foundShortest=true;
 		OrthogonalLine tempOrthoLine=null;
 		int vectorCount=40;
@@ -92,7 +106,13 @@ public class MirrorSplit {
 		}
 		//move out from axisPoint tell we run off distance map both sides
 		for(int i=0;!foundShortest&&i<checkDistance;i++){
-			LinkedList<Point> pointList=getPointsAt(i);
+			LinkedList<Point> pointList;
+			if(smallAngle){
+				pointList=getPointsAt(i);
+			}
+			else{
+				pointList=getPointsAtSmallAngle(i);				
+			}
 			if(pointList.size()!=vectorCount){
 				throw new Exception("array dosn't match number of points");
 			}
@@ -201,6 +221,9 @@ public class MirrorSplit {
 	}
 
 	public LinkedList<Point> getPointsAt(int unitsAway) {
+		return new LinkedList<Point>();
+	}
+	public LinkedList<Point> getPointsAtSmallAngle(int unitsAway) {
 		return new LinkedList<Point>();
 	}
 
