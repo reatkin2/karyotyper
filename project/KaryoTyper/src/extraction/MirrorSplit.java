@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.util.LinkedList;
 
 import basic_objects.OrthogonalLine;
+import basic_objects.RadialVectors;
 import basic_objects.Vertex;
 
 import medial_axis.MedialAxisGraph;
@@ -30,6 +31,7 @@ public class MirrorSplit {
 		final int stableValue=5;
 		int lastStable=0;
 		int chromoWidthOffset=2;
+		Point currShortPoint=new Point(-1,-1);
 		LinkedList<OrthogonalLine> orthoList=new LinkedList<OrthogonalLine>();
 		try{
 			for (int i = 0; i < this.medialAxisGraph.getAxisGraph().size(); i++) {
@@ -37,13 +39,13 @@ public class MirrorSplit {
 				OrthogonalLine tempOrtho;
 				//use small angle rather than 360
 				if(i>0&&lastStable==i-1){
-					tempOrtho=getShortestDistance(true,this.medialAxisGraph.
+					tempOrtho=getShortestDistance(currShortPoint,this.medialAxisGraph.
 							getAxisGraph().get(i),this.medialAxisGraph.getChromoWidth());
 
 				}
 				//use 360 angle
 				else{
-					tempOrtho=getShortestDistance(false,this.medialAxisGraph.
+					tempOrtho=getShortestDistance(new Point(-1,-1),this.medialAxisGraph.
 						getAxisGraph().get(i),this.medialAxisGraph.getChromoWidth());
 				}
 				if(tempOrtho!=null){
@@ -91,7 +93,7 @@ public class MirrorSplit {
 
 	}
 
-	public OrthogonalLine getShortestDistance(boolean smallAngle,Vertex axisPoint,double checkDistance) throws Exception{
+	public OrthogonalLine getShortestDistance(Point endPoint,Vertex axisPoint,double checkDistance) throws Exception{
 		boolean foundShortest=true;
 		OrthogonalLine tempOrthoLine=null;
 		int vectorCount=40;
@@ -104,14 +106,17 @@ public class MirrorSplit {
 			leftVector[i]=-1;
 			rightVector[i]=-1;			
 		}
+
 		//move out from axisPoint tell we run off distance map both sides
-		for(int i=0;!foundShortest&&i<checkDistance;i++){
+		for(int i=1;!foundShortest&&i<checkDistance;i++){
 			LinkedList<Point> pointList;
-			if(smallAngle){
-				pointList=getPointsAt(i);
+			if(endPoint.x!=-1){
+				RadialVectors vectors=new RadialVectors(axisPoint.getPoint(),40,(double)i);
+				pointList=vectors.getRange(endPoint, 45,5);
 			}
 			else{
-				pointList=getPointsAtSmallAngle(i);				
+				RadialVectors vectors=new RadialVectors(axisPoint.getPoint(),40,(double)i);
+				pointList=vectors.getVectorsAsPointsOnImage();				
 			}
 			if(pointList.size()!=vectorCount){
 				throw new Exception("array dosn't match number of points");
@@ -220,17 +225,17 @@ public class MirrorSplit {
 		return null;
 	}
 
-	public LinkedList<Point> getPointsAt(int unitsAway) {
-		return new LinkedList<Point>();
-	}
-	public LinkedList<Point> getPointsAtSmallAngle(int unitsAway) {
-		return new LinkedList<Point>();
-	}
-
-	public Point getOppisite(Point temp) {
-		return new Point();
-	}
-	public Point getPointAt(int pos){
-		return new Point();
-	}
+//	public LinkedList<Point> getPointsAt(int unitsAway) {
+//		return new LinkedList<Point>();
+//	}
+//	public LinkedList<Point> getPointsAtSmallAngle(int unitsAway) {
+//		return new LinkedList<Point>();
+//	}
+//
+//	public Point getOppisite(Point temp) {
+//		return new Point();
+//	}
+//	public Point getPointAt(int pos){
+//		return new Point();
+//	}
 }
