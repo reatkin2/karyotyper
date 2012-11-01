@@ -1,6 +1,7 @@
 package characterize;
 
 import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 
 public class Characterizer {
@@ -274,6 +275,32 @@ public class Characterizer {
 				System.out.print(String.format("(%f, %f) ", slopeVector[0], slopeVector[1]));
 			}
 		}
+	}
+
+	public static double polygonalArea(ArrayList<Point2D> perimeter) {
+		if (perimeter.size() < 3) {
+			throw new IllegalArgumentException("Perimeter must contain at least 3 points.");
+		}
+
+		// Application of Green's thm. Integral(perimeter) = Integral(Area) = 2*Area
+		// Integral(perimeter) = 0.5 * sum(x_i*y_{i+1} - x_{i+1}*y_i) with 0=length wrapping
+		Point2D prev = perimeter.get(perimeter.size() - 1);
+		Point2D next = perimeter.get(0);
+		double acc = prev.getX() * next.getY() - prev.getY() * next.getX();
+		for (int i = 0; i < perimeter.size()-1; i++) {
+			prev = perimeter.get(i);
+			next = perimeter.get(i+1);
+			acc += prev.getX() * next.getY() - prev.getY() * next.getX();
+		}
+		return 0.5 * Math.abs(acc);
+	}
+
+	public static double[] calculateNeighborContributions(Point origin, double[] offset) {
+		double[] contributions = { 0 };
+		// Compute separate polygons via progressive cutting
+
+		// A faster way to do this may be to compute contributions by way of linear transforms
+		return contributions;
 	}
 
 	public static GrayBuffer linearizeChromosome(GrayBuffer chromBuffer,
