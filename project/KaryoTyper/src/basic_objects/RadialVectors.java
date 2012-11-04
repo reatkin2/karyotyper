@@ -49,14 +49,11 @@ public class RadialVectors {
 	 * 
 	 * @return The list of vectors as a list of points on the image.
 	 */
-	public LinkedList<Point> getVectorsAsPointsOnImage() {
-		LinkedList<Point> points = new LinkedList<Point>();
+	public ArrayList<Point> getVectorsAsPointsOnImage() {
+		ArrayList<Point> points = new ArrayList<Point>(vectorList.size());
 
 		for (Vector v : vectorList) {
-			int pointOnImageX = (int) (v.x + centerPoint.x);
-			int pointOnImageY = (int) (v.y + centerPoint.y);
-
-			points.add(new Point(pointOnImageX, pointOnImageY));
+			points.add(getVectorAsPointOnImage(v));
 		}
 
 		return points;
@@ -68,30 +65,43 @@ public class RadialVectors {
 	public Point getCenterPoint() {
 		return centerPoint;
 	}
-	
-	public ArrayList<Point> getRange(Point endPoint, double angle) {
-		ArrayList<Point> pointsInRange = new ArrayList<Point>();
-		pointsInRange.add(endPoint);
-		
+
+	public ArrayList<Point> getRange(Point endPoint, double angle, int numPoints) {
+		ArrayList<Point> pointsInRange = new ArrayList<Point>(numPoints);
+		int middle = numPoints / 2;
+		pointsInRange.add(middle, endPoint);
+
+		double localTheta = angle / numPoints;
+
 		Vector vector = new Vector(endPoint.x, endPoint.y);
-		
-		//TODO: Need getRange based on angle and endPoint
-		
-		
+
+		for (int i = 1; i < middle; i++) {
+			Vector vectorP = Vector.rotateVector(vector, localTheta * i);
+			pointsInRange.add(middle + i, getVectorAsPointOnImage(vectorP));
+
+			Vector vectorN = Vector.rotateVector(vector, localTheta * i * -1);
+			pointsInRange.add(middle - i, getVectorAsPointOnImage(vectorN));
+		}
+
 		return pointsInRange;
 	}
-	
+
+	private Point getVectorAsPointOnImage(Vector vector) {
+		int xOnImage = (int) Math.round(vector.x + centerPoint.x);
+		int yOnImage = (int) Math.round(vector.y + centerPoint.y);
+		return new Point(xOnImage, yOnImage);
+	}
+
 	public double getTheta() {
 		return theta;
 	}
-	
+
 	public Point getOpposite(Point point) {
-		Point oppositePoint = new Point(0,0);
-		//TODO: Finish method
+		Point oppositePoint = new Point(0, 0);
+		// TODO: Finish method
 		return oppositePoint;
 	}
 
-	
-	//TODO: Need to get multiples of unit vectors within range.
-	//TODO: Index based on angle multiple. Make method to get Vector based on angle multiple.
+	// TODO: Need to get multiples of unit vectors within range.
+	// TODO: Index based on angle multiple. Make method to get Vector based on angle multiple.
 }
