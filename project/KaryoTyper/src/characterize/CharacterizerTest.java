@@ -21,28 +21,28 @@ public class CharacterizerTest extends TestCase {
 				rightTriangleArea < rightTriangleExpected + fpThreshold
 						&& rightTriangleArea > rightTriangleExpected - fpThreshold);
 
-		ArrayList<Point2D> square = new ArrayList<Point2D>(Arrays.asList(new Point(0, 0), new Point(0,
-				2), new Point(2, 2), new Point(2, 0)));
+		ArrayList<Point2D> square = new ArrayList<Point2D>(Arrays.asList(new Point(0, 0),
+				new Point(0, 2), new Point(2, 2), new Point(2, 0)));
 		double squareArea = Characterizer.polygonalArea(square);
 		double squareExpected = 4.0;
-		
+
 		assertTrue(String.format("Expected value of (%s), but instead received (%s)",
-				squareExpected, squareArea), squareArea < squareExpected
-				+ fpThreshold
+				squareExpected, squareArea), squareArea < squareExpected + fpThreshold
 				&& squareArea > squareExpected - fpThreshold);
 
-		ArrayList<Point2D> fractionalSquare = new ArrayList<Point2D>(Arrays.asList(new Point2D.Double(0, 0),
-				new Point2D.Double(0, 0.5), new Point2D.Double(0.5, 0.5), new Point2D.Double(0.5, 0)));
+		ArrayList<Point2D> fractionalSquare = new ArrayList<Point2D>(Arrays.asList(
+				new Point2D.Double(0, 0), new Point2D.Double(0, 0.5), new Point2D.Double(0.5, 0.5),
+				new Point2D.Double(0.5, 0)));
 		double fractionalSquareArea = Characterizer.polygonalArea(fractionalSquare);
 		double fractionalSquareExpected = 0.25;
 
 		assertTrue(String.format("Expected value of (%s), but instead received (%s)",
-				squareExpected, fractionalSquareArea), fractionalSquareArea < fractionalSquareExpected
-				+ fpThreshold
-				&& fractionalSquareArea > fractionalSquareExpected - fpThreshold);
+				squareExpected, fractionalSquareArea),
+				fractionalSquareArea < fractionalSquareExpected + fpThreshold
+						&& fractionalSquareArea > fractionalSquareExpected - fpThreshold);
 
-		ArrayList<Point2D> diamond = new ArrayList<Point2D>(Arrays.asList(new Point(0, 2), new Point(2,
-				4), new Point(4, 2), new Point(2, 0)));
+		ArrayList<Point2D> diamond = new ArrayList<Point2D>(Arrays.asList(new Point(0, 2),
+				new Point(2, 4), new Point(4, 2), new Point(2, 0)));
 		double diamondArea = Characterizer.polygonalArea(diamond);
 		double diamondExpected = 8.0;
 
@@ -50,8 +50,8 @@ public class CharacterizerTest extends TestCase {
 				diamondExpected, diamondArea), diamondArea < diamondExpected + fpThreshold
 				&& diamondArea > diamondExpected - fpThreshold);
 
-		ArrayList<Point2D> trapezoid = new ArrayList<Point2D>(Arrays.asList(new Point(0, 0), new Point(
-				1, 2), new Point(2, 2), new Point(3, 0)));
+		ArrayList<Point2D> trapezoid = new ArrayList<Point2D>(Arrays.asList(new Point(0, 0),
+				new Point(1, 2), new Point(2, 2), new Point(3, 0)));
 		double trapezoidArea = Characterizer.polygonalArea(trapezoid);
 		double trapezoidExpected = 4;
 
@@ -59,8 +59,8 @@ public class CharacterizerTest extends TestCase {
 				trapezoidExpected, trapezoidArea), trapezoidArea < trapezoidExpected + fpThreshold
 				&& trapezoidArea > trapezoidExpected - fpThreshold);
 
-		ArrayList<Point2D> pentagon = new ArrayList<Point2D>(Arrays.asList(new Point(0, 1), new Point(
-				2, 2), new Point(4, 1), new Point(3, 0), new Point(1, 0)));
+		ArrayList<Point2D> pentagon = new ArrayList<Point2D>(Arrays.asList(new Point(0, 1),
+				new Point(2, 2), new Point(4, 1), new Point(3, 0), new Point(1, 0)));
 		double pentagonArea = Characterizer.polygonalArea(pentagon);
 		double pentagonExpected = 5;
 
@@ -180,10 +180,14 @@ public class CharacterizerTest extends TestCase {
 				assertTrue(
 						String.format(
 								"Expected value of (%s) for y at index (%s, %s), but instead received (%s)",
-								expectedX[y], x, y, slopeBuffer[x][y][1]),
+								expectedY[y], x, y, slopeBuffer[x][y][1]),
 						slopeBuffer[x][y][1] < expectedY[y] + fpThreshold
 								&& slopeBuffer[x][y][1] > expectedY[y] - fpThreshold);
 			}
 		}
+	}
+
+	public void testLinearizeChromosome() {
+
 	}
 }

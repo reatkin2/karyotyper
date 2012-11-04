@@ -251,15 +251,16 @@ public class Characterizer {
 					int neighborX = p.x + xOffset[j];
 					int neighborY = p.y + yOffset[j];
 					if (neighborX >= 0 && neighborX < width && neighborY >= 0 && neighborY < height) {
-						if (!isSet[neighborX][neighborY]) {
-							nextFrontier.add(new Point(neighborX, neighborY));
+						Point newPt = new Point(neighborX, neighborY);
+						if (!isSet[neighborX][neighborY] && !nextFrontier.contains(newPt)) {
+							nextFrontier.add(newPt);
 						}
 					}
 				}
 			}
 
 			// Flip frontier buffers
-			tempNext = new ArrayList<Point>(nextFrontier.size());
+			tempNext = new ArrayList<Point>();
 			currentFrontier = nextFrontier;
 			nextFrontier = tempNext;
 		}
@@ -272,7 +273,8 @@ public class Characterizer {
 			System.out.print('\n');
 			for (int x = 0; x < buffer.length; x++) {
 				double[] slopeVector = buffer[x][y];
-				System.out.print(String.format("(%f, %f) ", slopeVector[0], slopeVector[1]));
+				System.out
+						.print(String.format("(%(,.2f, %(,.2f) ", slopeVector[0], slopeVector[1]));
 			}
 		}
 	}
@@ -287,20 +289,48 @@ public class Characterizer {
 		Point2D prev = perimeter.get(perimeter.size() - 1);
 		Point2D next = perimeter.get(0);
 		double acc = prev.getX() * next.getY() - prev.getY() * next.getX();
-		for (int i = 0; i < perimeter.size()-1; i++) {
+		for (int i = 0; i < perimeter.size() - 1; i++) {
 			prev = perimeter.get(i);
-			next = perimeter.get(i+1);
+			next = perimeter.get(i + 1);
 			acc += prev.getX() * next.getY() - prev.getY() * next.getX();
 		}
 		return 0.5 * Math.abs(acc);
 	}
 
-	public static double[] calculateNeighborContributions(Point origin, double[] offset) {
-		double[] contributions = { 0 };
-		// Compute separate polygons via progressive cutting
+	public static double[] calculateBandFunction(GrayBuffer linearizedBuffer) {
+		double[] result = new double[linearizedBuffer.height];
+		final int WHITE = 255;
+		double max_value = 0;
+		double min_value = Integer.MAX_VALUE;
 
-		// A faster way to do this may be to compute contributions by way of linear transforms
-		return contributions;
+		// Record values
+		for (int y = 0; y < linearizedBuffer.height; y++) {
+			int acc = 0;
+			for (int x = 0; x < linearizedBuffer.width; x++) {
+				// Darkness = WHITE - color (since color is 0 for black and 255 for white)
+				int value = linearizedBuffer.get(x, y);
+				if (value != -1) {
+					acc += WHITE - linearizedBuffer.get(x, y);
+				}
+			}
+			result[y] = acc;
+
+			if (acc > max_value) {
+				max_value = acc;
+			}
+
+			if (acc < min_value) {
+				min_value = acc;
+			}
+		}
+
+		// Normalize values
+		max_value = max_value - min_value;
+		for (int i = 0; i < result.length; i++) {
+			result[i] = (result[i] - min_value) / max_value;
+		}
+
+		return result;
 	}
 
 	public static GrayBuffer linearizeChromosome(GrayBuffer chromBuffer,
@@ -328,10 +358,68 @@ public class Characterizer {
 					"Chromosome cannot be linearized without a valid midline/medial axis.");
 		}
 
-		int width = chromBuffer.width;
-		int height = chromBuffer.height;
+		GrayBuffer linearized = new GrayBuffer((2 * (chromBuffer.width / 2) + 1),
+				chromMidline.size());
+		// Initialize linearized to unset
+		for (int x = 0; x < linearized.width; x++) {
+			for (int y = 0; y < linearized.height; y++) {
+				linearized.set(x, y, -1);
+			}
+		}
+		double[][][] slopeBuffer = buildSlopeBuffer(chromBuffer, chromMidline);
 
-		GrayBuffer linearized = new GrayBuffer(width, height);
+		for (int row = 0; row < chromMidline.size(); row++) {
+			Point medialPoint = chromMidline.get(row);
+			Point center = new Point(linearized.width / 2, row);
+			linearized.set(center, chromBuffer.get(medialPoint));
+			double[] centerSlope = slopeBuffer[medialPoint.x][medialPoint.y];
+
+			Point chromCurrent = new Point(medialPoint);
+			Point linearCurrent = new Point(center);
+			double[] rightOffset = orthoNormalVector(centerSlope[0], centerSlope[1],
+					Direction.RIGHT);
+			for (int j = 0; j < linearized.width / 2; j++) {
+				int newX = (int) Math.round(chromCurrent.x + rightOffset[0]);
+				int newY = (int) Math.round(chromCurrent.y + rightOffset[1]);
+				// If we're out of bounds, skip this loop
+				if (newX < 0 || newX >= chromBuffer.width || newY < 0 || newY >= chromBuffer.height) {
+					continue;
+				} else {
+					chromCurrent.setLocation(newX, newY);
+					linearCurrent.setLocation(linearCurrent.x + 1, row);
+					int value = chromBuffer.get(chromCurrent);
+					if (value != -1) {
+						linearized.set(linearCurrent, value);
+						rightOffset = slopeBuffer[chromCurrent.x][chromCurrent.y];
+					} else {
+						break;
+					}
+				}
+			}
+
+			chromCurrent = new Point(medialPoint);
+			linearCurrent = new Point(center);
+			double[] leftOffset = orthoNormalVector(centerSlope[0], centerSlope[1], Direction.LEFT);
+			for (int j = 0; j < linearized.width / 2; j++) {
+				int newX = (int) Math.round(chromCurrent.x + leftOffset[0]);
+				int newY = (int) Math.round(chromCurrent.y + leftOffset[1]);
+				// If we're out of bounds, skip this loop
+				if (newX < 0 || newX >= chromBuffer.width || newY < 0 || newY >= chromBuffer.height) {
+					linearized.set(linearCurrent, -1);
+					break;
+				} else {
+					chromCurrent.setLocation(newX, newY);
+					linearCurrent.setLocation(linearCurrent.x - 1, row);
+					int value = chromBuffer.get(chromCurrent);
+					if (value != -1) {
+						linearized.set(linearCurrent, value);
+						leftOffset = slopeBuffer[chromCurrent.x][chromCurrent.y];
+					} else {
+						break;
+					}
+				}
+			}
+		}
 
 		return linearized;
 	}
