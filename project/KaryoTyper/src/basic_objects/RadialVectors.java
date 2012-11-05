@@ -91,15 +91,41 @@ public class RadialVectors {
 		int yOnImage = (int) Math.round(vector.y + centerPoint.y);
 		return new Point(xOnImage, yOnImage);
 	}
+	
+	private Vector getPointAsVector(Point point) {
+		double xComp = point.x - centerPoint.x;
+		double yComp = point.y - centerPoint.y;
+		return new Vector(xComp, yComp);
+	}
 
 	public double getTheta() {
 		return theta;
 	}
 
+	/**
+	 * Returns the point reflected across the center point.
+	 * @param point Point on radial edge to reflect.
+	 * @return The point reflected across the center point.
+	 */
 	public Point getOpposite(Point point) {
-		Point oppositePoint = new Point(0, 0);
-		// TODO: Finish method
-		return oppositePoint;
+		Vector vector = getPointAsVector(point);
+		
+		//Swap components
+		vector.x += vector.y;
+		vector.y = vector.x - vector.y;
+		vector.x -= vector.y;
+		
+		// Multiply by -1
+		vector.x *= -1;
+		vector.y *= -1;
+		
+		//return as Point on image
+		return getVectorAsPointOnImage(vector);
+	}
+	
+	public Point getPointAtIndex(int index) {
+		Point point = getVectorAsPointOnImage(vectorList.get(index));
+		return point;
 	}
 
 	// TODO: Need to get multiples of unit vectors within range.

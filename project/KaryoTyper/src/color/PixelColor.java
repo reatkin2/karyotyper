@@ -12,6 +12,13 @@ import java.awt.Color;
  * @author Andrew
  */
 public class PixelColor {
+	/**
+	 * Intensity values represent portion of each color channel which contributes to grayscale
+	 * intensity for the overall color.
+	 */
+	public final static double RED_INTENSITY = 0.299;
+	public final static double GREEN_INTENSITY = 0.587;
+	public final static double BLUE_INTENSITY = 0.114;
 
 	/**
 	 * this is the method for removing the background color by checking if the current pixel color
@@ -30,8 +37,7 @@ public class PixelColor {
 					"Threshold provided (%s) was not in the valid range of 0-255", threshold));
 		}
 
-		double tempGreyPixel = (.299 * newPixel.getRed()) + (.587 * newPixel.getGreen())
-				+ (.114 * newPixel.getBlue());
+		int tempGreyPixel = colorToGrayscale(newPixel);
 		if (tempGreyPixel > threshold) {
 			return true;
 		}
@@ -64,5 +70,18 @@ public class PixelColor {
 		return false;
 	}
 
+
+	/**
+	 * Convert a provided color to grayscale, taking into account visual intensity in each color
+	 * channel.
+	 * 
+	 * @param c
+	 *            The color to conver to grayscale
+	 * @return Grayscale equivalent of the provided color as an integer.
+	 */
+	public static int colorToGrayscale(Color c) {
+		return (int) (RED_INTENSITY * c.getRed() + GREEN_INTENSITY * c.getGreen() + BLUE_INTENSITY
+				* c.getBlue());
+	}
 
 }
