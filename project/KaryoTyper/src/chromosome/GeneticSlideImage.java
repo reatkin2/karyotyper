@@ -11,6 +11,8 @@ import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 
+import characterize.GrayBuffer;
+
 import color.ISOClineColor;
 
 import medial_axis.DistanceMap;
@@ -18,6 +20,7 @@ import medial_axis.MedialAxisGraph;
 import basic_objects.Cluster;
 import basic_objects.SearchArea;
 import color.ISOClineColor;
+import color.PixelColor;
 import color.RainbowColors;
 
 public class GeneticSlideImage {
@@ -93,7 +96,28 @@ private boolean[][] pixelFound;
 	}
 
 
+public GrayBuffer getSubImage(Cluster chromosomeCluster){
+	GrayBuffer tempImg = new GrayBuffer(chromosomeCluster.getSize().x,
+			chromosomeCluster.getSize().y);
+	for (int i = chromosomeCluster.getImageLocation().x; i < (chromosomeCluster.getImageLocation().x + chromosomeCluster
+			.getSize().x); i++) {
+		for (int j = chromosomeCluster.getImageLocation().y; j < (chromosomeCluster.getImageLocation().y + chromosomeCluster
+				.getSize().y); j++) {
+			if (chromosomeCluster.getValue(i - chromosomeCluster.getImageLocation().x, j
+					- chromosomeCluster.getImageLocation().y)){
+				tempImg.set(i - chromosomeCluster.getImageLocation().x,
+						j - chromosomeCluster.getImageLocation().y,
+						PixelColor.colorToGrayscale(this.getColorAt(i, j)));
+			}
+			else {
+				tempImg.set(i - chromosomeCluster.getImageLocation().x,
+						j - chromosomeCluster.getImageLocation().y, -1);
+			}
+		}
 
+	}
+	return tempImg;
+}
 
 	/**
 	 * This returns a bufferedImage of the square cluster area with the original image of the
@@ -122,7 +146,8 @@ private boolean[][] pixelFound;
 							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
 				else {
 					tempImg.setRGB(i - targetCluster.getImageLocation().x,
-							j - targetCluster.getImageLocation().y, (Color.WHITE).getRGB());
+							j - targetCluster.getImageLocation().y,
+							((Color.WHITE).getRGB() & Color.TRANSLUCENT));
 				}
 			}
 
@@ -167,7 +192,7 @@ private boolean[][] pixelFound;
 							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
 				else {
 					tempImg.setRGB(i - targetCluster.getImageLocation().x,
-							j - targetCluster.getImageLocation().y, (Color.WHITE).getRGB());
+							j - targetCluster.getImageLocation().y, ((Color.WHITE).getRGB() & Color.TRANSLUCENT));
 				}
 			}
 
@@ -212,7 +237,7 @@ private boolean[][] pixelFound;
 							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
 				else {
 					tempImg.setRGB(i - targetCluster.getImageLocation().x,
-							j - targetCluster.getImageLocation().y, (Color.WHITE).getRGB());
+							j - targetCluster.getImageLocation().y, ((Color.WHITE).getRGB() & Color.TRANSLUCENT));
 				}
 			}
 

@@ -1,6 +1,7 @@
 package testing;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import junit.framework.TestCase;
@@ -64,15 +65,15 @@ public class MedialAxisGraphTest extends TestCase {
 
 		diagonalLine = new LinkedList<Point>();
 		diagonalLine.add(new Point(0, 0));
+		diagonalLine.add(new Point(9, 9));
 		diagonalLine.add(new Point(1, 1));
+		diagonalLine.add(new Point(8, 8));
 		diagonalLine.add(new Point(2, 2));
+		diagonalLine.add(new Point(6, 6));
 		diagonalLine.add(new Point(3, 3));
 		diagonalLine.add(new Point(4, 4));
 		diagonalLine.add(new Point(5, 5));
-		diagonalLine.add(new Point(6, 6));
 		diagonalLine.add(new Point(7, 7));
-		diagonalLine.add(new Point(8, 8));
-		diagonalLine.add(new Point(9, 9));
 		diagonalLine.add(new Point(10, 10));
 		oneIntersection4branches = new LinkedList<Point>();
 		// intersection
@@ -281,7 +282,7 @@ public class MedialAxisGraphTest extends TestCase {
 		LinkedList<Vertex> testSegment = new LinkedList<Vertex>();
 		testGraph.buildGraph(straightLine, distanceMap);
 		testSegment.add(testGraph.getAxisGraph().get(0));
-		testGraph.getSegment(testSegment, 0);
+		testGraph.getSegment(testSegment, 0,true);
 		pointList = testGraph.getMedialAxisFromGraph();
 		assertTrue(pointList.contains(new Point(0, 11)));
 		assertEquals(pointList.size(), 12);
@@ -290,7 +291,7 @@ public class MedialAxisGraphTest extends TestCase {
 		testSegment = new LinkedList<Vertex>();
 		testGraph.buildGraph(diagonalLine, distanceMap);
 		testSegment.add(testGraph.getAxisGraph().get(0));
-		testGraph.getSegment(testSegment, 0);
+		testGraph.getSegment(testSegment, 0,true);
 		pointList = testGraph.getMedialAxisFromGraph();
 		assertTrue(pointList.contains(new Point(10, 10)));
 		assertEquals(pointList.size(), 11);
@@ -299,11 +300,28 @@ public class MedialAxisGraphTest extends TestCase {
 		testSegment = new LinkedList<Vertex>();
 		testGraph.buildGraph(curvedLine, distanceMap);
 		testSegment.add(testGraph.getAxisGraph().get(0));
-		testGraph.getSegment(testSegment, 0);
+		testGraph.getSegment(testSegment, 0,true);
 		pointList = testGraph.getMedialAxisFromGraph();
 		assertTrue(pointList.contains(new Point(0, 10)));
 		assertEquals(pointList.size(), 16);
-
+		
+		testGraph = new MedialAxisGraph();
+		testGraph.buildGraph(this.diagonalLine, distanceMap);
+		LinkedList<Vertex> segment=new LinkedList<Vertex>();
+		segment.add(testGraph.getAxisGraph().get(3));
+		LinkedList<Vertex> orderedList=testGraph.getSegment(segment, 0,true);
+		assertEquals(testGraph.getAxisGraph().size(),orderedList.size());
+		assertEquals(orderedList.get(0).getPoint(), new Point(0,0));
+		assertEquals(orderedList.get(1).getPoint(), new Point(1,1));
+		assertEquals(orderedList.get(2).getPoint(), new Point(2,2));
+		assertEquals(orderedList.get(3).getPoint(), new Point(3,3));
+		assertEquals(orderedList.get(4).getPoint(), new Point(4,4));
+		assertEquals(orderedList.get(5).getPoint(), new Point(5,5));
+		assertEquals(orderedList.get(6).getPoint(), new Point(6,6));
+		assertEquals(orderedList.get(7).getPoint(), new Point(7,7));
+		assertEquals(orderedList.get(8).getPoint(), new Point(8,8));
+		assertEquals(orderedList.get(9).getPoint(), new Point(9,9));
+		assertEquals(orderedList.get(10).getPoint(), new Point(10,10));
 	}
 
 	public void testCheckTinyLoop() {
@@ -392,4 +410,27 @@ public class MedialAxisGraphTest extends TestCase {
 		assertTrue(pointList.contains(new Point(10, 10)));
 
 	}
+	public void testGetOrderedMedialAxis(){
+
+		MedialAxisGraph testGraph = new MedialAxisGraph();
+		testGraph = new MedialAxisGraph();
+		testGraph.buildGraph(this.diagonalLine, distanceMap);
+		LinkedList<Vertex> segment=new LinkedList<Vertex>();
+		segment.add(testGraph.getAxisGraph().get(3));
+		ArrayList<Point> orderedList=testGraph.getOrderedMedialAxis();
+		assertEquals(testGraph.getAxisGraph().size(),orderedList.size());
+		assertEquals(orderedList.get(0), new Point(0,0));
+		assertEquals(orderedList.get(1), new Point(1,1));
+		assertEquals(orderedList.get(2), new Point(2,2));
+		assertEquals(orderedList.get(3), new Point(3,3));
+		assertEquals(orderedList.get(4), new Point(4,4));
+		assertEquals(orderedList.get(5), new Point(5,5));
+		assertEquals(orderedList.get(6), new Point(6,6));
+		assertEquals(orderedList.get(7), new Point(7,7));
+		assertEquals(orderedList.get(8), new Point(8,8));
+		assertEquals(orderedList.get(9), new Point(9,9));
+		assertEquals(orderedList.get(10), new Point(10,10));
+
+	}
+	
 }
