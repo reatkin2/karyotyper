@@ -130,7 +130,9 @@ private boolean[][] pixelFound;
 
 		if (pointList != null && !pointList.isEmpty()) {
 			for (int i = 0; i < pointList.size(); i++) {
-				if(pointList.get(i).x>=0&&pointList.get(i).y>=0){
+				if(pointList.get(i).x>=0&&pointList.get(i).y>=0
+						&&pointList.get(i).x<targetCluster.getSize().x
+						&&pointList.get(i).y<targetCluster.getSize().y){
 					tempImg.setRGB(pointList.get(i).x, pointList.get(i).y, (drawColor).getRGB());
 				}
 			}

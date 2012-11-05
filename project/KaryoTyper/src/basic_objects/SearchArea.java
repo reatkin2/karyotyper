@@ -41,9 +41,11 @@ public class SearchArea {
 				}
 			}
 		}
-		for(int i=0;i<cutLines.size();i++){
-			for(int j=0;j<cutLines.get(i).getList().size();j++){
-				this.pixelChecked[cutLines.get(i).getList().get(j).x][cutLines.get(i).getList().get(j).y]=true;
+		if(cutLines!=null){
+			for(int i=0;i<cutLines.size();i++){
+				for(int j=0;j<cutLines.get(i).getList().size();j++){
+					this.pixelChecked[cutLines.get(i).getList().get(j).x][cutLines.get(i).getList().get(j).y]=true;
+				}
 			}
 		}
 	}

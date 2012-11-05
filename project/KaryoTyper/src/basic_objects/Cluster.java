@@ -6,6 +6,7 @@ package basic_objects;
  * Created on December 14, 2004, 7:09 PM
  */
 import java.awt.Point;
+import java.util.LinkedList;
 
 /**
  * @author andrew
@@ -337,6 +338,17 @@ public class Cluster {
 	 */
 	public Point getFirstPixel() {
 		return firstPixel;
+	}
+	public LinkedList<Point> getPointList() {
+		LinkedList<Point> truePoints=new LinkedList<Point>();
+		for (int i = 0; i < this.getSize().y; i++) {
+			for (int j = 0; j < this.getSize().x; j++) {
+				if (this.getPos(j, i)) {
+					truePoints.add(new Point(imageLocation.x+j,imageLocation.y+i));
+				}
+			}
+		}
+		return truePoints;
 	}
 
 }
