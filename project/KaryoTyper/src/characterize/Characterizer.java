@@ -252,6 +252,8 @@ public class Characterizer {
 					int neighborY = p.y + yOffset[j];
 					if (neighborX >= 0 && neighborX < width && neighborY >= 0 && neighborY < height) {
 						Point newPt = new Point(neighborX, neighborY);
+						// TODO(ahkeslin): Create a more efficient lookup structure to prevent
+						// linear search from ".contains"
 						if (!isSet[neighborX][neighborY] && !nextFrontier.contains(newPt)) {
 							nextFrontier.add(newPt);
 						}
