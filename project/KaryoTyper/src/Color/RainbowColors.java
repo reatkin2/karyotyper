@@ -3,8 +3,8 @@ package color;
 import java.awt.Color;
 
 public class RainbowColors {
-	public static Color tasteRainbow(int color){
-		switch(color){
+	public static Color tasteRainbow(int color) {
+		switch (color) {
 		case 0:
 			return new Color(Color.MAGENTA.getRGB());
 		case 1:

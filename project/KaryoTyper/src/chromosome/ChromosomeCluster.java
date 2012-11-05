@@ -13,7 +13,6 @@ public class ChromosomeCluster extends Cluster {
 	private int clusterNimageID;
 	private int colorCount;
 	private ChromosomeCluster next;
-	private MedialAxis medialAxis;
 	private MedialAxisGraph medialAxisGraph;
 
 	public ChromosomeCluster(int ChromosomeNum) {
@@ -40,19 +39,24 @@ public class ChromosomeCluster extends Cluster {
 	}
 
 	public double getWidths(int pos) {
-		return this.medialAxis.getObjectWidth()[pos];
+		return this.medialAxisGraph.getObjectWidth()[pos];
 	}
 
 	private void initChromosomeCluster() {
 		this.colorCount = 0;
 		next = null;
 	}
-	public void createSkeleton(GeneticSlideImage image){
-		this.medialAxis=new MedialAxis(this,image);
+
+	public void createSkeleton() {
+		this.medialAxisGraph = new MedialAxisGraph(this);
+		this.medialAxisGraph.createSkeleton(this);
 	}
-	public void createMedialAxisGraph(GeneticSlideImage image){
-		this.medialAxisGraph=new MedialAxisGraph(this.medialAxis,this,image);
+
+	public void createMedialAxisGraph(GeneticSlideImage image) {
+		this.medialAxisGraph.createAxisGraph( image.getChromoWidth());
+		// this.medialAxisGraph.buildGraph(this.medialAxisGraph.getMedialAxisPoints(),this.medialAxisGraph.getDistanceMap());
 	}
+
 	public MedialAxisGraph getMedialAxisGraph() {
 		return medialAxisGraph;
 	}
@@ -93,7 +97,7 @@ public class ChromosomeCluster extends Cluster {
 		this.colorCount = copyChromosome.getColorCount();
 		this.clusterNimageID = copyChromosome.getClusterNimageID();
 		this.imgHeading = copyChromosome.imgHeading;
-		this.medialAxis = copyChromosome.medialAxis;
+		this.medialAxisGraph = copyChromosome.medialAxisGraph;
 
 	}
 }

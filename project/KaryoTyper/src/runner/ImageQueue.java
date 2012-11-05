@@ -9,14 +9,16 @@ public class ImageQueue {
 
 	public ImageQueue() {
 		this.imageQueue = new LinkedList<String>();
-		try{
+		try {
 			String path = new java.io.File(".").getCanonicalPath();
-			createDirectoryIfNeeded(path+"\\shapeData");
-			createDirectoryIfNeeded(path+"\\shapeData\\Keep");
-			createDirectoryIfNeeded(path+"\\shapeData\\Removed");
-			createDirectoryIfNeeded(path+"\\shapeData\\Chromosome");
+			createDirectoryIfNeeded(path + "\\shapeData");
+			createDirectoryIfNeeded(path + "\\shapeData\\Keep");
+			createDirectoryIfNeeded(path + "\\shapeData\\Removed");
+			createDirectoryIfNeeded(path + "\\shapeData\\Chromosome");
+			createDirectoryIfNeeded(path + "\\shapeData\\Splits");
 			
-		}catch(Exception e){
+
+		} catch (Exception e) {
 			System.out.println(e);
 		}
 	}

@@ -7,14 +7,10 @@ import medial_axis.MedialAxisGraph;
 
 public class ProjectionLines {
 	LinkedList<TangentLine> projLines;
-	
-	public ProjectionLines(MedialAxisGraph graph){
-		projLines=new LinkedList<TangentLine>();
-		
-	}
-	
-	
-	
 
-	
+	public ProjectionLines(MedialAxisGraph graph) {
+		projLines = new LinkedList<TangentLine>();
+
+	}
+
 }

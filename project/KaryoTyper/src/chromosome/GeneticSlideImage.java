@@ -11,9 +11,12 @@ import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 
+import color.ISOClineColor;
+
 import medial_axis.DistanceMap;
 import medial_axis.MedialAxisGraph;
 import basic_objects.Cluster;
+import basic_objects.SearchArea;
 import color.ISOClineColor;
 import color.RainbowColors;
 
@@ -25,16 +28,16 @@ public class GeneticSlideImage {
 
 	private int[] edgeHistogram;
 	private LinkedList<Double> chromosomeWidth;
-	private boolean[][] pixelChecked;
 	private double chromoWidth;
 	private int backgroundThreshold;
 	private String imageName;
-	/*
-	 * pixelFound is a memory versus time in get matching pixel spotNext stores a 2D array of what
-	 * pixels should be added to the ones to check next without searching the foundList of next ones
-	 * to be checked
-	 */
-	private boolean[][] pixelFound;
+	private SearchArea searchArea;
+/*
+ * pixelFound is a memory versus time in get matching pixel spotNext stores a 2D array of what
+ * pixels should be added to the ones to check next without searching the foundList of next ones
+ * to be checked
+ */
+private boolean[][] pixelFound;
 
 	public GeneticSlideImage(String filename) {
 		intensityHistogram = new int[256];
@@ -58,9 +61,7 @@ public class GeneticSlideImage {
 		}
 		chromoWidth = -1;
 		chromosomeWidth = new LinkedList<Double>();
-		pixelChecked = new boolean[img.getWidth()][img.getHeight()];
-		pixelFound = new boolean[img.getWidth()][img.getHeight()];
-		initPixelsChecked();
+		searchArea=new SearchArea(this);
 		this.computeHistogram();
 		this.graphScale();
 		// TODO(aamcknig): make this run on linear regressed function and not a static number
@@ -91,39 +92,8 @@ public class GeneticSlideImage {
 		return intensityHistogram.clone();
 	}
 
-	public void markPixelChecked(Point temp) {
-		pixelChecked[temp.x][temp.y] = true;
-	}
 
-	public boolean isPixelChecked(Point temp) {
-		return pixelChecked[temp.x][temp.y];
-	}
 
-	public void addPixelFound(Point temp) {
-		pixelFound[temp.x][temp.y] = true;
-	}
-
-	public boolean isPixelFound(Point temp) {
-		return pixelFound[temp.x][temp.y];
-	}
-
-	public void initPixelsChecked() {
-		for (int i = 0; i < pixelChecked.length; i++) {
-			for (int j = 0; j < pixelChecked[0].length; j++) {
-				this.pixelChecked[i][j] = false;
-				this.pixelFound[i][j] = false;
-			}
-		}
-	}
-
-	public void initNextPixel() {
-		for (int i = 0; i < pixelChecked.length; i++) {
-			for (int j = 0; j < pixelFound[0].length; j++) {
-				this.pixelFound[i][j] = false;
-			}
-		}
-
-	}
 
 	/**
 	 * This returns a bufferedImage of the square cluster area with the original image of the
@@ -160,7 +130,9 @@ public class GeneticSlideImage {
 
 		if (pointList != null && !pointList.isEmpty()) {
 			for (int i = 0; i < pointList.size(); i++) {
-				tempImg.setRGB(pointList.get(i).x, pointList.get(i).y, (drawColor).getRGB());
+				if(pointList.get(i).x>=0&&pointList.get(i).y>=0){
+					tempImg.setRGB(pointList.get(i).x, pointList.get(i).y, (drawColor).getRGB());
+				}
 			}
 		}
 
@@ -473,4 +445,14 @@ public class GeneticSlideImage {
 		}
 
 	}
+
+	public SearchArea getSearchArea() {
+		return searchArea;
+	}
+
+	public void setSearchArea(SearchArea searchArea) {
+		this.searchArea = searchArea;
+	}
+
+
 }
