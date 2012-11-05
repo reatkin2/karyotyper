@@ -76,12 +76,12 @@ public class PixelColor {
 	 * channel.
 	 * 
 	 * @param c
-	 *            The color to conver to grayscale
+	 *            The color to convert to grayscale
 	 * @return Grayscale equivalent of the provided color as an integer.
 	 */
 	public static int colorToGrayscale(Color c) {
-		return (int) (RED_INTENSITY * c.getRed() + GREEN_INTENSITY * c.getGreen() + BLUE_INTENSITY
-				* c.getBlue());
+		return (int) Math.round((RED_INTENSITY * c.getRed() + GREEN_INTENSITY * c.getGreen() + BLUE_INTENSITY
+				* c.getBlue()));
 	}
 
 }
