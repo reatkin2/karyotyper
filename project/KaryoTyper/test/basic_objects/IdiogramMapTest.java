@@ -3,6 +3,8 @@
  */
 package basic_objects;
 
+import characterization.ChromosomeBand;
+import idiogram.IdiogramMap;
 import junit.framework.TestCase;
 
 /**
@@ -33,7 +35,7 @@ public class IdiogramMapTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link basic_objects.IdiogramMap#IdiogramMap()}.
+	 * Test method for {@link idiogram.IdiogramMap#IdiogramMap()}.
 	 */
 	public void testIdiogramMap() {
 		IdiogramMap map = new IdiogramMap();
@@ -44,7 +46,7 @@ public class IdiogramMapTest extends TestCase {
 	}
 	
 	/**
-	 * Test method for {@link basic_objects.IdiogramMap#get(Idiogram)}.
+	 * Test method for {@link idiogram.IdiogramMap#get(Idiogram)}.
 	 */
 	public void testGet() {
 		IdiogramMap map = new IdiogramMap();

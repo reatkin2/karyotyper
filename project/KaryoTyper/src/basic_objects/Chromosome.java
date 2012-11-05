@@ -3,7 +3,11 @@
  */
 package basic_objects;
 
+import idiogram.Idiogram;
+
 import java.util.Collection;
+
+import characterization.ChromosomeBand;
 
 /**
  * @author Robert

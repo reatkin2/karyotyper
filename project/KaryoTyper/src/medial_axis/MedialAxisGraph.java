@@ -14,6 +14,7 @@ public class MedialAxisGraph extends MedialAxis {
 	private int segmentCount;
 	private double chromoWidth;
 
+
 	public MedialAxisGraph() {
 		super();
 		this.chromoWidth = -1;
@@ -184,11 +185,11 @@ public class MedialAxisGraph extends MedialAxis {
 	 * 
 	 * @return a linked list of vertices that are intersections
 	 */
-	public LinkedList<Vertex> getIntersections() {
+	public LinkedList<Vertex> getIntersections(LinkedList<Vertex> vertList) {
 		LinkedList<Vertex> interSections = new LinkedList<Vertex>();
-		for (int i = 0; i < this.axisGraph.size(); i++) {
-			if (axisGraph.get(i).isIntersection()) {
-				interSections.add(axisGraph.get(i));
+		for (int i = 0; i < vertList.size(); i++) {
+			if (vertList.get(i).isIntersection()) {
+				interSections.add(vertList.get(i));
 			}
 		}
 		return interSections;
@@ -307,7 +308,7 @@ public class MedialAxisGraph extends MedialAxis {
 	 *            remove all segments larger or input -1 to not remove
 	 */
 	public void removeSegments(int minLength, int maxLength) {
-		LinkedList<Vertex> intersections = this.getIntersections();
+		LinkedList<Vertex> intersections = this.getIntersections(this.axisGraph);
 		LinkedList<Vertex> removeThese = new LinkedList<Vertex>();
 		double close2Edge=this.chromoWidth/3.5;
 		for (int i = 0; i < intersections.size(); i++) {
@@ -446,8 +447,8 @@ public class MedialAxisGraph extends MedialAxis {
 		}
 	}
 
-	private void removeVertex(Vertex removeVertex) {
-		int positionNGraph = this.indexOfVertexWithPoint(removeVertex.getPoint());
+	public void removeVertex(Vertex removeVertex) {
+		int positionNGraph = axisGraph.indexOf(removeVertex);
 		if (positionNGraph != -1) {
 			for (int j = 0; j < removeVertex.getChildren().size(); j++) {
 				if (removeVertex.getChildren().get(j).getChildren().contains(removeVertex)) {
@@ -546,46 +547,49 @@ public class MedialAxisGraph extends MedialAxis {
 	 */
 	//TODO(aamcknig):debug this its disconnecting the graph 5212_10
 	public void trimGraph() {
-		LinkedList<Vertex> intersections = this.getIntersections();
+		LinkedList<Vertex> intersections = this.getIntersections(this.axisGraph);
 		// foreach intersection
-		for (int i = 0; i < intersections.size(); i++) {
+		for (int i = 0; i <intersections.size(); i++) {
 			int removeVertex = -1;
 			// for each child of the intersection
 			for (int j = 0; removeVertex == -1 && j < intersections.get(i).getChildren().size(); j++) {
-				// for each child of the children of the intersection
+				// for each child of intersections children 
 				int sameChildrenCount = 0;
-				for (int k = 0; removeVertex == -1
-						&& k < intersections.get(i).getChildren().get(j).getChildren().size(); k++) {
+				for (int k = 0;k < intersections.get(i).getChildren().get(j).getChildren().size(); k++) {
+					//if children of i contains the grandchild of j
 					if (intersections
 							.get(i)
 							.getChildren()
 							.contains(
 									intersections.get(i).getChildren().get(j).getChildren().get(k))) {
 						sameChildrenCount++;
-					} else if (intersections
-							.get(i)
-							.getPoint()
-							.equals(intersections.get(i).getChildren().get(j).getChildren().get(k)
-									.getPoint())) {
-						sameChildrenCount++;
-					}
+						//if the point of vertex i is a child of j
+					} 
 
 				}
-				if (sameChildrenCount > 1
-						&& sameChildrenCount == intersections.get(i).getChildren().get(j)
-								.getChildren().size()) {
+				if (sameChildrenCount + 1 >= intersections.get(i).getChildren().get(j)
+						.getChildren().size()) {
 					removeVertex = j;
+					Vertex removeVert=intersections.get(i).getChildren().get(removeVertex);
+					removeVertex(removeVert);
+					intersections.remove(removeVert);
+					intersections=this.getIntersections(intersections);
+					i=-1;
 				}
-
-			}
-			if (removeVertex != -1) {
-				removeVertex(intersections.get(i).getChildren().get(removeVertex));
+				else if(sameChildrenCount + 1 >= intersections.get(i).getChildren().size()){
+					removeVertex=-5;
+					Vertex removeVert=intersections.get(i);
+					removeVertex(removeVert);
+					intersections.remove(removeVert);
+					intersections=this.getIntersections(intersections);
+					i=-1;
+				}
 			}
 		}
 	}
 
 	public void trimTinyLoop() {
-		LinkedList<Vertex> intersections = this.getIntersections();
+		LinkedList<Vertex> intersections = this.getIntersections(this.axisGraph);
 		// foreach intersection
 		for (int i = 0; i < intersections.size(); i++) {
 			if (null != checkTinyLoop(intersections.get(i))) {
@@ -927,6 +931,13 @@ public class MedialAxisGraph extends MedialAxis {
 		}
 
 		return connectionCount;
+	}
+	public double getChromoWidth() {
+		return chromoWidth;
+	}
+
+	public void setChromoWidth(double chromoWidth) {
+		this.chromoWidth = chromoWidth;
 	}
 
 }

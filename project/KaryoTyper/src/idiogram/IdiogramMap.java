@@ -1,4 +1,5 @@
-package basic_objects;
+package idiogram;
+
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,7 +8,9 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import basic_objects.ChromosomeBand.Type;
+import characterization.ChromosomeBand;
+import characterization.ChromosomeBand.Type;
+
 
 /**
  * Wrapper for a Java HashMap that maps an idiogram to a chromosome number.

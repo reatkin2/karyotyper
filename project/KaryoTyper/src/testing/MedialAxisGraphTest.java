@@ -15,6 +15,7 @@ public class MedialAxisGraphTest extends TestCase {
 	private LinkedList<Point> oneIntersection4branches;
 	private LinkedList<Point> threeSegmentGraph;
 	private LinkedList<Point> oneIntersectionWithTinyLoop;
+	private LinkedList<Point> chunk4TrimWith3brances;
 	private DistanceMap distanceMap;
 
 	protected void setUp() throws Exception {
@@ -128,7 +129,6 @@ public class MedialAxisGraphTest extends TestCase {
 		threeSegmentGraph.add(new Point(4, 11));
 		threeSegmentGraph.add(new Point(3, 11));
 
-
 		this.oneIntersectionWithTinyLoop = new LinkedList<Point>();
 		this.oneIntersectionWithTinyLoop.add(new Point(4, 4));
 		this.oneIntersectionWithTinyLoop.add(new Point(5, 3));
@@ -136,6 +136,34 @@ public class MedialAxisGraphTest extends TestCase {
 		this.oneIntersectionWithTinyLoop.add(new Point(6, 4));
 		this.oneIntersectionWithTinyLoop.add(new Point(7, 4));
 		this.oneIntersectionWithTinyLoop.add(new Point(5, 6));
+
+		chunk4TrimWith3brances = new LinkedList<Point>();
+		// segment1
+		this.chunk4TrimWith3brances.add(new Point(11, 11));
+		this.chunk4TrimWith3brances.add(new Point(12, 12));
+		this.chunk4TrimWith3brances.add(new Point(13, 13));
+		this.chunk4TrimWith3brances.add(new Point(14, 14));
+		// segment2 touches distance map 0
+		this.chunk4TrimWith3brances.add(new Point(11, 9));
+		this.chunk4TrimWith3brances.add(new Point(11, 8));
+		this.chunk4TrimWith3brances.add(new Point(11, 7));
+		this.chunk4TrimWith3brances.add(new Point(11, 6));
+		// segment3
+		this.chunk4TrimWith3brances.add(new Point(9, 11));
+		this.chunk4TrimWith3brances.add(new Point(8, 11));
+		this.chunk4TrimWith3brances.add(new Point(7, 11));
+		this.chunk4TrimWith3brances.add(new Point(6, 11));
+		this.chunk4TrimWith3brances.add(new Point(5, 11));
+		this.chunk4TrimWith3brances.add(new Point(4, 11));
+		this.chunk4TrimWith3brances.add(new Point(3, 11));
+		// chunk connecting segments
+		this.chunk4TrimWith3brances.add(new Point(10, 11));
+		this.chunk4TrimWith3brances.add(new Point(10, 10));
+		this.chunk4TrimWith3brances.add(new Point(11, 10));
+		this.chunk4TrimWith3brances.add(new Point(12, 10));
+		this.chunk4TrimWith3brances.add(new Point(12, 11));
+		this.chunk4TrimWith3brances.add(new Point(10, 12));
+		this.chunk4TrimWith3brances.add(new Point(11, 12));
 
 	}
 
@@ -166,6 +194,7 @@ public class MedialAxisGraphTest extends TestCase {
 		LinkedList<Point> pointList;
 		MedialAxisGraph testGraph = new MedialAxisGraph();
 		testGraph.buildGraph(this.oneIntersection4branches, distanceMap);
+		testGraph.setChromoWidth(13.5);
 		testGraph.removeSegments(5, -1);
 		pointList = testGraph.getMedialAxisFromGraph();
 		assertTrue(pointList.contains(new Point(5, 11)));
@@ -213,7 +242,6 @@ public class MedialAxisGraphTest extends TestCase {
 				testGraph.getAxisGraph().get(testGraph.indexOfVertexWithPoint(new Point(3, 11)))
 						.getMySegement(), 0);
 
-
 	}
 
 	public void testAddVertex() {
@@ -227,6 +255,21 @@ public class MedialAxisGraphTest extends TestCase {
 		assertTrue(pointList.contains(new Point(10, 10)));
 		assertEquals(testGraph.getSegmentCount(), 1);
 		assertEquals(testGraph.getIntersectionCount(testGraph.getAxisGraph()), 1);
+
+	}
+	public void testRemoveVertex(){
+		LinkedList<Point> pointList;
+		MedialAxisGraph testGraph = new MedialAxisGraph();
+		testGraph.buildGraph(this.chunk4TrimWith3brances, distanceMap);
+		assertTrue(testGraph.getAxisGraph().get(testGraph.indexOfVertexWithPoint(new Point(9,11))).
+				isChild(testGraph.getAxisGraph().get(testGraph.indexOfVertexWithPoint(new Point(10,11)))));
+		assertTrue(testGraph.getAxisGraph().get(testGraph.indexOfVertexWithPoint(new Point(10,11))).
+				isChild(testGraph.getAxisGraph().get(testGraph.indexOfVertexWithPoint(new Point(9,11)))));
+		testGraph.removeVertex(testGraph.getAxisGraph().get(testGraph.indexOfVertexWithPoint(new Point(10,11))));
+		assertFalse(testGraph.getAxisGraph().get(testGraph.indexOfVertexWithPoint(new Point(9,11))).
+				isChild(new Point(10,11)));
+		assertEquals(testGraph.indexOfVertexWithPoint(new Point(10,11)),-1);
+		
 
 	}
 
@@ -266,12 +309,14 @@ public class MedialAxisGraphTest extends TestCase {
 	public void testCheckTinyLoop() {
 		MedialAxisGraph testGraph = new MedialAxisGraph();
 		testGraph.buildGraph(this.oneIntersection4branches, distanceMap);
-		Vertex tempVertex = testGraph.checkTinyLoop(testGraph.getIntersections().get(0));
+		Vertex tempVertex = testGraph.checkTinyLoop(testGraph.getIntersections(
+				testGraph.getAxisGraph()).get(0));
 		assertEquals(null, tempVertex);
 
 		MedialAxisGraph testGraph2 = new MedialAxisGraph();
 		testGraph2.buildGraph(this.oneIntersectionWithTinyLoop, distanceMap);
-		tempVertex = testGraph2.checkTinyLoop(testGraph2.getIntersections().get(0));
+		tempVertex = testGraph2.checkTinyLoop(testGraph2
+				.getIntersections(testGraph2.getAxisGraph()).get(0));
 		assertEquals(new Point(4, 4), tempVertex.getPoint());
 
 	}
@@ -288,42 +333,63 @@ public class MedialAxisGraphTest extends TestCase {
 		pointList = testGraph.getMedialAxisFromGraph();
 		assertTrue(pointList.contains(new Point(10, 10)));
 		assertEquals(testGraph.getSegmentCount(), 1);
-		assertEquals(testGraph.getIntersectionCount(testGraph.getAxisGraph()), 1);
-		for(int i=0;i<testGraph.getAxisGraph().size();i++){
-			System.out.print(testGraph.getAxisGraph().get(i).getPoint().toString()+"--");
+		// assertEquals(testGraph.getIntersectionCount(testGraph.getAxisGraph()), 1);
+		for (int i = 0; i < testGraph.getAxisGraph().size(); i++) {
+			System.out.print(testGraph.getAxisGraph().get(i).getPoint().toString() + "--");
 		}
 	}
-	public void testGetBridgePoint(){
+
+	public void testGetBridgePoint() {
 		MedialAxisGraph testGraph = new MedialAxisGraph();
 		testGraph.buildGraph(this.threeSegmentGraph, distanceMap);
 		testGraph.setMedialAxis(testGraph.getAxisGraph());
 		assertEquals(testGraph.getSegmentCount(), 3);
 		assertEquals(testGraph.getIntersectionCount(testGraph.getAxisGraph()), 0);
-		assertEquals(new Point(10,10),testGraph.getBridgePoint(7, new Point(9,11)));
-		assertEquals(new Point(10,11),testGraph.getBridgePoint(6, new Point(9,11)));
-		assertEquals(new Point(10,11),testGraph.getBridgePoint(6, new Point(9,11)));
-	}
-	public void testCheckForMostNewConnection(){
-		MedialAxisGraph testGraph = new MedialAxisGraph();
-		testGraph.buildGraph(this.threeSegmentGraph, distanceMap);
-		testGraph.setMedialAxis(testGraph.getAxisGraph());
-		assertEquals(testGraph.getSegmentCount(), 3);
-		assertEquals(testGraph.getIntersectionCount(testGraph.getAxisGraph()), 0);
-		assertEquals(2,testGraph.checkForMostNewConnection(7, new Point(9,11)));
-		assertEquals(1,testGraph.checkForMostNewConnection(6, new Point(9,11)));
-		assertEquals(1,testGraph.checkForMostNewConnection(6, new Point(9,11)));
+		assertEquals(new Point(10, 10), testGraph.getBridgePoint(7, new Point(9, 11)));
+		assertEquals(new Point(10, 11), testGraph.getBridgePoint(6, new Point(9, 11)));
+		assertEquals(new Point(10, 11), testGraph.getBridgePoint(6, new Point(9, 11)));
 	}
 
-	public void testSameSegment(){
+	public void testCheckForMostNewConnection() {
+		MedialAxisGraph testGraph = new MedialAxisGraph();
+		testGraph.buildGraph(this.threeSegmentGraph, distanceMap);
+		testGraph.setMedialAxis(testGraph.getAxisGraph());
+		assertEquals(testGraph.getSegmentCount(), 3);
+		assertEquals(testGraph.getIntersectionCount(testGraph.getAxisGraph()), 0);
+		assertEquals(2, testGraph.checkForMostNewConnection(7, new Point(9, 11)));
+		assertEquals(1, testGraph.checkForMostNewConnection(6, new Point(9, 11)));
+		assertEquals(1, testGraph.checkForMostNewConnection(6, new Point(9, 11)));
+	}
+
+	public void testSameSegment() {
 		LinkedList<Point> pointList;
 		MedialAxisGraph testGraph = new MedialAxisGraph();
 		testGraph.buildGraph(this.threeSegmentGraph, distanceMap);
 		assertEquals(testGraph.getSegmentCount(), 3);
 		assertEquals(testGraph.getIntersectionCount(testGraph.getAxisGraph()), 0);
 		pointList = testGraph.getMedialAxisFromGraph();
-		assertTrue(testGraph.sameSegment(new Point(9,11), new Point(8,11)));
-		assertFalse(testGraph.sameSegment(new Point(9,11), new Point(11,9)));
-		assertFalse(testGraph.sameSegment(new Point(9,11), new Point(11,11)));
+		assertTrue(testGraph.sameSegment(new Point(9, 11), new Point(8, 11)));
+		assertFalse(testGraph.sameSegment(new Point(9, 11), new Point(11, 9)));
+		assertFalse(testGraph.sameSegment(new Point(9, 11), new Point(11, 11)));
+
+	}
+
+	public void testTrimGraph(){
+		LinkedList<Point> pointList;
+		MedialAxisGraph testGraph = new MedialAxisGraph();
+		testGraph.buildGraph(this.chunk4TrimWith3brances, distanceMap);
+		assertTrue(testGraph.getAxisGraph().get(testGraph.indexOfVertexWithPoint(new Point(9,11))).
+				isChild(testGraph.getAxisGraph().get(testGraph.indexOfVertexWithPoint(new Point(10,11)))));
+		assertTrue(testGraph.getAxisGraph().get(testGraph.indexOfVertexWithPoint(new Point(10,11))).
+				isChild(testGraph.getAxisGraph().get(testGraph.indexOfVertexWithPoint(new Point(9,11)))));
+
+		testGraph.trimGraph();
+
+		pointList = testGraph.getMedialAxisFromGraph();
+		assertFalse(pointList.contains(new Point(10, 11)));
+		assertFalse(pointList.contains(new Point(12, 10)));
+		assertFalse(pointList.contains(new Point(12, 11)));
+		assertTrue(pointList.contains(new Point(10, 10)));
 
 	}
 }
