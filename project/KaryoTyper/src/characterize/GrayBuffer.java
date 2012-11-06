@@ -1,6 +1,8 @@
 package characterize;
 
+import java.awt.Color;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.List;
 
 public class GrayBuffer {
@@ -54,6 +56,28 @@ public class GrayBuffer {
 		}
 
 		buffer[x][y] = value;
+	}
+
+	public BufferedImage getAsBufferedImage() {
+		BufferedImage imgBuffer = new BufferedImage(this.width, this.height,
+				BufferedImage.TYPE_BYTE_GRAY);
+
+		for (int x = 0; x < imgBuffer.getWidth(); x++) {
+			for (int y = 0; y < imgBuffer.getHeight(); y++) {
+				int grey = this.get(x, y);
+				int rgb;
+
+				if (grey == -1) {
+					rgb = 255 * 0x00010101;
+				} else {
+					rgb = grey * 0x00010101 | Color.OPAQUE;
+				}
+
+				imgBuffer.setRGB(x, y, rgb);
+			}
+		}
+
+		return imgBuffer;
 	}
 
 	public void set(Point p, int value) {
