@@ -75,7 +75,7 @@ public class Extractor {
 	 *            is the number entered on canvas that represents matching connected pixels
 	 * @return the 2d integer canvas that represents the cluster
 	 */
-	private short[][] getMatchingPixel(SearchArea searchArea,GeneticSlideImage img, Rectangle bounds,
+	public short[][] getMatchingPixel(SearchArea searchArea,GeneticSlideImage img, Rectangle bounds,
 										Point currentCoord,Point searchAreaPoint,Point canvasOrigin,
 										short[][] canvas, short clusterID,boolean aboveThreshold,int threshold) {
 		LinkedList<Point> foundList = new LinkedList<Point>();
@@ -190,7 +190,7 @@ public class Extractor {
 	 *            is the number entered on canvas that represents matching connected pixels
 	 * @return the 2d integer canvas that represents the cluster
 	 */
-	private short[][] getMatchingPixelLeft(SearchArea searchArea, Rectangle bounds,
+	public short[][] getMatchingPixelLeft(SearchArea searchArea, Rectangle bounds,
 			Point currentPoint, Point canvasOrigin, short[][] canvas, short clusterID) {
 		LinkedList<Point> foundList = new LinkedList<Point>();
 		Point canvasOffset = new Point(canvasOrigin.x - currentPoint.x, canvasOrigin.y

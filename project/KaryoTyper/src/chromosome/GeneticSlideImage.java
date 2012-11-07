@@ -70,6 +70,23 @@ private boolean[][] pixelFound;
 		// TODO(aamcknig): make this run on linear regressed function and not a static number
 		this.backgroundThreshold = this.computeBackgroundThreshold();
 	}
+	public GeneticSlideImage(BufferedImage buffImage) {
+		intensityHistogram = new int[256];
+		edgeHistogram = new int[256];
+		img = null;
+		for (int i = 0; i < intensityHistogram.length; i++) {
+			intensityHistogram[i] = 0;
+		}
+		img = buffImage;
+		chromoWidth = -1;
+		chromosomeWidth = new LinkedList<Double>();
+		searchArea=new SearchArea(this);
+		this.computeHistogram();
+		this.graphScale();
+		// TODO(aamcknig): make this run on linear regressed function and not a static number
+		this.backgroundThreshold = this.computeBackgroundThreshold();
+
+	}
 
 	public int getImgHeight() {
 		return this.img.getHeight();
