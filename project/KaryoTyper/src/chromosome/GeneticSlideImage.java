@@ -131,7 +131,6 @@ public GrayBuffer getSubImage(Cluster chromosomeCluster){
 						j - chromosomeCluster.getImageLocation().y, -1);
 			}
 		}
-
 	}
 	return tempImg;
 }
