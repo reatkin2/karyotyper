@@ -163,7 +163,7 @@ public GrayBuffer getSubImage(Cluster chromosomeCluster){
 				else {
 					tempImg.setRGB(i - targetCluster.getImageLocation().x,
 							j - targetCluster.getImageLocation().y,
-							((Color.WHITE).getRGB() & Color.TRANSLUCENT));
+							((Color.WHITE).getRGB()));
 				}
 			}
 
@@ -208,7 +208,7 @@ public GrayBuffer getSubImage(Cluster chromosomeCluster){
 							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
 				else {
 					tempImg.setRGB(i - targetCluster.getImageLocation().x,
-							j - targetCluster.getImageLocation().y, ((Color.WHITE).getRGB() & Color.TRANSLUCENT));
+							j - targetCluster.getImageLocation().y, ((Color.WHITE).getRGB()));
 				}
 			}
 
@@ -253,7 +253,7 @@ public GrayBuffer getSubImage(Cluster chromosomeCluster){
 							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
 				else {
 					tempImg.setRGB(i - targetCluster.getImageLocation().x,
-							j - targetCluster.getImageLocation().y, ((Color.WHITE).getRGB() & Color.TRANSLUCENT));
+							j - targetCluster.getImageLocation().y, ((Color.WHITE).getRGB()));
 				}
 			}
 

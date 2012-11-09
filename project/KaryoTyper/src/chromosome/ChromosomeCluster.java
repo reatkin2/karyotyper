@@ -29,8 +29,8 @@ public class ChromosomeCluster extends Cluster {
 		initChromosomeCluster();
 	}
 
-	public ChromosomeCluster(short[][] map, int xPoint, int yPoint, int shapeColorID) {
-		super(map, xPoint, yPoint, shapeColorID);
+	public ChromosomeCluster(short[][] map, int xPoint, int yPoint, int shapeColorID,Point canvasStart) {
+		super(map, xPoint, yPoint, shapeColorID,canvasStart);
 		initChromosomeCluster();
 
 	}
