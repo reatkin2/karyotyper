@@ -31,7 +31,7 @@ public class PixelColor {
 	 *            background
 	 * @return
 	 */
-	public static boolean isBelowThreshold(Color newPixel, int threshold) {
+	public static boolean isAboveThreshold(Color newPixel, int threshold) {
 		if (threshold > 255 || threshold < 0) {
 			throw new IllegalArgumentException(String.format(
 					"Threshold provided (%s) was not in the valid range of 0-255", threshold));
@@ -44,18 +44,44 @@ public class PixelColor {
 
 		return false;
 	}
+	/**
+	 * this is the method for removing the background color by checking if the current pixel color
+	 * is below the grayscale color threshold for this image
+	 * 
+	 * @param newPixel
+	 *            the pixel to be checked if below threshold
+	 * @param threshold
+	 *            the cut off threshold for the current image everything below this value is
+	 *            dark
+	 * @return
+	 */
+	public static boolean isBelowThreshold(Color newPixel, int threshold) {
+		if (threshold > 255 || threshold < 0) {
+			throw new IllegalArgumentException(String.format(
+					"Threshold provided (%s) was not in the valid range of 0-255", threshold));
+		}
+
+		double tempGreyPixel = (.299 * newPixel.getRed()) + (.587 * newPixel.getGreen())
+				+ (.114 * newPixel.getBlue());
+		if (tempGreyPixel < threshold) {
+			return true;
+		}
+
+		return false;
+	}
+
 
 	/**
 	 * Convert a provided color to grayscale, taking into account visual intensity in each color
 	 * channel.
 	 * 
 	 * @param c
-	 *            The color to conver to grayscale
+	 *            The color to convert to grayscale
 	 * @return Grayscale equivalent of the provided color as an integer.
 	 */
 	public static int colorToGrayscale(Color c) {
-		return (int) (RED_INTENSITY * c.getRed() + GREEN_INTENSITY * c.getGreen() + BLUE_INTENSITY
-				* c.getBlue());
+		return (int) Math.round((RED_INTENSITY * c.getRed() + GREEN_INTENSITY * c.getGreen() + BLUE_INTENSITY
+				* c.getBlue()));
 	}
 
 }

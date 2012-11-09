@@ -33,6 +33,7 @@ public class ChromosomeList {
 		}
 	}
 
+
 	public void splitNWrite(GeneticSlideImage image) {
 		for (int i = 0; i < this.chromosomeList.size(); i++) {
 			if (this.chromosomeList.get(i).checkKeepThisCluster()) {
@@ -79,6 +80,36 @@ public class ChromosomeList {
 					tempCluster.getMedialAxisGraph());
 			}
 		}
+	}
+	public void printDarkBands(GeneticSlideImage image,boolean splits){
+		for (int i = 0; i < this.chromosomeList.size(); i++) {
+			boolean goodChromosome = false;
+			ChromosomeCluster tempCluster = this.chromosomeList.get(i);
+			if (tempCluster.checkKeepThisCluster()
+					&& 0 == tempCluster.getMedialAxisGraph().getIntersectionCount(
+							tempCluster.getMedialAxisGraph().getAxisGraph())
+					&& 1 == tempCluster.getMedialAxisGraph().getSegmentCount()) {
+				goodChromosome = true;
+			}
+			if (tempCluster.checkKeepThisCluster() && goodChromosome) {
+				writeTargetImage("/shapeData/Chromosome/", tempCluster,
+						tempCluster.getDarkBandPoints(), new Color( 	148,0,211));
+				// writeTargetImage("/shapeData/Chromosome/",tempCluster,
+				// tempCluster.getMedialAxisGraph().getMedialAxis().getMedialAxisPoints(),
+				// new Color(255, 0, 0));
+			}
+			if (this.chromosomeList.get(i).checkKeepThisCluster()) {
+				if(splits){
+					writeTargetImage("/shapeData/Splits/", tempCluster,
+							tempCluster.getDarkBandPoints(), new Color( 	148,0,211));
+				}
+				else{
+					writeTargetImage("/shapeData/Keep/", tempCluster,
+							tempCluster.getDarkBandPoints(), new Color( 	148,0,211));	
+				}
+			}
+		}
+
 	}
 
 	/**

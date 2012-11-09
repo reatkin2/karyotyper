@@ -1,6 +1,7 @@
 package medial_axis;
 
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import chromosome.ChromosomeCluster;
@@ -196,6 +197,40 @@ public class MedialAxisGraph extends MedialAxis {
 	}
 
 	/**
+	 * this method returns an ordered array list of connected medial axis points
+	 * ordered from one end connected to its adjacent medial axis point to the 
+	 * final medial axis point connected to this segment
+	 * Note: this returns null if there is more than one segment in
+	 * the medial axis or there is one or more intersections in the 
+	 * medial axis
+	 * 
+	 * @return ordered medial axis points array or null if not a proper 
+	 * medial axis see method note
+	 */
+	public ArrayList<Point> getOrderedMedialAxis(){
+		ArrayList<Point> tempList=null;
+		if(this.getIntersectionCount(this.axisGraph)==0&&this.segmentCount==1){
+				tempList=new ArrayList<Point>(this.axisGraph.size());
+				LinkedList<Vertex> segment=new LinkedList<Vertex>();
+				segment.add(this.axisGraph.get(0));
+				segment=getSegment( segment, 0,true);
+				if(segment.size()==this.axisGraph.size()){
+					for(int i=0;i<segment.size();i++){
+						tempList.add(i, segment.get(i).getPoint());
+					}
+					return tempList;
+				}
+				else{
+					return null;
+				}
+		}
+		else{
+			return null;
+		}
+	}
+	
+	
+	/**
 	 * this gets a segment that is separated by intersections using recursion starting from the
 	 * vertex in the list at the position pos
 	 * 
@@ -206,14 +241,20 @@ public class MedialAxisGraph extends MedialAxis {
 	 * @return a segment that is separated by 2 intersections or an 1 intersection and the end of
 	 *         the line
 	 */
-	public LinkedList<Vertex> getSegment(LinkedList<Vertex> segment, int pos) {
-		int addedCount = 0;
+	public LinkedList<Vertex> getSegment(LinkedList<Vertex> segment, int pos,boolean addAfter) {
+		boolean addedFirst=false;
 		for (int i = 0; i < segment.get(pos).getChildren().size(); i++) {
 			if (!segment.get(pos).getChildren().get(i).isIntersection()
 					&& !segment.contains(segment.get(pos).getChildren().get(i))) {
-				segment.add(segment.get(pos).getChildren().get(i));
-				addedCount++;
-				getSegment(segment, pos + addedCount);
+				if(!addedFirst&&addAfter){
+					segment.add(segment.get(pos).getChildren().get(i));
+					getSegment(segment, segment.size()-1,true);
+					addedFirst=true;
+				}
+				else if(addedFirst||!addAfter){
+					segment.addFirst(segment.get(pos).getChildren().get(i));
+					getSegment(segment, 0,false);
+				}
 			}
 		}
 		return segment;
@@ -240,7 +281,7 @@ public class MedialAxisGraph extends MedialAxis {
 				}
 				segment.add(segment.get(pos).getChildren().get(i));
 				addedCount++;
-				getSegment(segment, pos + addedCount);
+				getSegment(segment, pos + addedCount,true);
 				if (segment.get(segment.size() - 1).getPoint().equals(endPoint)) {
 					return segment;
 				}
@@ -316,7 +357,7 @@ public class MedialAxisGraph extends MedialAxis {
 				if (!intersections.get(i).getChildren().get(j).isIntersection()) {
 					LinkedList<Vertex> tempList = new LinkedList<Vertex>();
 					tempList.add(intersections.get(i).getChildren().get(j));
-					LinkedList<Vertex> segment = getSegment(tempList, 0);
+					LinkedList<Vertex> segment = getSegment(tempList, 0,true);
 					if (distanceToEdge(segment) < close2Edge) {// this.getIntersectionCount(segment)<2
 						if (minLength != -1 && segment.size() < minLength) {
 							removeThese = combine(removeThese, segment);

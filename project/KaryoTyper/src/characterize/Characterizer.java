@@ -34,6 +34,20 @@ public class Characterizer {
 		return normalizeVector(vec[0], vec[1]);
 	}
 
+	/**
+	 * Given a 2D vector, provide an orthogonal vector in the desired direction (or the original
+	 * vector in the case of INLINE as direction).
+	 * 
+	 * @param xComp
+	 *            The x component of the origin vector.
+	 * @param yComp
+	 *            The y component of the origin vector.
+	 * @param dir
+	 *            Which direction to point the orthogonal vector (LEFT or RIGHT). This has a special
+	 *            caveat of INLINE for the case where an "orthogonal" vector is being generated for
+	 *            a cell which is inline with the medial axis.
+	 * @return The vector "orthogonal" in the desired direction.
+	 */
 	private static double[] orthogonalVector(double xComp, double yComp, Direction dir) {
 		// Effectively computes the cross-product of the vector with an appropriate vector for
 		// generating right or left orthogonal
@@ -61,6 +75,16 @@ public class Characterizer {
 		return result;
 	}
 
+	/**
+	 * Figure out if the comparing vector is to the left, right, or inline with the midline vector.
+	 * 
+	 * @param midlineSlope
+	 *            A 2D vector representing the slope of the midline at this point.
+	 * @param compareSlope
+	 *            A 2D vector representing the slope of a vector running between the midline point
+	 *            and the an adjacent point.
+	 * @return The direction which this point is relative to the midline.
+	 */
 	private static Direction flowDirection(double[] midlineSlope, double[] compareSlope) {
 		// (a_1*b_2 - a_2*b_1)*k
 		double zComp = midlineSlope[0] * compareSlope[1] - midlineSlope[1] * compareSlope[0];
@@ -78,13 +102,15 @@ public class Characterizer {
 	}
 
 	/**
-	 * 
-	 * 
-	 * 
+	 * Constructs a two dimensional buffer of 2D unit vectors representing slopes orthogonal to the
+	 * medial axis unless it is inline with the medial axis.
 	 * 
 	 * @param chromBuffer
+	 *            Two dimensional buffer of pixel values for the specific chromosome.
 	 * @param chromMidline
-	 * @return
+	 *            Points representing the medial axis as a single in-order list.
+	 * @return 2D buffer of 2D Points (thus the 3D double array) with each cell representing a
+	 *         unit-vector of the direction of the field at that point.
 	 */
 	public static double[][][] buildSlopeBuffer(GrayBuffer chromBuffer,
 			ArrayList<Point> chromMidline) {
@@ -252,6 +278,8 @@ public class Characterizer {
 					int neighborY = p.y + yOffset[j];
 					if (neighborX >= 0 && neighborX < width && neighborY >= 0 && neighborY < height) {
 						Point newPt = new Point(neighborX, neighborY);
+						// TODO(ahkeslin): Create a more efficient lookup structure to prevent
+						// linear search from ".contains"
 						if (!isSet[neighborX][neighborY] && !nextFrontier.contains(newPt)) {
 							nextFrontier.add(newPt);
 						}
@@ -268,6 +296,12 @@ public class Characterizer {
 		return slopeField;
 	}
 
+	/**
+	 * Print a slope buffer as (x.x, y.y) points.
+	 * 
+	 * @param buffer
+	 *            Slope buffer as defined by buildSlopeBuffer.
+	 */
 	public static void printSlopeBuffer(double[][][] buffer) {
 		for (int y = buffer[0].length - 1; y >= 0; y--) {
 			System.out.print('\n');
@@ -279,6 +313,13 @@ public class Characterizer {
 		}
 	}
 
+	/**
+	 * Given a list of in-order points defining a non-crossing polygon, calculate the area.
+	 * 
+	 * @param perimeter
+	 *            A list of in-order points defining a non-crossing polygon.
+	 * @return The area of the polygon.
+	 */
 	public static double polygonalArea(ArrayList<Point2D> perimeter) {
 		if (perimeter.size() < 3) {
 			throw new IllegalArgumentException("Perimeter must contain at least 3 points.");
@@ -297,6 +338,13 @@ public class Characterizer {
 		return 0.5 * Math.abs(acc);
 	}
 
+	/**
+	 * Given a linearized buffer, sum each row.
+	 * 
+	 * @param linearizedBuffer
+	 *            A pixel buffer of a chromosome linearized along the y-axis
+	 * @return An array with each row-sum as a separate point.
+	 */
 	public static double[] calculateBandFunction(GrayBuffer linearizedBuffer) {
 		double[] result = new double[linearizedBuffer.height];
 		final int WHITE = 255;
@@ -333,6 +381,14 @@ public class Characterizer {
 		return result;
 	}
 
+	/**
+	 * Take a curved chromosome and linearize it, keeping all chromosome features clear and
+	 * equivalent to pre-linearization.
+	 * 
+	 * @param chromBuffer A pixel-buffer representing 
+	 * @param chromMidline
+	 * @return
+	 */
 	public static GrayBuffer linearizeChromosome(GrayBuffer chromBuffer,
 			ArrayList<Point> chromMidline) {
 

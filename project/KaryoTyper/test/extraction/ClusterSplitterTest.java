@@ -1,4 +1,4 @@
-package testing;
+package extraction;
 
 import java.awt.Point;
 import java.util.LinkedList;

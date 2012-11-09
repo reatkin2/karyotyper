@@ -1,6 +1,7 @@
 package chromosome;
 
 import java.awt.Point;
+import java.util.LinkedList;
 
 import medial_axis.MedialAxis;
 import medial_axis.MedialAxisGraph;
@@ -14,6 +15,8 @@ public class ChromosomeCluster extends Cluster {
 	private int colorCount;
 	private ChromosomeCluster next;
 	private MedialAxisGraph medialAxisGraph;
+	private LinkedList<ChromosomeCluster> darkBands;
+
 
 	public ChromosomeCluster(int ChromosomeNum) {
 		super();
@@ -26,8 +29,8 @@ public class ChromosomeCluster extends Cluster {
 		initChromosomeCluster();
 	}
 
-	public ChromosomeCluster(short[][] map, int xPoint, int yPoint, int shapeColorID) {
-		super(map, xPoint, yPoint, shapeColorID);
+	public ChromosomeCluster(short[][] map, int xPoint, int yPoint, int shapeColorID,Point canvasStart) {
+		super(map, xPoint, yPoint, shapeColorID,canvasStart);
 		initChromosomeCluster();
 
 	}
@@ -44,6 +47,7 @@ public class ChromosomeCluster extends Cluster {
 
 	private void initChromosomeCluster() {
 		this.colorCount = 0;
+		darkBands=null;
 		next = null;
 	}
 
@@ -92,12 +96,33 @@ public class ChromosomeCluster extends Cluster {
 	public void setNext(ChromosomeCluster clusterN) {
 		next = clusterN;
 	}
+	public LinkedList<ChromosomeCluster> getDarkBands() {
+		return darkBands;
+	}
+
+	public void setDarkBands(LinkedList<ChromosomeCluster> darkBands) {
+		this.darkBands = darkBands;
+	}
+	public LinkedList<Point> getDarkBandPoints(){
+		LinkedList<Point> bandPoints=new LinkedList<Point>();
+		if(darkBands!=null&&!darkBands.isEmpty()){
+			for(int i=0;i<darkBands.size();i++){
+				LinkedList<Point> thisBand=darkBands.get(i).getPointList();
+				for(int j=0;j<thisBand.size();j++){
+					bandPoints.add(new Point(thisBand.get(j).x-super.getImageLocation().x,
+							thisBand.get(j).y-super.getImageLocation().y));
+				}
+			}
+		}
+		return bandPoints;
+	}
 
 	public void copyChromosome(ChromosomeCluster copyChromosome) {
 		this.colorCount = copyChromosome.getColorCount();
 		this.clusterNimageID = copyChromosome.getClusterNimageID();
 		this.imgHeading = copyChromosome.imgHeading;
 		this.medialAxisGraph = copyChromosome.medialAxisGraph;
+		this.darkBands=copyChromosome.getDarkBands();
 
 	}
 }

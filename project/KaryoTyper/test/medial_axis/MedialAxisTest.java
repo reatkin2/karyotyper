@@ -1,4 +1,4 @@
-package testing;
+package medial_axis;
 
 import junit.framework.TestCase;
 

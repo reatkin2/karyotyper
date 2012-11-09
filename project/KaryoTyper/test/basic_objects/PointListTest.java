@@ -1,4 +1,4 @@
-package testing;
+package basic_objects;
 
 import java.awt.Point;
 

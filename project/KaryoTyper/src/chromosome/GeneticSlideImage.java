@@ -11,6 +11,8 @@ import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 
+import characterize.GrayBuffer;
+
 import color.ISOClineColor;
 
 import medial_axis.DistanceMap;
@@ -18,6 +20,7 @@ import medial_axis.MedialAxisGraph;
 import basic_objects.Cluster;
 import basic_objects.SearchArea;
 import color.ISOClineColor;
+import color.PixelColor;
 import color.RainbowColors;
 
 public class GeneticSlideImage {
@@ -67,6 +70,23 @@ private boolean[][] pixelFound;
 		// TODO(aamcknig): make this run on linear regressed function and not a static number
 		this.backgroundThreshold = this.computeBackgroundThreshold();
 	}
+	public GeneticSlideImage(BufferedImage buffImage) {
+		intensityHistogram = new int[256];
+		edgeHistogram = new int[256];
+		img = null;
+		for (int i = 0; i < intensityHistogram.length; i++) {
+			intensityHistogram[i] = 0;
+		}
+		img = buffImage;
+		chromoWidth = -1;
+		chromosomeWidth = new LinkedList<Double>();
+		searchArea=new SearchArea(this);
+		this.computeHistogram();
+		this.graphScale();
+		// TODO(aamcknig): make this run on linear regressed function and not a static number
+		this.backgroundThreshold = this.computeBackgroundThreshold();
+
+	}
 
 	public int getImgHeight() {
 		return this.img.getHeight();
@@ -93,7 +113,27 @@ private boolean[][] pixelFound;
 	}
 
 
-
+public GrayBuffer getSubImage(Cluster chromosomeCluster){
+	GrayBuffer tempImg = new GrayBuffer(chromosomeCluster.getSize().x,
+			chromosomeCluster.getSize().y);
+	for (int i = chromosomeCluster.getImageLocation().x; i < (chromosomeCluster.getImageLocation().x + chromosomeCluster
+			.getSize().x); i++) {
+		for (int j = chromosomeCluster.getImageLocation().y; j < (chromosomeCluster.getImageLocation().y + chromosomeCluster
+				.getSize().y); j++) {
+			if (chromosomeCluster.getValue(i - chromosomeCluster.getImageLocation().x, j
+					- chromosomeCluster.getImageLocation().y)){
+				tempImg.set(i - chromosomeCluster.getImageLocation().x,
+						j - chromosomeCluster.getImageLocation().y,
+						PixelColor.colorToGrayscale(this.getColorAt(i, j)));
+			}
+			else {
+				tempImg.set(i - chromosomeCluster.getImageLocation().x,
+						j - chromosomeCluster.getImageLocation().y, -1);
+			}
+		}
+	}
+	return tempImg;
+}
 
 	/**
 	 * This returns a bufferedImage of the square cluster area with the original image of the
@@ -122,7 +162,8 @@ private boolean[][] pixelFound;
 							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
 				else {
 					tempImg.setRGB(i - targetCluster.getImageLocation().x,
-							j - targetCluster.getImageLocation().y, (Color.WHITE).getRGB());
+							j - targetCluster.getImageLocation().y,
+							((Color.WHITE).getRGB()));
 				}
 			}
 
@@ -130,7 +171,9 @@ private boolean[][] pixelFound;
 
 		if (pointList != null && !pointList.isEmpty()) {
 			for (int i = 0; i < pointList.size(); i++) {
-				if(pointList.get(i).x>=0&&pointList.get(i).y>=0){
+				if(pointList.get(i).x>=0&&pointList.get(i).y>=0
+						&&pointList.get(i).x<targetCluster.getSize().x
+						&&pointList.get(i).y<targetCluster.getSize().y){
 					tempImg.setRGB(pointList.get(i).x, pointList.get(i).y, (drawColor).getRGB());
 				}
 			}
@@ -165,7 +208,7 @@ private boolean[][] pixelFound;
 							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
 				else {
 					tempImg.setRGB(i - targetCluster.getImageLocation().x,
-							j - targetCluster.getImageLocation().y, (Color.WHITE).getRGB());
+							j - targetCluster.getImageLocation().y, ((Color.WHITE).getRGB()));
 				}
 			}
 
@@ -210,7 +253,7 @@ private boolean[][] pixelFound;
 							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
 				else {
 					tempImg.setRGB(i - targetCluster.getImageLocation().x,
-							j - targetCluster.getImageLocation().y, (Color.WHITE).getRGB());
+							j - targetCluster.getImageLocation().y, ((Color.WHITE).getRGB()));
 				}
 			}
 
