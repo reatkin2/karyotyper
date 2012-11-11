@@ -39,6 +39,7 @@ public class Cluster {
 	public Cluster(Point size) {
 		clusterX = new boolean[size.x][size.y];
 		initCluster();
+		this.clusterSize=size;
 	}
 
 	public Cluster(short[][] map, int xPoint, int yPoint, int clusterColorID,Point canvasStart) {

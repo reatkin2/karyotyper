@@ -348,6 +348,116 @@ public class ExtractorTest extends TestCase {
 
 
 	}
+	public void testGetBlackBands(){
+		BufferedImage tempImg = new BufferedImage(10,10, BufferedImage.TYPE_3BYTE_BGR);
+		for(int j=0;j<tempImg.getWidth();j++){
+			for(int i=0;i<tempImg.getHeight();i++){
+				tempImg.setRGB(i, j, Color.WHITE.getRGB());
+			}
+		}
+		
+		tempImg.setRGB(3, 3, Color.BLACK.getRGB());
+		tempImg.setRGB(4, 4, Color.BLACK.getRGB());
+		tempImg.setRGB(5, 5, Color.BLACK.getRGB());
+		tempImg.setRGB(6, 6, Color.BLACK.getRGB());
+		ChromosomeCluster tempCluster=new ChromosomeCluster(new Point(5,5));
+		tempCluster.setImageLocation(new Point(0,0));
+		for(int j=0;j<tempCluster.getSize().y;j++){
+			for(int i=0;i<tempCluster.getSize().x;i++){
+				tempCluster.setPixel(new Point(i, j),true);
+			}
+		}
+		GeneticSlideImage img=new GeneticSlideImage(tempImg);
+		img.addWidth(7);
+		Extractor extract=new Extractor();
+		LinkedList<ChromosomeCluster> tempBands=extract.getBlackBands(img,tempCluster);
+		assertEquals(1,tempBands.size());
+		assertEquals(new Point(2,2),tempBands.get(0).getSize());
+		assertEquals(2,tempBands.get(0).getPixelCount());
+		assertEquals(new Point(3,3),tempBands.get(0).getImageLocation());
+		assertTrue(tempBands.get(0).getPos(new Point(0,0)));
+		assertTrue(tempBands.get(0).getPos(new Point(1,1)));
+		assertFalse(tempBands.get(0).getPos(new Point(0,1)));
+		assertFalse(tempBands.get(0).getPos(new Point(1,0)));
+		
+		tempCluster=new ChromosomeCluster(new Point(5,5));
+		tempCluster.setImageLocation(new Point(5,5));
+		for(int j=0;j<tempCluster.getSize().y;j++){
+			for(int i=0;i<tempCluster.getSize().x;i++){
+				tempCluster.setPixel(new Point(i, j),true);
+			}
+		}
 
+		tempBands=extract.getBlackBands(img,tempCluster);
+		assertEquals(1,tempBands.size());
+		assertEquals(new Point(2,2),tempBands.get(0).getSize());
+		assertEquals(2,tempBands.get(0).getPixelCount());
+		assertEquals(new Point(5,5),tempBands.get(0).getImageLocation());
+		assertTrue(tempBands.get(0).getPos(new Point(0,0)));
+		assertTrue(tempBands.get(0).getPos(new Point(1,1)));
+		assertFalse(tempBands.get(0).getPos(new Point(0,1)));
+		assertFalse(tempBands.get(0).getPos(new Point(1,0)));
+
+		tempImg = new BufferedImage(10,10, BufferedImage.TYPE_3BYTE_BGR);
+		for(int j=0;j<tempImg.getWidth();j++){
+			for(int i=0;i<tempImg.getHeight();i++){
+				tempImg.setRGB(i, j, Color.WHITE.getRGB());
+			}
+		}
+		
+		tempImg.setRGB(0, 0, Color.BLACK.getRGB());
+		tempImg.setRGB(1, 0, Color.BLACK.getRGB());
+		tempImg.setRGB(2, 0, Color.BLACK.getRGB());
+		tempImg.setRGB(3, 0, Color.BLACK.getRGB());
+		
+		tempImg.setRGB(9, 1, Color.BLACK.getRGB());
+		tempImg.setRGB(8, 1, Color.BLACK.getRGB());
+		tempImg.setRGB(7, 1, Color.BLACK.getRGB());
+		tempImg.setRGB(6, 1, Color.BLACK.getRGB());
+		
+		tempImg.setRGB(0, 2, Color.BLACK.getRGB());
+		tempImg.setRGB(1, 2, Color.BLACK.getRGB());
+		tempImg.setRGB(2, 2, Color.BLACK.getRGB());
+		tempImg.setRGB(3, 2, Color.BLACK.getRGB());
+		
+		tempImg.setRGB(3, 6, Color.BLACK.getRGB());
+		tempImg.setRGB(2, 7, Color.BLACK.getRGB());
+		tempImg.setRGB(1, 8, Color.BLACK.getRGB());
+		tempImg.setRGB(0, 9, Color.BLACK.getRGB());
+		
+		tempImg.setRGB(7, 7, Color.BLACK.getRGB());
+		tempImg.setRGB(8, 7, Color.BLACK.getRGB());
+		tempImg.setRGB(8, 8, Color.BLACK.getRGB());
+		tempImg.setRGB(9, 9, Color.BLACK.getRGB());
+		
+		tempImg.setRGB(4, 8, Color.BLACK.getRGB());
+		tempImg.setRGB(5, 7, Color.BLACK.getRGB());
+		tempImg.setRGB(5, 6, Color.BLACK.getRGB());
+
+
+		tempCluster=new ChromosomeCluster(new Point(8,8));
+		tempCluster.setImageLocation(new Point(1,1));
+		for(int j=0;j<tempCluster.getSize().y;j++){
+			for(int i=0;i<tempCluster.getSize().x;i++){
+				tempCluster.setPixel(new Point(i, j),true);
+			}
+		}
+		img=new GeneticSlideImage(tempImg);
+		img.addWidth(7);
+		tempBands=extract.getBlackBands(img,tempCluster);
+		assertEquals(5,tempBands.size());
+		for(int i=0;i<5;i++){
+			assertEquals(3,tempBands.get(i).getPixelCount());
+		}
+//		assertEquals(new Point(2,2),tempBands.get(0).getSize());
+//		assertEquals(2,tempBands.get(0).getPixelCount());
+//		assertEquals(new Point(3,3),tempBands.get(0).getImageLocation());
+//		assertTrue(tempBands.get(0).getPos(new Point(0,0)));
+//		assertTrue(tempBands.get(0).getPos(new Point(1,1)));
+//		assertFalse(tempBands.get(0).getPos(new Point(0,1)));
+//		assertFalse(tempBands.get(0).getPos(new Point(1,0)));
+
+
+	}
 		
 }
