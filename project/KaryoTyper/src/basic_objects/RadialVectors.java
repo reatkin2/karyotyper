@@ -2,7 +2,6 @@ package basic_objects;
 
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.LinkedList;
 
 public class RadialVectors {
 
@@ -29,11 +28,10 @@ public class RadialVectors {
 		double aggregateAngle = 0;
 
 		Vector firstVector = new Vector(distance, 0);
-		vectorList.add(firstVector);
 
 		while (aggregateAngle < CIRC) {
-			aggregateAngle += theta;
 			vectorList.add(Vector.rotateVector(firstVector, aggregateAngle));
+			aggregateAngle += theta;
 		}
 	}
 
@@ -129,5 +127,4 @@ public class RadialVectors {
 	}
 
 	// TODO: Need to get multiples of unit vectors within range.
-	// TODO: Index based on angle multiple. Make method to get Vector based on angle multiple.
 }
