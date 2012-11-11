@@ -113,7 +113,7 @@ public class MirrorSplit {
 			ArrayList<Point> pointList=new ArrayList<Point>();
 			if(endPoint.x!=-1){
 				vectors=new RadialVectors(axisPoint.getPoint(),40,(double)i);
-				pointList=vectors.getRange(endPoint, 45,5);
+				pointList=vectors.getPointsInRange(endPoint, 45,5);
 			}
 			else{
 				vectors=new RadialVectors(axisPoint.getPoint(),40,(double)i);

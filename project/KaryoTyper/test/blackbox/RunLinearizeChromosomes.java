@@ -1,28 +1,32 @@
-package testing.blackbox;
+package blackbox;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.LinkedList;
+import java.io.IOException;
+import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import runner.ImageQueue;
-
-import basic_objects.PointList;
-
+import characterize.Characterizer;
+import characterize.GrayBuffer;
+import chromosome.ChromosomeCluster;
 import chromosome.ChromosomeList;
 import chromosome.GeneticSlideImage;
-import extraction.ClusterSplitter;
 import extraction.Extractor;
-public class RunSmallSplits extends JFrame {
+
+public class RunLinearizeChromosomes extends JFrame {
 	/**
-	 * 
-	 */
+			 * 
+			 */
 	private static boolean closing;// =false;
 	private static final long serialVersionUID = 1L;
 	public int imgCounter;
@@ -30,9 +34,9 @@ public class RunSmallSplits extends JFrame {
 	public static JLabel currentStatus;
 	private long start;
 
-	public RunSmallSplits(String string) {
+	public RunLinearizeChromosomes(String string) {
 		super(string);
-		RunSmallSplits.closing = false;
+		RunLinearizeChromosomes.closing = false;
 		start = System.currentTimeMillis();
 		imgCounter = 0;
 		targetsFound = 0;
@@ -51,7 +55,7 @@ public class RunSmallSplits extends JFrame {
 			System.out.println(args[0]);
 
 			// int imgCounter=0;
-			RunSmallSplits frame = new RunSmallSplits("chromosome Getter GUI");
+			RunLinearizeChromosomes frame = new RunLinearizeChromosomes("chromosome Getter GUI");
 			frame.setLayout(new FlowLayout());
 			JPanel upper = new JPanel();
 			JPanel lower = new JPanel();
@@ -59,11 +63,11 @@ public class RunSmallSplits extends JFrame {
 			Dimension minSize = new Dimension(400, 200);
 			frame.setMinimumSize(minSize);
 			JLabel imgCount = new JLabel("Currently No Images In Directory");
-			RunSmallSplits.currentStatus = new JLabel("Waiting for images");
-			RunSmallSplits.currentStatus.setForeground(Color.RED);
+			RunLinearizeChromosomes.currentStatus = new JLabel("Waiting for images");
+			RunLinearizeChromosomes.currentStatus.setForeground(Color.RED);
 			frame.add(upper);
 			frame.add(lower);
-			upper.add(RunSmallSplits.currentStatus);
+			upper.add(RunLinearizeChromosomes.currentStatus);
 			lower.add(imgCount);
 			frame.setVisible(true);
 			// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -80,13 +84,13 @@ public class RunSmallSplits extends JFrame {
 			// initialize the que
 			ImageQueue images = new ImageQueue();
 			// initialize the extractor
-			while (!RunSmallSplits.closing) {
+			while (!RunLinearizeChromosomes.closing) {
 				// System.out.println(args[i]+"---------nextFilestarts Here---------------");
 				// put images in the que and return next file in the path from string args
 				filename = images.getNextFile(args[0]);
 				if (filename != null) {
-					if (!RunSmallSplits.currentStatus.getText().contains("Finishing")) {
-						RunSmallSplits.currentStatus
+					if (!RunLinearizeChromosomes.currentStatus.getText().contains("Finishing")) {
+						RunLinearizeChromosomes.currentStatus
 								.setText("Finding Chromosomes in slide image: " + filename);
 					}
 					Extractor extractor = new Extractor();
@@ -97,25 +101,49 @@ public class RunSmallSplits extends JFrame {
 					// get clusters from the image and keep a count of how many
 					frame.targetsFound += extractor.findClusters(image);
 					// pass the list of clusters on to slidelist
-					ChromosomeList slideList1 = new ChromosomeList(extractor.getClusterList(), image);
-					for(int i=0;i<slideList1.getChromosomeList().size();i++){
-						LinkedList<PointList> cutList=ClusterSplitter.getSplitPoints(slideList1.getChromosomeList().get(i), (int) Math.round(image.getChromoWidth()/3));
-						if(!cutList.isEmpty()){
-							extractor.splitClusters(slideList1.getChromosomeList().get(i), cutList, image);
+					ChromosomeList slideList1 = new ChromosomeList(extractor.getClusterList(),
+							image);
+					// print out the slidelist
+					imgCount.setText("Calculating Medial Axis for: " + slideList1.size()
+							+ " Clusters.");
+					slideList1.calcMedialAxis(image);
+					for (int i = 0; i < slideList1.size(); i++) {
+						ChromosomeCluster tempChromo = slideList1.getChromosomeList().get(i);
+						ArrayList<Point> orderedMedialAxis = tempChromo.getMedialAxisGraph()
+								.getOrderedMedialAxis();
+						if (orderedMedialAxis != null) {
+							GrayBuffer tempBuffer = image.getSubImage(tempChromo);
+
+							GrayBuffer linearizedChrom = Characterizer.linearizeChromosome(
+									tempBuffer, orderedMedialAxis);
+
+							try {
+								String currentPath = (new File(".")).getCanonicalPath();
+								String imageName = new File(tempChromo.getTitle()).getName();
+								String outputName = imageName.substring(0, imageName.indexOf('.'))
+										+ "_" + (tempChromo.getClusterNimageID()) + ".png";
+
+								String outputPath = currentPath + File.separator + "shapeData"
+										+ File.separator + "Linearized" + File.separator
+										+ outputName;
+								File outputFile = new File(outputPath);
+								ImageIO.write(linearizedChrom.getAsBufferedImage(), "png",
+										outputFile);
+							} catch (IOException e) {
+								System.out.println(e);
+							}
 						}
 					}
-					ChromosomeList splitList=new ChromosomeList(extractor.getSplitList(),image);
-					splitList.printSplits(image);
-					
+					imgCount.setText("Writing " + slideList1.size() + " images. ");
 					// test for split lines to shapdata/keep
-					//slideList1.splitNWrite(image);
+					// slideList1.splitNWrite(image);
 
 					imgCount.setText(frame.targetsFound + " Chromosomes found in "
 							+ (++frame.imgCounter) + " slides read so far.");
-					if (!RunSmallSplits.currentStatus.getText().contains("Finishing")) {
-						RunSmallSplits.currentStatus.setText("Waiting for images");
+					if (!RunLinearizeChromosomes.currentStatus.getText().contains("Finishing")) {
+						RunLinearizeChromosomes.currentStatus.setText("Waiting for images");
 					} else {
-						RunSmallSplits.currentStatus.setText("Finished looking at img"
+						RunLinearizeChromosomes.currentStatus.setText("Finished looking at img"
 								+ filename + " shutting down.");
 					}
 				}
@@ -133,8 +161,8 @@ public class RunSmallSplits extends JFrame {
 	}
 
 	protected static void exitProcedure() {
-		RunSmallSplits.closing = true;
-		RunSmallSplits.currentStatus
+		RunLinearizeChromosomes.closing = true;
+		RunLinearizeChromosomes.currentStatus
 				.setText("Finishing current image search and shutting down.");
 	}
 
