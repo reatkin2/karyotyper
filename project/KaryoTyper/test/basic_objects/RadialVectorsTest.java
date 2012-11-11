@@ -6,6 +6,8 @@ package basic_objects;
 import java.awt.Point;
 import java.util.ArrayList;
 
+import org.apache.commons.math3.analysis.function.Ceil;
+
 import junit.framework.TestCase;
 
 /**
@@ -110,24 +112,63 @@ public class RadialVectorsTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link basic_objects.RadialVectors#getRange(java.awt.Point, double, int)}.
+	 * Test method for {@link basic_objects.RadialVectors#getPointsInRange(java.awt.Point, double, int)}.
 	 */
 	public void testGetRange() {
-		fail("Not yet implemented");
+		ArrayList<Point> range = radialVectors.getPointsInRange(new Point(3,4), Math.PI/2, 5);
+		
+		assertEquals(5, range.size());
+		
+		ArrayList<Vector> testVectors = new ArrayList<Vector>(5);
+		double angle = Math.PI/8.0;
+		testVectors.add(new Vector(Math.cos(-2*angle), Math.sin(-2*angle)));
+		testVectors.add(new Vector(Math.cos(-1*angle), Math.sin(-1*angle)));
+		testVectors.add(new Vector(1,0));
+		testVectors.add(new Vector(Math.cos(angle), Math.sin(angle)));
+		testVectors.add(new Vector(Math.cos(2*angle), Math.sin(2*angle)));
+		
+		for (int i = 0 ; i < 5; i++) {
+			int testPointX = (int)Math.round(testVectors.get(i).x + CENTER_POINT.x);
+			int testPointY = (int)Math.round(testVectors.get(i).y + CENTER_POINT.y);
+			Point testPoint = new Point(testPointX, testPointY);
+			
+			assertEquals(testPoint, range.get(i));
+		}
+		
 	}
 
 	/**
 	 * Test method for {@link basic_objects.RadialVectors#getOpposite(java.awt.Point)}.
 	 */
 	public void testGetOpposite() {
-		fail("Not yet implemented");
+		Point oppPoint = radialVectors.getOpposite(new Point(CENTER_POINT.x + 1, CENTER_POINT.y));
+		
+		Point testPoint = new Point(CENTER_POINT.x - 1, CENTER_POINT.y);
+		assertEquals(testPoint, oppPoint);
+		
+		oppPoint = radialVectors.getOpposite(new Point(CENTER_POINT.x + 11, CENTER_POINT.y - 50));
+		testPoint = new Point(CENTER_POINT.x - 11, CENTER_POINT.y + 50);
+		assertEquals(testPoint, oppPoint);
 	}
 
 	/**
 	 * Test method for {@link basic_objects.RadialVectors#getPointAtIndex(int)}.
 	 */
 	public void testGetPointAtIndex() {
-		fail("Not yet implemented");
+		Point pointAtIndex = radialVectors.getPointAtIndex(2);
+		Point testPoint = new Point(CENTER_POINT.x, CENTER_POINT.y + 10);
+		
+		assertEquals(testPoint, pointAtIndex);
+	}
+	
+	/**
+	 * Test method for {@link basic_objects.RadialVectors#multiplyRadius(double)}.
+	 */
+	public void testMultiplyRadius() {
+		radialVectors.multiplyRadius(2);
+		assertEquals(20, radialVectors.getDistance());
+		
+		
 	}
 
 }
