@@ -36,7 +36,7 @@ public class DetectSymmetryTest extends TestCase {
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
-		String imagePath = ".\\testImages\\testImage.png";
+		String imagePath = ".\\testImages\\testImage1.png";
 		cluster = TestShape.getCluster(imagePath);
 		image = TestShape.getGeneticSlideImage();
 		cluster.createMedialAxisGraph(image);

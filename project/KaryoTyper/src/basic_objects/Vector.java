@@ -64,5 +64,14 @@ public class Vector extends Point2D.Double {
 	public static Vector add(Vector v1, Vector v2) {
 		return new Vector(v1.x + v2.x, v1.y + v2.y);
 	}
+	
+	public static Vector multiply(Vector v, double scalar) {
+		Vector prodVector = new Vector(v.x * scalar, v.y * scalar);
+		return prodVector;
+	}
+	
+	public static Vector multiply(double scalar, Vector v) {
+		return multiply(v, scalar);
+	}
 
 }
