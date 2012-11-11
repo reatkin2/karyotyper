@@ -57,7 +57,37 @@ public class Extractor {
 	public LinkedList<ChromosomeCluster> getSplitList() {
 		return splitList;
 	}
+	public Rectangle getBounds(GeneticSlideImage img,Rectangle canvasBounds,SearchArea searchArea,Point imgPoint,Point searchPoint,Point canvasPoint){
+		Rectangle combinedBounds=new Rectangle();
+		Point[] max=new Point[3];
+		Point[] min=new Point[3];
+		max[0]=new Point(canvasBounds.width-canvasPoint.x+imgPoint.x,canvasBounds.height-canvasPoint.y+imgPoint.y);
+		min[0]=new Point(canvasBounds.x-canvasPoint.x+imgPoint.x,canvasBounds.y-canvasPoint.y+imgPoint.y);
+		max[1]=new Point(img.getImgWidth(),img.getImgHeight());
+		min[1]=new Point(0,0);
+		max[2]=new Point(searchArea.getWidth()-searchPoint.x+imgPoint.x,searchArea.getHeight()-searchPoint.y+imgPoint.y);
+		min[2]=new Point(0-searchPoint.x+imgPoint.x,0-searchPoint.y+imgPoint.y);
+		combinedBounds=new Rectangle(min[0].x,min[0].y,max[0].x,max[0].y);
+		for(int i=1;i<3;i++){
+			if(min[i].x>combinedBounds.x){
+				combinedBounds.setLocation(min[i].x, combinedBounds.y);
+			}
+			if(min[i].y>combinedBounds.y){
+				combinedBounds.setLocation(combinedBounds.x,min[i].y);
+			}
+			if(max[i].x<combinedBounds.width){
+				combinedBounds.setSize(max[i].x, combinedBounds.height);
+			}
+			if(max[i].y<combinedBounds.height){
+				combinedBounds.setSize( combinedBounds.width,max[i].y);
+			}
 
+		}
+		
+		
+		return new Rectangle(combinedBounds.x,combinedBounds.y,
+				combinedBounds.width-combinedBounds.x,combinedBounds.height-combinedBounds.y);
+	}
 	/**
 	 * gets all connected matching colored pixels that are the background color and returns cluster
 	 * on the 2d integer array -canvas- painted by the number -clusterID-
@@ -76,12 +106,12 @@ public class Extractor {
 	 * @return the 2d integer canvas that represents the cluster
 	 */
 	public short[][] getMatchingPixel(SearchArea searchArea,GeneticSlideImage img, Rectangle bounds,
-										Point currentCoord,Point searchAreaPoint,Point canvasOrigin,
+										Point currentCoord,Point searchAreaStart,Point canvasOrigin,
 										short[][] canvas, short clusterID,boolean aboveThreshold,int threshold) {
 		LinkedList<Point> foundList = new LinkedList<Point>();
 		Point canvasOffset = new Point(canvasOrigin.x - currentCoord.x, canvasOrigin.y
 				- currentCoord.y);
-		Point searchOffset=new Point(searchAreaPoint.x - currentCoord.x, searchAreaPoint.y
+		Point searchOffset=new Point(searchAreaStart.x - currentCoord.x, searchAreaStart.y
 				- currentCoord.y);
 		searchArea.initNextPixel();
 		foundList.add(currentCoord);
@@ -89,81 +119,47 @@ public class Extractor {
 			currentCoord = foundList.pop();
 			// loop 8 times once for every position around the center pixel
 			for (int i = 0; i < 8; i++) {
+				Point imgPoint=new Point(currentCoord.x + AroundPixel.getPos(i).x,currentCoord.y + AroundPixel.getPos(i).y);
+				Point searchPoint=new Point(currentCoord.x + searchOffset.x+ AroundPixel.getPos(i).x,
+						currentCoord.y +searchOffset.y + AroundPixel.getPos(i).y);
+				Point canvasPoint=new Point(currentCoord.x + canvasOffset.x+ AroundPixel.getPos(i).x,currentCoord.y
+						+ canvasOffset.y + AroundPixel.getPos(i).y);
 				/*
 				 * if the spot to be checked is inside of the bounds and if the pixel is inside the
 				 * visible resolution of the screen
 				 */
-				if (currentCoord.x + AroundPixel.getPos(i).x < img.getImgWidth()
-						&& currentCoord.y + AroundPixel.getPos(i).y < img.getImgHeight()
-						&& (currentCoord.x+searchOffset.x) + AroundPixel.getPos(i).x < searchArea.getWidth()
-						&& (currentCoord.y+searchOffset.y) + AroundPixel.getPos(i).y < searchArea.getHeight()
-						&& (currentCoord.y+searchOffset.y)+ AroundPixel.getPos(i).y >= 0
-						&& (currentCoord.x+searchOffset.x)+ AroundPixel.getPos(i).x >= 0
-						&& currentCoord.x+AroundPixel.getPos(i).x >= 0 
-						&& currentCoord.y+AroundPixel.getPos(i).y >= 0) {
-					if (!searchArea.isPixelChecked(new Point(currentCoord.x + searchOffset.x
-							+ AroundPixel.getPos(i).x,
-							currentCoord.y +searchOffset.y + AroundPixel.getPos(i).y))) {
+				if (bounds.contains(imgPoint)) {
+					if (!searchArea.isPixelChecked(searchPoint)) {
 						// if the spot to be checked value is -5 meaning it
 						// hasn't been checked yet
-						if (!bounds.contains(new Point(currentCoord.x + canvasOffset.x
-								+ AroundPixel.getPos(i).x, currentCoord.y + canvasOffset.y
-								+ AroundPixel.getPos(i).y))
-								|| canvas[currentCoord.x + canvasOffset.x + AroundPixel.getPos(i).x][currentCoord.y
-										+ canvasOffset.y + AroundPixel.getPos(i).y] == -5) {
+						if (canvas[canvasPoint.x][canvasPoint.y] == -5) {
 							// if the pixel at the position aroundDot matches
 							// the color
-							Color temp = img.getColorAt(currentCoord.x + AroundPixel.getPos(i).x,
-									currentCoord.y + AroundPixel.getPos(i).y);
+							Color temp = img.getColorAt(imgPoint.x,imgPoint.y);
 							// was isTargeTColor2(this.imgAvgColor,temp)
 							if (!aboveThreshold&&PixelColor.isBelowThreshold(temp, threshold)) {
-								searchArea.markPixelChecked(new Point(currentCoord.x
-										+ AroundPixel.getPos(i).x +searchOffset.x , currentCoord.y
-										+ AroundPixel.getPos(i).y+searchOffset.y ));
+								searchArea.markPixelChecked(searchPoint);
 								this.currPixelCount++;
 								// paint the canvas at the respectful position
 								// on 2d canvas to the clusterID number
-								if (bounds.contains(new Point(currentCoord.x + canvasOffset.x
-										+ AroundPixel.getPos(i).x, currentCoord.y + canvasOffset.y
-										+ AroundPixel.getPos(i).y))) {
-									canvas[currentCoord.x + canvasOffset.x
-											+ AroundPixel.getPos(i).x][currentCoord.y
-											+ canvasOffset.y + AroundPixel.getPos(i).y] = clusterID;
-								}
-								if (!searchArea.isPixelFound(new Point(currentCoord.x
-										+ AroundPixel.getPos(i).x + searchOffset.x , currentCoord.y
-										+ AroundPixel.getPos(i).y + searchOffset.y ))) {
-									foundList.add(new Point(currentCoord.x
-											+ AroundPixel.getPos(i).x, currentCoord.y
-											+ AroundPixel.getPos(i).y));
-									searchArea.addPixelFound(new Point(currentCoord.x
-											+ AroundPixel.getPos(i).x + searchOffset.x , currentCoord.y
-											+ AroundPixel.getPos(i).y + searchOffset.y ));
+								//TODO(aamcknig):this fails to be true when using small bounds and clusters for dark bands 
+								canvas[canvasPoint.x][canvasPoint.y] = clusterID;
+								if (!searchArea.isPixelFound(searchPoint)) {
+									foundList.add(imgPoint);
+									searchArea.addPixelFound(searchPoint);
 								}
 							}
 							if (aboveThreshold&&PixelColor.isAboveThreshold(temp, threshold)) {
-								searchArea.markPixelChecked(new Point(currentCoord.x
-										+ AroundPixel.getPos(i).x + searchOffset.x , currentCoord.y
-										+ AroundPixel.getPos(i).y + searchOffset.y ));
+								searchArea.markPixelChecked(searchPoint);
 								this.currPixelCount++;
 								// paint the canvas at the respectful position
 								// on 2d canvas to the clusterID number
-								if (bounds.contains(new Point(currentCoord.x + canvasOffset.x
-										+ AroundPixel.getPos(i).x, currentCoord.y + canvasOffset.y
-										+ AroundPixel.getPos(i).y))) {
-									canvas[currentCoord.x + canvasOffset.x
-											+ AroundPixel.getPos(i).x][currentCoord.y
-											+ canvasOffset.y + AroundPixel.getPos(i).y] = clusterID;
-								}
-								if (!searchArea.isPixelFound(new Point(currentCoord.x
-										+ AroundPixel.getPos(i).x + searchOffset.x , currentCoord.y
-										+ AroundPixel.getPos(i).y + searchOffset.y ))) {
-									foundList.add(new Point(currentCoord.x
-											+ AroundPixel.getPos(i).x, currentCoord.y
-											+ AroundPixel.getPos(i).y));
-									searchArea.addPixelFound(new Point(currentCoord.x
-											+ AroundPixel.getPos(i).x + searchOffset.x , currentCoord.y
-											+ AroundPixel.getPos(i).y + searchOffset.y ));
+								canvas[currentCoord.x + canvasOffset.x
+										+ AroundPixel.getPos(i).x][currentCoord.y
+										+ canvasOffset.y + AroundPixel.getPos(i).y] = clusterID;
+								if (!searchArea.isPixelFound(searchPoint)) {
+									foundList.add(imgPoint);
+									searchArea.addPixelFound(searchPoint);
 								}
 							}
 						}
@@ -463,7 +459,7 @@ public class Extractor {
 				this.splitList.add(tempClusters.get(i));
 			}
 		}
-		return splitCount;// targetNimgCount;
+		return tempClusters.size();// targetNimgCount;
 	}
 
 	/**
@@ -508,7 +504,8 @@ public class Extractor {
 		 * xCor,yCormarking the matching pixels as the number 1ont the canvas
 		 */
 		this.currPixelCount = 0;
-		canvas = getMatchingPixel(searchArea,img, canvasBounds, imgCor,searchAreaPoint, canvasStart, canvas,
+		Rectangle allBounds=this.getBounds(img, canvasBounds, searchArea, imgCor, searchAreaPoint, canvasStart);
+		canvas = getMatchingPixel(searchArea,img, allBounds, imgCor,searchAreaPoint, canvasStart, canvas,
 				(short) 0,aboveThreshold,threshold);
 		if (/* !this.onImgEdge&& */this.currPixelCount > this.firstPixelMin||!aboveThreshold) {
 			shpN = new ChromosomeCluster(new Point(sizeSquared, sizeSquared));
