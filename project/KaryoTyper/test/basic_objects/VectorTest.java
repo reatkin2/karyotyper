@@ -63,11 +63,15 @@ public class VectorTest extends TestCase {
 	 */
 	public void testRotateVectorVectorDouble() {
 		Vector v1 = Vector.rotateVector(vector, Math.PI/4);
-		double newX = Math.sqrt(2)/2;
-		double newY = Math.sqrt(2)/2;
+		long actualX = Math.round(v1.x * 100000);
+		long actualY = Math.round(v1.y * 100000);
+		long testX = Math.round(Math.sqrt(2)/2 * 100000);
+		long testY = Math.round(Math.sqrt(2)/2 * 100000);
 		
-		assertEquals(v1.x, newX);
-		assertEquals(v1.y, newY);
+		
+		
+		assertEquals(testX, actualX);
+		assertEquals(testY, actualY);
 	}
 
 	/**
