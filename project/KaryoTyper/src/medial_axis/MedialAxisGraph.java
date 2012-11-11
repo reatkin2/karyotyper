@@ -980,5 +980,5 @@ public class MedialAxisGraph extends MedialAxis {
 	public void setChromoWidth(double chromoWidth) {
 		this.chromoWidth = chromoWidth;
 	}
-
+	
 }

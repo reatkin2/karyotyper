@@ -31,7 +31,67 @@ public class ExtractorTest extends TestCase {
 		
 		return searchArea;
 	}
+	public void testGetBounds(){
+		Extractor extract=new Extractor();
+		
+		BufferedImage tempImg = new BufferedImage(100,100, BufferedImage.TYPE_3BYTE_BGR);
+		GeneticSlideImage img=new GeneticSlideImage(tempImg);
+		SearchArea searchArea=new SearchArea(50, 50);
+		short[][] canvas =new short[30][30];
+		Point imgPoint=new Point(88,95);
+		Point searchPoint=new Point(49,49);
+		Point canvasPoint=new Point(15,15);
 
+		Rectangle tempRect=extract.getBounds(img,new Rectangle(0,0,30,30),
+								searchArea,imgPoint,
+								searchPoint,canvasPoint);
+		Rectangle correct=new Rectangle(73,80,89-73,96-80);
+		assertTrue(tempRect.equals(correct));
+		
+		tempImg = new BufferedImage(100,100, BufferedImage.TYPE_3BYTE_BGR);
+		img=new GeneticSlideImage(tempImg);
+		searchArea=new SearchArea(50, 50);
+		canvas =new short[30][30];
+		imgPoint=new Point(88,95);
+		searchPoint=new Point(49,49);
+		canvasPoint=new Point(15,15);
+
+		tempRect=extract.getBounds(img,new Rectangle(0,0,30,30),
+								searchArea,imgPoint,
+								searchPoint,canvasPoint);
+		correct=new Rectangle(73,80,89-73,96-80);
+		assertTrue(tempRect.equals(correct));
+		
+		tempImg = new BufferedImage(10,10, BufferedImage.TYPE_3BYTE_BGR);
+		img=new GeneticSlideImage(tempImg);
+		searchArea=new SearchArea(10, 10);
+		Rectangle bounds=new Rectangle(0,0,20,20);
+		canvas=new short[20][20];
+		Point searchAreaPoint=new Point(3,3);
+		Point currentPoint=new Point(3,3);
+		Point canvasOrigin=new Point(10,10);
+		tempRect=extract.getBounds(img,bounds,
+				searchArea,currentPoint,
+				searchAreaPoint,canvasOrigin);
+		correct=new Rectangle(0,0,10,10);
+		assertTrue(tempRect.equals(correct));
+		
+		tempImg = new BufferedImage(10,10, BufferedImage.TYPE_3BYTE_BGR);
+		img=new GeneticSlideImage(tempImg);
+		searchArea=new SearchArea(10, 10);
+		bounds=new Rectangle(0,0,20,20);
+		canvas=new short[20][20];
+		searchAreaPoint=new Point(2,2);
+		currentPoint=new Point(3,3);
+		canvasOrigin=new Point(10,10);
+		tempRect=extract.getBounds(img,bounds,
+				searchArea,currentPoint,
+				searchAreaPoint,canvasOrigin);
+		correct=new Rectangle(1,1,9,9);
+		assertTrue(tempRect.equals(correct));
+
+
+	}
 	public void testGetMatchingPixelLeft(){
 		SearchArea searchArea=new SearchArea(10, 10);
 		searchArea=cutInHalf(searchArea);
@@ -157,7 +217,6 @@ public class ExtractorTest extends TestCase {
 		int threshold=200;
 		SearchArea searchArea=new SearchArea(10, 10);
 		int middle=(int)Math.round(searchArea.getHeight()/2);
-		Rectangle bounds=new Rectangle(0,0,20,20);
 		short[][] canvas=new short[20][20];
 		for(int j=0;j<canvas.length;j++){
 			for(int i=0;i<canvas[0].length;i++){
@@ -171,7 +230,8 @@ public class ExtractorTest extends TestCase {
 		short clusterID=0;
 		canvas[10][10]=clusterID;
 		Extractor extract=new Extractor();
-		canvas=extract.getMatchingPixel(searchArea,img,bounds,
+		Rectangle allbounds=extract.getBounds(img, new Rectangle(0,0,20,20), searchArea, currentPoint, searchAreaPoint, canvasOrigin);
+		canvas=extract.getMatchingPixel(searchArea,img,allbounds,
 				currentPoint,searchAreaPoint, canvasOrigin,canvas,clusterID,aboveThreshold,threshold);
 		for(int i=0;i<canvas.length;i++){
 			for(int j=0;j<canvas[0].length;j++){
@@ -194,7 +254,8 @@ public class ExtractorTest extends TestCase {
 				canvas[j][i]=-5;
 			}
 		}
-		canvas=extract.getMatchingPixel(searchArea,img,bounds,
+		allbounds=extract.getBounds(img, new Rectangle(0,0,20,20), searchArea, currentPoint, searchAreaPoint, canvasOrigin);
+		canvas=extract.getMatchingPixel(searchArea,img,allbounds,
 				currentPoint,searchAreaPoint, canvasOrigin,canvas,clusterID,false,threshold);
 		for(int i=0;i<canvas.length;i++){
 			for(int j=0;j<canvas[0].length;j++){
@@ -217,7 +278,8 @@ public class ExtractorTest extends TestCase {
 				canvas[j][i]=-5;
 			}
 		}
-		canvas=extract.getMatchingPixel(searchArea,img,bounds,
+		allbounds=extract.getBounds(img, new Rectangle(0,0,20,20), searchArea, currentPoint, searchAreaPoint, canvasOrigin);
+		canvas=extract.getMatchingPixel(searchArea,img,allbounds,
 				currentPoint,searchAreaPoint, canvasOrigin,canvas,clusterID,false,threshold);
 		for(int i=0;i<canvas.length;i++){
 			for(int j=0;j<canvas[0].length;j++){
@@ -449,15 +511,9 @@ public class ExtractorTest extends TestCase {
 		for(int i=0;i<5;i++){
 			assertEquals(3,tempBands.get(i).getPixelCount());
 		}
-//		assertEquals(new Point(2,2),tempBands.get(0).getSize());
-//		assertEquals(2,tempBands.get(0).getPixelCount());
-//		assertEquals(new Point(3,3),tempBands.get(0).getImageLocation());
-//		assertTrue(tempBands.get(0).getPos(new Point(0,0)));
-//		assertTrue(tempBands.get(0).getPos(new Point(1,1)));
-//		assertFalse(tempBands.get(0).getPos(new Point(0,1)));
-//		assertFalse(tempBands.get(0).getPos(new Point(1,0)));
 
 
 	}
+
 		
 }
