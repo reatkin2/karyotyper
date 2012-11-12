@@ -167,8 +167,11 @@ public class RadialVectorsTest extends TestCase {
 	public void testMultiplyRadius() {
 		radialVectors.multiplyRadius(2);
 		assertEquals(20.0, radialVectors.getDistance());
-		
-		
+	}
+	
+	public void testToString() {
+		radialVectors.normalize();
+		System.out.println(radialVectors.toString());
 	}
 
 }

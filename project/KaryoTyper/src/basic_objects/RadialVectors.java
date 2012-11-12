@@ -132,8 +132,6 @@ public class RadialVectors {
 	public ArrayList<Vector> getVectorsInRange(Vector middleVector, double angle, int numVectors) {
 		ArrayList<Vector> vectorsInRange = new ArrayList<Vector>(numVectors);
 
-		
-		
 		return vectorsInRange;
 	}
 
@@ -175,10 +173,29 @@ public class RadialVectors {
 		Point point = getVectorAsPointOnImage(vectorList.get(index));
 		return point;
 	}
-	
+
 	public Point getPointAtIndexAndDistance(int index, double distance) {
 		Vector vector = vectorList.get(index);
-		double multiplier = distance/this.distance;
+		double multiplier = distance / this.distance;
+		vector.x *= multiplier;
+		vector.y *= multiplier;
+
+		return getVectorAsPointOnImage(vector);
+	}
+	
+	/**
+	 * Based on a specified point in the list, returns the rotated point at the
+	 * specified distance.
+	 * 
+	 * @param index
+	 * @param angle
+	 * @param distance
+	 * @return
+	 */
+	public Point getRotatedPointAtDistance(int index, double angle, double distance) {
+		Vector vector = vectorList.get(index);
+		vector = Vector.rotateVector(vector, angle);
+		double multiplier = distance/ this.distance;
 		vector.x *= multiplier;
 		vector.y *= multiplier;
 		
@@ -195,5 +212,30 @@ public class RadialVectors {
 
 	public void normalize() {
 		multiplyRadius(1.0 / distance);
+	}
+
+	public String toString() {
+		String radialVectorStr = "Center point: (" + centerPoint.x + ", " + centerPoint.y + ")\n";
+		radialVectorStr += "Theta: " + theta + "\n";
+		radialVectorStr += "Distance: " + distance + "\n";
+		
+		for (Vector v : vectorList) {
+			radialVectorStr += "(" + v.x + ", " + v.y + ")\n";
+		}
+		
+		return radialVectorStr;
+	}
+	
+	public String pointsToString() {
+		ArrayList<Point> pointList = getVectorsAsPointsOnImage();
+		String pointsStr = "Center point: (" + centerPoint.x + ", " + centerPoint.y + ")\n";
+		pointsStr += "Theta: " + theta + "\n";
+		pointsStr += "Distance: " + distance + "\n";
+		
+		for (Point p : pointList) {
+			pointsStr += "(" + p.x + ", " + p.y + ")\n";
+		}
+		
+		return pointsStr;
 	}
 }
