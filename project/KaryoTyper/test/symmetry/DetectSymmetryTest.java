@@ -60,7 +60,7 @@ public class DetectSymmetryTest extends TestCase {
 	 */
 	public void testDetectWidthSymmetry() {
 		DetectSymmetry.detectWidthSymmetry(axisGraph, image);
-		fail("Not yet implemented");
+		fail("Not yet implemented.  DetectSymmetry may be obsolete (11/11/2012)");
 	}
 
 }

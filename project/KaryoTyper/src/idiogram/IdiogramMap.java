@@ -1,6 +1,5 @@
 package idiogram;
 
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
@@ -10,7 +9,6 @@ import java.util.regex.Pattern;
 
 import characterization.ChromosomeBand;
 import characterization.ChromosomeBand.Type;
-
 
 /**
  * Wrapper for a Java HashMap that maps an idiogram to a chromosome number.
@@ -34,24 +32,27 @@ public class IdiogramMap {
 	public final int NUM_IDIOGRAMS = 69;
 
 	/** Maps idiogram to chromosome number. */
-	private HashMap<Idiogram, Integer> idiogramMap;
+	private HashMap<Integer, Idiogram> idiogramMap;
 
 	private Scanner fileReader;
 
 	/**
 	 * Initializes the HashMap
+	 * 
+	 * @param file
+	 *            csv file to parse - ".\\ChromosomeIdiogramSheet.csv"
 	 */
-	public IdiogramMap() {
-		idiogramMap = new HashMap<Idiogram, Integer>(NUM_IDIOGRAMS);
-		idiogramSheetParser();
+	public IdiogramMap(File file) {
+		idiogramMap = new HashMap<Integer, Idiogram>(NUM_IDIOGRAMS);
+		idiogramSheetParser(file);
 	}
 
 	/**
 	 * Parses ChromosomeIdiogramSheet.csv to build idiogram map
 	 */
-	private void idiogramSheetParser() {
+	private void idiogramSheetParser(File file) {
 		try {
-			fileReader = new Scanner(new File(".\\ChromosomeIdiogramSheet.csv"));
+			fileReader = new Scanner(file);
 		} catch (FileNotFoundException e) {
 			System.out.println("File does not exist.");
 			e.printStackTrace();
@@ -71,18 +72,18 @@ public class IdiogramMap {
 			textLine = fileReader.nextLine();
 			lineReader = new Scanner(textLine);
 			lineReader.useDelimiter(Pattern.compile("[\\\",\\s]"));
-			
-			//Debug code
-//			System.out.println("\n" + textLine);
-			//End debug
+
+			// Debug code
+			// System.out.println("\n" + textLine);
+			// End debug
 
 			while (lineReader.hasNext()) {
 				token = lineReader.next();
-				
-				//Debug code
-//				System.out.print("@" + token + ", ");
-				//End debug
-				
+
+				// Debug code
+				// System.out.print("@" + token + ", ");
+				// End debug
+
 				if (token.toLowerCase().equals("white")) {
 					bandType = Type.WHITE;
 					bandLength = lineReader.nextInt();
@@ -112,7 +113,7 @@ public class IdiogramMap {
 			}// End while(lineReader.hasNext())
 
 			if (newIdiogram.getBands().size() > 0) {
-				idiogramMap.put(newIdiogram, chromosomeNumber);
+				idiogramMap.put(chromosomeNumber, newIdiogram);
 			}
 
 		}// End while(fileReader.hasNext())
@@ -126,8 +127,8 @@ public class IdiogramMap {
 	 *            Requested idiogram
 	 * @return Chromosome number mapped to or null if the requested idiogram doesn't exist.
 	 */
-	public Integer get(Idiogram i) {
-		return idiogramMap.get(i);
+	public Idiogram get(int index) {
+		return idiogramMap.get(index);
 	}
 
 	/*
@@ -139,10 +140,10 @@ public class IdiogramMap {
 	public String toString() {
 		String idiogramMapString = "";
 
-		Set<Idiogram> idiograms = idiogramMap.keySet();
+		Set<Integer> idiograms = idiogramMap.keySet();
 
-		for (Idiogram i : idiograms) {
-			idiogramMapString += "Chromosome number " + idiogramMap.get(i) + ": " + i.toString()
+		for (Integer i : idiograms) {
+			idiogramMapString += "Chromosome number " + i + ": " + idiogramMap.get(i).toString()
 					+ "\n";
 		}
 
