@@ -175,6 +175,15 @@ public class RadialVectors {
 		Point point = getVectorAsPointOnImage(vectorList.get(index));
 		return point;
 	}
+	
+	public Point getPointAtIndexAndDistance(int index, double distance) {
+		Vector vector = vectorList.get(index);
+		double multiplier = distance/this.distance;
+		vector.x *= multiplier;
+		vector.y *= multiplier;
+		
+		return getVectorAsPointOnImage(vector);
+	}
 
 	public void multiplyRadius(double multiple) {
 		distance *= multiple;
