@@ -69,7 +69,7 @@ public class MirrorSplit {
 				// }
 				// // use 360 angle
 				// else {
-				tempOrtho = getShortestDistance(bounds, new Point(-1, -1), nextPoint.getPoint(),
+				tempOrtho =this.getPathOrtho(bounds, nextPoint.getChildren().get(0).getPoint(), nextPoint.getPoint(),
 						this.medialAxisGraph.getChromoWidth(),
 						this.medialAxisGraph.getDistanceMap());
 				lastStable = true;
@@ -106,26 +106,36 @@ public class MirrorSplit {
 					// draw cutline on one side
 					if (!widthReached) {
 						//if we got both lines stick to the one farthest from the intersection
+						//TODO(aamcknig):debug changes here
 						if (tempOrtho.isTwoLines()
-								&& (tempOrtho.getLowerDistance() < tempOrtho.getUpperDistance())) {
-							int changeX = tempOrtho.getLowerPoint().x
-									- tempOrtho.getCenterPoint().x;
-							int changeY = tempOrtho.getLowerPoint().y
-									- tempOrtho.getCenterPoint().y;
-							tempOrtho.setUpperPoint(new Point(tempOrtho.getCenterPoint().x
-									- changeX, tempOrtho.getCenterPoint().y - changeY));
+								&& (tempOrtho.getUpperPoint().distance(startPoints.get(i).getIntersection().getPoint())
+										< tempOrtho.getLowerPoint().distance(startPoints.get(i).getIntersection().getPoint()))) {
+							double lowerPercent=tempOrtho.getLowerPoint().distance(tempOrtho.getCenterPoint())/upperDistanceAvg;
+							double lowerChangeX =( tempOrtho.getLowerPoint().x
+									- tempOrtho.getCenterPoint().x);
+							double lowerChangeY =( tempOrtho.getLowerPoint().y
+									- tempOrtho.getCenterPoint().y);	
+							double changeX=(lowerChangeX/lowerPercent)-lowerChangeX;
+							double changeY=(lowerChangeY/lowerPercent)-lowerChangeY;
+							tempOrtho.setUpperPoint(new Point((int)Math.round(tempOrtho.getCenterPoint().x
+									- changeX), (int)Math.round(tempOrtho.getCenterPoint().y - changeY)));
 							if (bounds.contains(tempOrtho.getUpperPoint())) {
 								cutList.add(tempOrtho.getUpperPoint());
 							}
 							
 						} else {//if we got one line use the avearge from the edge point
 							//to make the center point and double it over to make the cutine
-							int changeX = tempOrtho.getUpperPoint().x
-									- tempOrtho.getCenterPoint().x;
-							int changeY = tempOrtho.getUpperPoint().y
-									- tempOrtho.getCenterPoint().y;
-							tempOrtho.setLowerPoint(new Point(tempOrtho.getCenterPoint().x
-									- changeX, tempOrtho.getCenterPoint().y - changeY));
+							//TODO(aamcknig):debug changes here
+							double upperPercent=tempOrtho.getUpperPoint().distance(tempOrtho.getCenterPoint())/upperDistanceAvg;
+							double upperChangeX = (tempOrtho.getUpperPoint().x
+									- tempOrtho.getCenterPoint().x)*1.14;
+							double upperChangeY = (tempOrtho.getUpperPoint().y
+									- tempOrtho.getCenterPoint().y)*1.14;
+							double changeX=(upperChangeX/upperPercent)-upperChangeX;
+							double changeY=(upperChangeY/upperPercent)-upperChangeY;
+
+							tempOrtho.setLowerPoint(new Point((int)Math.round(tempOrtho.getCenterPoint().x
+									- changeX), (int)Math.round(tempOrtho.getCenterPoint().y - changeY)));
 							if (bounds.contains(tempOrtho.getLowerPoint())) {
 								cutList.add(tempOrtho.getLowerPoint());
 							}
@@ -181,8 +191,8 @@ public class MirrorSplit {
 	}
 
 	public boolean isProjectionEnd(Rectangle bounds, Vertex checkPoint, Vector nextVector) {
-		int x = (int) Math.round((double) checkPoint.getPoint().x + (4 * nextVector.x));
-		int y = (int) Math.round((double) checkPoint.getPoint().y + (4 * nextVector.y));
+		int x = (int) Math.round((double) checkPoint.getPoint().x + (4.5 * nextVector.x));
+		int y = (int) Math.round((double) checkPoint.getPoint().y + (4.5 * nextVector.y));
 		Point tempPoint = new Point(x, y);
 		if (bounds.contains(tempPoint)) {
 			if (this.medialAxisGraph.getDistanceMap().getDistanceFromEdge(tempPoint) < 1) {
@@ -260,7 +270,112 @@ public class MirrorSplit {
 		}
 		return pointList;
 	}
+	public OrthogonalLine getPathOrtho(Rectangle bounds, Point endPoint, Point centerPoint,
+			double checkDistance, DistanceMap distanceMap) {// throws Exception
+		boolean foundShortest = false;
+		OrthogonalLine tempOrthoHalf = null;
+		OrthogonalLine tempOrthoLine = null;
+		int vectorCount = 40;
+		double shortest = -1;
+		Point shortestSideLeft = new Point(-1, -1);
+		Point shortestSideRight = new Point(-1, -1);
+		int leftVector[] = new int[vectorCount];
+		int rightVector[] = new int[vectorCount];
+		Point leftPoints[] = new Point[vectorCount];
+		Point rightPoints[] = new Point[vectorCount];
 
+		// init array
+		for (int i = 0; i < vectorCount; i++) {
+			leftVector[i] = -1;
+			rightVector[i] = -1;
+		}
+		RadialVectors vectors;
+		// move out from axisPoint tell we run off distance map both sides
+		for (int i = 1; !foundShortest && i < checkDistance; i++) {
+			ArrayList<Point> pointList = new ArrayList<Point>();
+			vectorCount = 40;
+			vectors = new RadialVectors(centerPoint, vectorCount, (double) i);
+			pointList = vectors.getPointsInRange(endPoint, 360, vectorCount);
+//			} else {
+//				vectors = new RadialVectors(centerPoint, 40, (double) i);
+//				pointList = vectors.getVectorsAsPointsOnImage();
+//			}
+			// if(pointList.size()!=vectorCount){
+			// throw new Exception("array dosn't match number of points");
+			// }
+			// go thru points in pointlist at distance i
+			int middle=vectorCount/2;
+			for (int j = 0; j < middle; j++) {
+				// check if left side has passed edge of chromosome//upper
+				if (bounds.contains(pointList.get(j))
+						&& distanceMap.getDistanceFromEdge(pointList.get(j)) <= 0) {
+					if (leftVector[j] == -1) {
+						leftVector[j] = i;
+						leftPoints[j] = pointList.get(j);
+						if (shortestSideLeft.x == -1) {
+							shortestSideLeft = pointList.get(j);
+							tempOrthoHalf = new OrthogonalLine(centerPoint, leftPoints[j],
+									pointList.get(j+middle), leftVector[j], -1, j);
+						} else if (pointList.get(j).distance(centerPoint) < (centerPoint
+								.distance(shortestSideLeft))) {
+							shortestSideLeft = pointList.get(j);
+							if(tempOrthoHalf!=null){
+								if(tempOrthoHalf.getLowerPoint().x!=-1){
+									tempOrthoHalf = new OrthogonalLine(centerPoint, leftPoints[j],
+											tempOrthoHalf.getLowerPoint(),leftVector[j],tempOrthoHalf.getLowerInt(),  j);	
+
+								}
+								else{
+									tempOrthoHalf = new OrthogonalLine(centerPoint, leftPoints[j],
+											pointList.get(j+middle), leftVector[j],-1, j);
+								}
+							}
+							else{
+								tempOrthoHalf = new OrthogonalLine(centerPoint, pointList.get(j),
+										pointList.get(j+middle), leftVector[j],-1, j);
+							}
+						}
+					}
+				}
+				// check if right side has passed edge of chromosome//lower
+				if (bounds.contains(pointList.get(j+middle))
+						&& distanceMap.getDistanceFromEdge(pointList.get(j+middle)) <= 0) {
+					if (rightVector[j] == -1) {
+						rightVector[j] = i;
+						rightPoints[j] = pointList.get(j+middle);
+						if (shortestSideRight.x == -1) {
+							shortestSideRight = pointList.get(j+middle);
+							tempOrthoHalf = new OrthogonalLine(centerPoint, rightPoints[j],
+									pointList.get(j+middle), rightVector[j], -1, j);
+						} else if (pointList.get(j+middle).distance(centerPoint) < (centerPoint
+								.distance(shortestSideRight))) {
+							shortestSideRight = pointList.get(j);
+							if(tempOrthoHalf!=null){
+								if(tempOrthoHalf.getUpperPoint().x!=-1){
+									tempOrthoHalf = new OrthogonalLine(centerPoint, tempOrthoHalf.getUpperPoint(),
+											rightPoints[j], tempOrthoHalf.getUpperInt(),rightVector[j],  j);	
+								}
+								else{
+									tempOrthoHalf = new OrthogonalLine(centerPoint, pointList.get(j),
+											rightPoints[j], -1, rightVector[j], j);
+								}
+							}
+							else{
+								tempOrthoHalf = new OrthogonalLine(centerPoint, pointList.get(j),
+										rightPoints[j], -1, rightVector[j], j);
+							}
+
+						}
+					}
+				}
+			}
+			if (shortestSideRight.x!=-1&&shortestSideLeft.x!=-1) {// if(shortestTill==-1||shortest<shortestTill){
+				foundShortest = true;
+				return tempOrthoHalf;
+			}
+		}
+		return tempOrthoHalf;
+	}
 	public OrthogonalLine getShortestDistance(Rectangle bounds, Point endPoint, Point centerPoint,
 			double checkDistance, DistanceMap distanceMap) {// throws Exception
 		boolean foundShortest = false;

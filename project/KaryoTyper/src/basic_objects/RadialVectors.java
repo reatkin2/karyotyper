@@ -103,9 +103,10 @@ public class RadialVectors {
 		}
 
 		double localTheta = angle / (numPoints - 1);
-
-		Vector vector = getPointAsVector(endPoint);
-
+		//TODO(reatkin2): I changed this to be at the right distance each time aamcknig 
+		Vector vector = getPointAsVectorAtDistance(endPoint);
+		//TODO(reatkin2): I changed this to be at the right distance each time aamcknig 
+		
 		for (int i = 1; i <= middle; i++) {
 			Vector vectorP = Vector.rotateVector(vector, localTheta * i);
 			pointsInRange.set(middle + i, getVectorAsPointOnImage(vectorP));
@@ -142,7 +143,13 @@ public class RadialVectors {
 		int yOnImage = (int) Math.round(vector.y + centerPoint.y);
 		return new Point(xOnImage, yOnImage);
 	}
-
+	private Vector getPointAsVectorAtDistance(Point point){
+		double xComp = point.x - centerPoint.x;
+		double yComp = point.y - centerPoint.y;
+		Vector tempVector=new Vector(xComp, yComp);
+		tempVector=Vector.multiply(Vector.normalize(tempVector),this.distance);
+		return tempVector;
+	}
 	private Vector getPointAsVector(Point point) {
 		double xComp = point.x - centerPoint.x;
 		double yComp = point.y - centerPoint.y;
