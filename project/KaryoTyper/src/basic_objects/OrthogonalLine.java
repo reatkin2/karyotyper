@@ -61,6 +61,12 @@ public class OrthogonalLine {
 	public double getLowerDistance() {
 		return this.lowerPoint.distance(this.startPoint);
 	}
+	public int getLowerInt() {
+		return this.lowerDistance;
+	}
+	public int getUpperInt() {
+		return this.upperDistance;
+	}
 
 	public void setLowerDistance(int lowerDistance) {
 		this.lowerDistance = lowerDistance;

@@ -9,6 +9,7 @@ import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 
+import basic_objects.CutStartPoint;
 import basic_objects.PointList;
 import basic_objects.Vertex;
 
@@ -100,11 +101,12 @@ public class ChromosomeList {
 				MirrorSplit mirror=new MirrorSplit(tempGraph);
 				tempCluster.setPaintPoints(mirror.getAllProblemDistances(tempCluster.getBounds(), 
 						tempGraph.getAxisGraph(), image.getChromoWidth(), tempGraph.getDistanceMap()));
-				LinkedList<Vertex> startPoints=mirror.getStartPoints(tempGraph.getAxisGraph(), tempGraph.getIntersections(tempGraph.getAxisGraph()));
+				LinkedList<CutStartPoint> startPoints=mirror.getStartPoints(tempGraph.getAxisGraph(), tempGraph.getIntersections(tempGraph.getAxisGraph()));
 				LinkedList<Point> startPnts=new LinkedList<Point>();
 				for(int j=0;j<startPoints.size();j++){
-					startPnts.add(startPoints.get(j).getPoint());
+					startPnts.add(startPoints.get(j).getStartPoint().getPoint());
 				}
+				startPnts=mirror.markSplit(tempCluster.getBounds(), startPoints);
 				writeTargetImage("/shapeData/Keep/", tempCluster,
 							tempCluster.getPaintPoints(), Color.RED, startPnts, Color.BLUE);
 			}

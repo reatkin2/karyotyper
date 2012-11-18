@@ -58,7 +58,7 @@ private boolean[][] pixelFound;
 						.println("Starting file: " + filename.substring(filename.indexOf("imag")));
 			}
 			img = ImageIO.read(new File(filename));
-			System.out.println("Image Height: " + img.getHeight() + " Width: " + img.getWidth());
+			//System.out.println("Image Height: " + img.getHeight() + " Width: " + img.getWidth());
 		} catch (IOException e) {
 			System.out.println(e);
 		}

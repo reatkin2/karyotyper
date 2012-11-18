@@ -5,6 +5,7 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import basic_objects.CutStartPoint;
 import basic_objects.OrthogonalLine;
 import basic_objects.RadialVectors;
 import basic_objects.Vector;
@@ -20,115 +21,187 @@ public class MirrorSplit {
 		this.medialAxisGraph = graph;
 	}
 
-	// TODO(aamcknig): need to find a start point that is a stable start
-	// point where the width on both sides the chromosome are half the width
-	// of the chromosome
+	// TODO(aamcknig): make this so the projection sticks to the far side of the intersection
+
+	
+	
+	
 	// TODO(aamcknig): need to have two types of stop points where
 	// the chromosome comes to an end or you reach another stable part
 	// of the chromsome where the width on both sides of the medial axis
 	// are half the width of the chromosome
-	public void markSplit(Rectangle bounds, LinkedList<Vertex> startPoints) {
+	public LinkedList<Point> markSplit(Rectangle bounds, LinkedList<CutStartPoint> startPoints) {
 		double upperDistanceAvg = -1;
 		double lowerDistanceAvg = -1;
 		int stableCount = 0;
-		final int stableValue = 5;
-		int lastStable = 0;
-		int chromoWidthOffset = 2;
+		final double percentChromoWidthToCheckOutTo = 1.07;
+		final double minCromoWidthPercent = .6;
+		boolean firstMarking = true;
 		Vertex nextPoint;
 		Vector nextVector = null;
+		Vector projectionAvg=null;
+		int projectionCount=0;
 		Point currShortPoint = new Point(-1, -1);
 		LinkedList<OrthogonalLine> orthoList = new LinkedList<OrthogonalLine>();
 		LinkedList<Point> cutList = new LinkedList<Point>();
-		try {
-			for (int i = 0; i < startPoints.size(); i++) {
-				nextPoint = startPoints.get(i);
-				while (!isProjectionEnd(nextPoint, nextVector)) {
-					OrthogonalLine tempOrtho;
-					// use small angle rather than 360
-					if (i > 0 && lastStable == i - 1) {
-						tempOrtho = getShortestDistance(bounds, currShortPoint,
-								nextPoint.getPoint(), this.medialAxisGraph.getChromoWidth(),
-								this.medialAxisGraph.getDistanceMap());
-						if (tempOrtho.getIndex() < 5 || tempOrtho.getIndex() > 0) {
-							lastStable = i;
-						}
-
-					}
-					// use 360 angle
-					else {
-						tempOrtho = getShortestDistance(bounds, new Point(-1, -1),
-								nextPoint.getPoint(), this.medialAxisGraph.getChromoWidth(),
-								this.medialAxisGraph.getDistanceMap());
-					}
-					if (tempOrtho != null) {
-						// if we are stable and dont have both lines inside the width of chromosome
-						// use last good
-						if (tempOrtho.isTwoLines()
-								|| tempOrtho.getlength() > this.medialAxisGraph.getChromoWidth()
-										- chromoWidthOffset) {
-							orthoList.addFirst(tempOrtho);
-							// draw a cutline here
-							// use a array of pointlists for cut lines
-							// fill in the line with points between non adjacent points
-							// double over the center point
-							// and mark cut
-							cutList.add(tempOrtho.getLowerPoint());
-
-							stableCount = 0;
-						} else {
-							nextVector = getNextVector(tempOrtho, nextPoint);
-							nextPoint = getNextPoint(tempOrtho.getUpperPoint(),
-									tempOrtho.getLowerPoint(), nextVector);
-							// center on ortho line and project new point
-							// based on perpendicular to ortho line
-							// everything is normal here with chromosome
-							// walk along medial axis
-							// TODO(aamcknig):left off here
-							orthoList.addFirst(tempOrtho);
-							stableCount++;
+		for (int i = 0; i < startPoints.size(); i++) {
+			nextPoint = startPoints.get(i).getStartPoint();
+			nextVector = null;
+			firstMarking = true;
+			boolean lastStable = false;
+			OrthogonalLine tempOrtho = null;
+			OrthogonalLine lastOrtho = null;
+			while (firstMarking || !isProjectionEnd(bounds, nextPoint, nextVector)) {
+				firstMarking = false;
+				boolean widthReached = false;
+				boolean marked = false;
+				// use small angle rather than 360
+				// if (lastStable) {
+				// tempOrtho = getShortestDistance(bounds, tempOrtho.getUpperPoint(),
+				// nextPoint.getPoint(), this.medialAxisGraph.getChromoWidth()
+				// * percentChromoWidthToCheckOutTo,
+				// this.medialAxisGraph.getDistanceMap());
+				// System.out.println("small range index: "+tempOrtho.getIndex());
+				// if (tempOrtho.getIndex() > 3 || tempOrtho.getIndex() < 1) {
+				// lastStable = false;
+				// }
+				//
+				// }
+				// // use 360 angle
+				// else {
+				tempOrtho = getShortestDistance(bounds, new Point(-1, -1), nextPoint.getPoint(),
+						this.medialAxisGraph.getChromoWidth(),
+						this.medialAxisGraph.getDistanceMap());
+				lastStable = true;
+				// }
+				if (tempOrtho != null) {
+					lastOrtho = tempOrtho;
+					//if we got both sides
+					if (tempOrtho.isTwoLines()) {
+						double distance = tempOrtho.getlength();
+						//if its the first 3
+						//establish an average
+						if (stableCount < 3
+								&& (distance < (this.medialAxisGraph.getChromoWidth() * percentChromoWidthToCheckOutTo) && distance > this.medialAxisGraph
+										.getChromoWidth() * minCromoWidthPercent)) {
 							if (upperDistanceAvg == -1) {
-								upperDistanceAvg = tempOrtho.getUpperDistance();
+								upperDistanceAvg = tempOrtho.getlength();
 							} else {
 								upperDistanceAvg = ((upperDistanceAvg * stableCount) + tempOrtho
-										.getUpperDistance()) / (stableCount + 1);
+										.getlength()) / (stableCount + 1);
 							}
-							if (lowerDistanceAvg == -1) {
-								lowerDistanceAvg = tempOrtho.getLowerDistance();
-							} else {
-								lowerDistanceAvg = ((lowerDistanceAvg * stableCount) + tempOrtho
-										.getLowerDistance()) / (stableCount + 1);
-							}
-							lastStable = i;
-
+							stableCount++;
+							widthReached = true;
+							marked = true;
+							//if we are inside the average width
+						} else if ((distance < (upperDistanceAvg * percentChromoWidthToCheckOutTo) && distance > upperDistanceAvg
+								* minCromoWidthPercent)) {
+							stableCount++;
+							widthReached = true;
+							marked = true;
 						}
 					}
+					// if we are stable and dont have both lines inside the width of chromosome
+					// use last good
+					// draw cutline on one side
+					if (!widthReached) {
+						//if we got both lines stick to the one farthest from the intersection
+						if (tempOrtho.isTwoLines()
+								&& (tempOrtho.getLowerDistance() < tempOrtho.getUpperDistance())) {
+							int changeX = tempOrtho.getLowerPoint().x
+									- tempOrtho.getCenterPoint().x;
+							int changeY = tempOrtho.getLowerPoint().y
+									- tempOrtho.getCenterPoint().y;
+							tempOrtho.setUpperPoint(new Point(tempOrtho.getCenterPoint().x
+									- changeX, tempOrtho.getCenterPoint().y - changeY));
+							if (bounds.contains(tempOrtho.getUpperPoint())) {
+								cutList.add(tempOrtho.getUpperPoint());
+							}
+							
+						} else {//if we got one line use the avearge from the edge point
+							//to make the center point and double it over to make the cutine
+							int changeX = tempOrtho.getUpperPoint().x
+									- tempOrtho.getCenterPoint().x;
+							int changeY = tempOrtho.getUpperPoint().y
+									- tempOrtho.getCenterPoint().y;
+							tempOrtho.setLowerPoint(new Point(tempOrtho.getCenterPoint().x
+									- changeX, tempOrtho.getCenterPoint().y - changeY));
+							if (bounds.contains(tempOrtho.getLowerPoint())) {
+								cutList.add(tempOrtho.getLowerPoint());
+							}
+						}
+						lastStable = false;
+						marked = true;
+					}
 				}
+				if (!marked) {
+					// mark both sides for cut
+					tempOrtho = new OrthogonalLine(nextPoint.getPoint(), new Point(
+							(int) Math.round(lastOrtho.getUpperPoint().x + nextVector.x),
+							(int) Math.round(lastOrtho.getUpperPoint().y + nextVector.y)),
+							new Point((int) Math.round(lastOrtho.getLowerPoint().x + nextVector.x),
+									(int) Math.round(lastOrtho.getLowerPoint().y + nextVector.y)),
+							lastOrtho.getUpperInt(), lastOrtho.getLowerInt(), lastOrtho.getIndex());
+					if (bounds.contains(tempOrtho.getLowerPoint())) {
+						cutList.add(tempOrtho.getLowerPoint());
+					}
+					if (bounds.contains(tempOrtho.getUpperPoint())) {
+						cutList.add(tempOrtho.getUpperPoint());
+					}
+					lastStable = false;
+					marked = true;
+
+				}
+				// center and move foward
+				nextVector = getNextVector(tempOrtho, nextPoint);
+				if(projectionCount==0){
+					projectionAvg=nextVector;
+				}
+				else{
+					double xAvg = ((projectionAvg.x * projectionCount) + nextVector.x)
+							/ (projectionCount + 1);
+					double yAvg = ((projectionAvg.y * projectionCount) + nextVector.y)
+							/ (projectionCount + 1);
+					projectionAvg.setLocation(xAvg, yAvg);
+
+				}
+				projectionCount++;
+				nextPoint = getNextPoint(nextPoint.getPoint(), tempOrtho.getUpperPoint(),
+						tempOrtho.getLowerPoint(), nextVector);
+				orthoList.addFirst(tempOrtho);
+				System.out.println("top: " + tempOrtho.getUpperPoint() + " center: "
+						+ tempOrtho.getCenterPoint() + " bottom: " + tempOrtho.getLowerPoint());
+				System.out.println("Current point along Chromosomes: "
+						+ nextPoint.getPoint().toString() + " projectedPoint:  "
+						+ nextPoint.getChildren().get(0).getPoint());
 			}
-		} catch (Exception e) {
-			System.out.println(e);
 		}
 
+		return cutList;
 	}
 
-	public boolean isProjectionEnd(Vertex checkPoint, Vector nextVector) {
-		int x = (int) Math.round((double) checkPoint.getPoint().x + (5 * nextVector.x));
-		int y = (int) Math.round((double) checkPoint.getPoint().y + (5 * nextVector.y));
+	public boolean isProjectionEnd(Rectangle bounds, Vertex checkPoint, Vector nextVector) {
+		int x = (int) Math.round((double) checkPoint.getPoint().x + (4 * nextVector.x));
+		int y = (int) Math.round((double) checkPoint.getPoint().y + (4 * nextVector.y));
 		Point tempPoint = new Point(x, y);
-		if (this.medialAxisGraph.getDistanceMap().getDistanceFromEdge(tempPoint) < 1) {
+		if (bounds.contains(tempPoint)) {
+			if (this.medialAxisGraph.getDistanceMap().getDistanceFromEdge(tempPoint) < 1) {
+				return true;
+			}
+		} else {
 			return true;
 		}
 		return false;
 	}
 
-	public Vertex getNextPoint(Point top, Point bottom, Vector Next) {
-		double changeX = (top.x - bottom.x) / 2;
-		double changeY = (top.y - bottom.y) / 2;
-		changeX += Next.x;
-		changeY += Next.y;
-		Point nextPnt = new Point((int) Math.round((double) bottom.x + changeX),
-				(int) Math.round((double) bottom.y + changeY));
-		Point childPnt = new Point((int) Math.round((double) bottom.x + changeX + Next.x),
-				(int) Math.round((double) bottom.y + changeY + Next.y));
+	public Vertex getNextPoint(Point currPoint, Point top, Point bottom, Vector Next) {
+		double centerX = (top.x + bottom.x) / 2;
+		double centerY = (top.y + bottom.y) / 2;
+		centerX += Next.x;
+		centerY += Next.y;
+		Point nextPnt = new Point((int) Math.round(centerX), (int) Math.round(centerY));
+		Point childPnt = new Point((int) Math.round(centerX + Next.x), (int) Math.round(centerY
+				+ Next.y));
 		Vertex next = new Vertex(nextPnt, 0);
 		next.addChild(new Vertex(childPnt, 0));
 		return next;
@@ -137,8 +210,10 @@ public class MirrorSplit {
 	public Vector getNextVector(OrthogonalLine tempOrtho, Vertex currPoint) {
 		Vector upper = new Vector(tempOrtho.getUpperPoint().x - tempOrtho.getCenterPoint().x,
 				tempOrtho.getUpperPoint().y - tempOrtho.getCenterPoint().y);
-		Vector ninty = Vector.normalize(Vector.rotateVector(upper, 90));
-		Vector twoSeventy = Vector.normalize(Vector.rotateVector(upper, 90));
+		Vector ninty = Vector.multiply(Vector.normalize(Vector.rotateVector(upper, 1.57079633)),
+				1.7);
+		Vector twoSeventy = Vector.multiply(
+				Vector.normalize(Vector.rotateVector(upper, 4.71238898)), 1.7);
 		Point nintyPoint = new Point((int) (tempOrtho.getCenterPoint().x + ninty.x),
 				(int) (tempOrtho.getCenterPoint().y + ninty.y));
 		Point twoSeventyPoint = new Point((int) (tempOrtho.getCenterPoint().x + twoSeventy.x),
@@ -209,6 +284,7 @@ public class MirrorSplit {
 		for (int i = 1; !foundShortest && i < checkDistance; i++) {
 			ArrayList<Point> pointList = new ArrayList<Point>();
 			if (endPoint.x != -1) {
+				vectorCount = 5;
 				vectors = new RadialVectors(centerPoint, 40, (double) i);
 				pointList = vectors.getPointsInRange(endPoint, 45, 5);
 			} else {
@@ -284,18 +360,18 @@ public class MirrorSplit {
 		return tempOrthoHalf;
 	}
 
-	public LinkedList<Vertex> getStartPoints(LinkedList<Vertex> graph,
+	public LinkedList<CutStartPoint> getStartPoints(LinkedList<Vertex> graph,
 			LinkedList<Vertex> intersections) {
-		LinkedList<Vertex> startPoints = new LinkedList<Vertex>();
+		LinkedList<CutStartPoint> startPoints = new LinkedList<CutStartPoint>();
 		for (int i = 0; i < intersections.size(); i++) {
 			for (int j = 0; j < intersections.get(i).getChildren().size(); j++) {
 				LinkedList<Vertex> segment = new LinkedList<Vertex>();
 				segment.add(intersections.get(i).getChildren().get(j));
 				segment = this.getSegmentFromIntersection(segment, 0, 0);
 				if (segment != null) {
-					Vertex start = new Vertex(segment.get(segment.size() - 5).getPoint(), 0);
-					start.addChild(segment.get(segment.size() - 6));
-					startPoints.add(start);
+					Vertex start = new Vertex(segment.get(segment.size() - 3).getPoint(), 0);
+					start.addChild(segment.get(segment.size() - 4));
+					startPoints.add(new CutStartPoint(start,intersections.get(i)));
 				}
 
 			}
