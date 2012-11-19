@@ -69,9 +69,16 @@ public class MirrorSplit {
 				// }
 				// // use 360 angle
 				// else {
-				tempOrtho =this.getPathOrtho(bounds, nextPoint.getChildren().get(0).getPoint(), nextPoint.getPoint(),
-						this.medialAxisGraph.getChromoWidth(),
-						this.medialAxisGraph.getDistanceMap());
+				if(stableCount<3){
+					tempOrtho=this.getShortestDistance(bounds, new Point(-1,-1), nextPoint.getPoint(),
+							this.medialAxisGraph.getChromoWidth(),
+							this.medialAxisGraph.getDistanceMap());
+				}
+				else{
+					tempOrtho =this.getPathOrtho(bounds, nextPoint.getChildren().get(0).getPoint(), nextPoint.getPoint(),
+							this.medialAxisGraph.getChromoWidth(),
+							this.medialAxisGraph.getDistanceMap());
+				}
 				lastStable = true;
 				// }
 				if (tempOrtho != null) {
@@ -296,16 +303,9 @@ public class MirrorSplit {
 			vectorCount = 40;
 			vectors = new RadialVectors(centerPoint, vectorCount, (double) i);
 			pointList = vectors.getPointsInRange(endPoint, 360, vectorCount);
-//			} else {
-//				vectors = new RadialVectors(centerPoint, 40, (double) i);
-//				pointList = vectors.getVectorsAsPointsOnImage();
-//			}
-			// if(pointList.size()!=vectorCount){
-			// throw new Exception("array dosn't match number of points");
-			// }
-			// go thru points in pointlist at distance i
+
 			int middle=vectorCount/2;
-			for (int j = 0; j < middle; j++) {
+			for (int j = 1; j < middle-1; j++) {
 				// check if left side has passed edge of chromosome//upper
 				if (bounds.contains(pointList.get(j))
 						&& distanceMap.getDistanceFromEdge(pointList.get(j)) <= 0) {
@@ -314,8 +314,14 @@ public class MirrorSplit {
 						leftPoints[j] = pointList.get(j);
 						if (shortestSideLeft.x == -1) {
 							shortestSideLeft = pointList.get(j);
+							if(shortestSideRight.x!=-1){
+								tempOrthoHalf = new OrthogonalLine(centerPoint, leftPoints[j],
+										shortestSideRight, leftVector[j], -1, j);
+							}
+							else{
 							tempOrthoHalf = new OrthogonalLine(centerPoint, leftPoints[j],
 									pointList.get(j+middle), leftVector[j], -1, j);
+							}
 						} else if (pointList.get(j).distance(centerPoint) < (centerPoint
 								.distance(shortestSideLeft))) {
 							shortestSideLeft = pointList.get(j);
@@ -345,11 +351,17 @@ public class MirrorSplit {
 						rightPoints[j] = pointList.get(j+middle);
 						if (shortestSideRight.x == -1) {
 							shortestSideRight = pointList.get(j+middle);
-							tempOrthoHalf = new OrthogonalLine(centerPoint, rightPoints[j],
-									pointList.get(j+middle), rightVector[j], -1, j);
+							if(shortestSideLeft.x!=-1){
+								tempOrthoHalf = new OrthogonalLine(centerPoint, shortestSideLeft,
+										rightPoints[j], -1, rightVector[j], j);
+							}
+							else{
+								tempOrthoHalf = new OrthogonalLine(centerPoint, rightPoints[j],
+										pointList.get(j+middle), rightVector[j], -1, j);
+							}
 						} else if (pointList.get(j+middle).distance(centerPoint) < (centerPoint
 								.distance(shortestSideRight))) {
-							shortestSideRight = pointList.get(j);
+							shortestSideRight = pointList.get(j+middle);
 							if(tempOrthoHalf!=null){
 								if(tempOrthoHalf.getUpperPoint().x!=-1){
 									tempOrthoHalf = new OrthogonalLine(centerPoint, tempOrthoHalf.getUpperPoint(),
@@ -371,6 +383,7 @@ public class MirrorSplit {
 			}
 			if (shortestSideRight.x!=-1&&shortestSideLeft.x!=-1) {// if(shortestTill==-1||shortest<shortestTill){
 				foundShortest = true;
+				tempOrthoHalf.setTwoLines(true);
 				return tempOrthoHalf;
 			}
 		}

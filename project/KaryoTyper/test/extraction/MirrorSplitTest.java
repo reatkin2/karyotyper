@@ -124,19 +124,77 @@ public class MirrorSplitTest extends TestCase {
 		tempOrtho = new OrthogonalLine();
 		assertEquals(distanceMapHorz.getDistanceFromEdge(new Point(5, 3)), 0);
 		assertEquals(testGraph.getDistanceMap().getDistanceFromEdge(new Point(5, 3)), 0);
-		// try{
 		tempOrtho = mirror.getShortestDistance(bounds, new Point(-1, -1), new Point(5, 5),
 				testGraph.getChromoWidth(), distanceMapHorz);
-		// }catch(Exception e){
-		// System.out.println(e);
-		// }
-		// TODO(aamcknig): find out why this is returning 5,-1 rather than 5,3
 		assertEquals(tempOrtho.getlength(), 8.0);
 		assertEquals(tempOrtho.getUpperPoint(), new Point(5, 3));
 		assertEquals(tempOrtho.getLowerPoint(), new Point(5, 11));
 
 	}
+	public void testgetPathOrtho() {
 
+		MedialAxis tempAxis = new MedialAxis();
+		tempAxis.setDistanceMap(distanceMap);
+		MedialAxisGraph testGraph = new MedialAxisGraph(tempAxis);
+		testGraph.buildGraph(this.straightLine, distanceMap);
+		testGraph.setMedialAxis(testGraph.getAxisGraph());
+		tempAxis.setDistanceMap(distanceMap);
+		testGraph.setChromoWidth(8);
+		Rectangle bounds = new Rectangle(0, 0, 15, 15);
+		MirrorSplit mirror = new MirrorSplit(testGraph);
+		OrthogonalLine tempOrtho = new OrthogonalLine();
+		try {
+			tempOrtho = mirror.getPathOrtho(bounds, new Point(7,2), testGraph
+					.getAxisGraph().get(3).getPoint(), testGraph.getChromoWidth(), distanceMap);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+
+		assertEquals(tempOrtho.getlength(), 8.0);
+		assertEquals(tempOrtho.getUpperPoint(), new Point(11, 5));
+		assertEquals(tempOrtho.getLowerPoint(), new Point(3, 5));
+
+		tempAxis = new MedialAxis();
+		tempAxis.setDistanceMap(distanceMapHorz);
+		testGraph = new MedialAxisGraph(tempAxis);
+		testGraph.buildGraph(this.horizantolLine, distanceMapHorz);
+		testGraph.setMedialAxis(testGraph.getAxisGraph());
+		tempAxis.setDistanceMap(distanceMapHorz);
+		testGraph.setChromoWidth(8);
+		bounds = new Rectangle(0, 0, 15, 15);
+		mirror = new MirrorSplit(testGraph);
+		tempOrtho = new OrthogonalLine();
+		try {
+			tempOrtho = mirror.getPathOrtho(bounds, new Point(2, 7), testGraph
+					.getAxisGraph().get(3).getPoint(), testGraph.getChromoWidth(), distanceMapHorz);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+
+		assertEquals(tempOrtho.getlength(), 8.0);
+		assertEquals(tempOrtho.getUpperPoint(), new Point(5, 3));
+		assertEquals(tempOrtho.getLowerPoint(), new Point(5, 11));
+
+		tempAxis = new MedialAxis();
+		tempAxis.setDistanceMap(distanceMapHorz);
+		testGraph = new MedialAxisGraph(tempAxis);
+		testGraph.buildGraph(this.horizantolLine, distanceMapHorz);
+		testGraph.setMedialAxis(testGraph.getAxisGraph());
+		tempAxis.setDistanceMap(distanceMapHorz);
+		bounds = new Rectangle(0, 0, 15, 15);
+		testGraph.setChromoWidth(10);
+		mirror = new MirrorSplit(testGraph);
+		tempOrtho = new OrthogonalLine();
+		assertEquals(distanceMapHorz.getDistanceFromEdge(new Point(5, 3)), 0);
+		assertEquals(testGraph.getDistanceMap().getDistanceFromEdge(new Point(5, 3)), 0);
+		tempOrtho = mirror.getPathOrtho(bounds, new Point(2, 5), new Point(5, 5),
+				testGraph.getChromoWidth(), distanceMapHorz);
+		//TODO(aamcknig): fix broken test, find out whats going on here
+		assertEquals(tempOrtho.getlength(), 8.0);
+		assertEquals(tempOrtho.getUpperPoint(), new Point(5, 3));
+		assertEquals(tempOrtho.getLowerPoint(), new Point(5, 11));
+
+	}
 	public void testGetAllDistances() {
 		MedialAxis tempAxis = new MedialAxis();
 		tempAxis.setDistanceMap(distanceMap);
