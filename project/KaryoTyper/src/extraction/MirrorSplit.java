@@ -302,10 +302,10 @@ public class MirrorSplit {
 			ArrayList<Point> pointList = new ArrayList<Point>();
 			vectorCount = 40;
 			vectors = new RadialVectors(centerPoint, vectorCount, (double) i);
-			pointList = vectors.getPointsInRange(endPoint, 360, vectorCount);
+			pointList = vectors.getPointsInRange(endPoint, 2*Math.PI, vectorCount);
 
 			int middle=vectorCount/2;
-			for (int j = 1; j < middle-1; j++) {
+			for (int j = 0; j < middle; j++) {
 				// check if left side has passed edge of chromosome//upper
 				if (bounds.contains(pointList.get(j))
 						&& distanceMap.getDistanceFromEdge(pointList.get(j)) <= 0) {
@@ -356,8 +356,8 @@ public class MirrorSplit {
 										rightPoints[j], -1, rightVector[j], j);
 							}
 							else{
-								tempOrthoHalf = new OrthogonalLine(centerPoint, rightPoints[j],
-										pointList.get(j+middle), rightVector[j], -1, j);
+								tempOrthoHalf = new OrthogonalLine(centerPoint, pointList.get(j+middle),
+										rightPoints[j], -1,rightVector[j], j);
 							}
 						} else if (pointList.get(j+middle).distance(centerPoint) < (centerPoint
 								.distance(shortestSideRight))) {

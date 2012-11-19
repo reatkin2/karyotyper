@@ -151,8 +151,8 @@ public class MirrorSplitTest extends TestCase {
 		}
 
 		assertEquals(tempOrtho.getlength(), 8.0);
-		assertEquals(tempOrtho.getUpperPoint(), new Point(11, 5));
-		assertEquals(tempOrtho.getLowerPoint(), new Point(3, 5));
+		assertEquals(tempOrtho.getUpperPoint(), new Point(3, 5));
+		assertEquals(tempOrtho.getLowerPoint(), new Point(11, 5));
 
 		tempAxis = new MedialAxis();
 		tempAxis.setDistanceMap(distanceMapHorz);
@@ -172,8 +172,8 @@ public class MirrorSplitTest extends TestCase {
 		}
 
 		assertEquals(tempOrtho.getlength(), 8.0);
-		assertEquals(tempOrtho.getUpperPoint(), new Point(5, 3));
-		assertEquals(tempOrtho.getLowerPoint(), new Point(5, 11));
+		assertEquals(tempOrtho.getUpperPoint(), new Point(5, 11));
+		assertEquals(tempOrtho.getLowerPoint(), new Point(5, 3));
 
 		tempAxis = new MedialAxis();
 		tempAxis.setDistanceMap(distanceMapHorz);
@@ -191,8 +191,8 @@ public class MirrorSplitTest extends TestCase {
 				testGraph.getChromoWidth(), distanceMapHorz);
 		//TODO(aamcknig): fix broken test, find out whats going on here
 		assertEquals(tempOrtho.getlength(), 8.0);
-		assertEquals(tempOrtho.getUpperPoint(), new Point(5, 3));
-		assertEquals(tempOrtho.getLowerPoint(), new Point(5, 11));
+		assertEquals(tempOrtho.getUpperPoint(), new Point(5, 11));
+		assertEquals(tempOrtho.getLowerPoint(), new Point(5, 3));
 
 	}
 	public void testGetAllDistances() {

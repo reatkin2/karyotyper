@@ -144,9 +144,7 @@ public class RadialVectors {
 		return new Point(xOnImage, yOnImage);
 	}
 	private Vector getPointAsVectorAtDistance(Point point){
-		double xComp = point.x - centerPoint.x;
-		double yComp = point.y - centerPoint.y;
-		Vector tempVector=new Vector(xComp, yComp);
+		Vector tempVector=getPointAsVector(point);
 		tempVector=Vector.multiply(Vector.normalize(tempVector),this.distance);
 		return tempVector;
 	}
