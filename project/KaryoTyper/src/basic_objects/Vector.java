@@ -28,7 +28,7 @@ public class Vector extends Point2D.Double {
 	 */
 	public void rotateVector(double theta) {
 		double tempX = x * Math.cos(theta) - y * Math.sin(theta);
-		y = x * Math.cos(theta) + y * Math.sin(theta);
+		y = x * Math.sin(theta) + y * Math.cos(theta);
 		x = tempX;
 	}
 
