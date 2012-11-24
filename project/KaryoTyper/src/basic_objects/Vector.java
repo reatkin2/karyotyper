@@ -73,5 +73,14 @@ public class Vector extends Point2D.Double {
 	public static Vector multiply(double scalar, Vector v) {
 		return multiply(v, scalar);
 	}
+	public static double dot(Vector a,Vector b){
+		return (a.x*b.x)+(a.y*b.y);
+	}
+	public static double angleBetween(Vector a,Vector b){
+		a=Vector.normalize(a);
+		b=Vector.normalize(b);
+		double dotproduct = Vector.dot(a, b);
+		return Math.acos(dotproduct);
+	}
 
 }

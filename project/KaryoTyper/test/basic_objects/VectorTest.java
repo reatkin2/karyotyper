@@ -96,5 +96,35 @@ public class VectorTest extends TestCase {
 		assertEquals(v1.x, newX);
 		assertEquals(v1.y, newY);
 	}
+	public void testAngleBetween(){
+		Vector v1 = new Vector(3, 0);
+		Vector v2 = new Vector(0, 4);
+		
+		double angle=Vector.angleBetween(v1, v2);
+		
+		assertTrue(angle>1.57&&angle<1.58);
+		
+		v1 = new Vector(3, 3);
+		v2 = new Vector(0, 4);
+		
+		angle=Vector.angleBetween(v1, v2);
+		
+		assertTrue(angle>.784&&angle<.786);
+		
+		v1 = new Vector(3, 0);
+		v2 = new Vector(-5, .2);
+		
+		angle=Vector.angleBetween(v1, v2);
+		
+		assertTrue(angle>3.1&&angle<3.11);
+
+		v1 = new Vector(3, 0);
+		v2 = new Vector(-5, -.2);
+		
+		angle=Vector.angleBetween(v1, v2);
+		
+		assertTrue(angle>3.1&&angle<3.11);
+
+	}
 
 }

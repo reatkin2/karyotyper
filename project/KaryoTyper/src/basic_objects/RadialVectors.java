@@ -11,6 +11,7 @@ public class RadialVectors {
 	private Point centerPoint;
 	private double theta;
 	private double distance;
+	private double stepTheta;
 
 	public RadialVectors(Point centerPoint, int numVectors, double distance) {
 		this.centerPoint = centerPoint;
@@ -103,6 +104,7 @@ public class RadialVectors {
 		}
 
 		double localTheta = angle / (numPoints - 1);
+		this.stepTheta=localTheta;
 		//TODO(reatkin2): I changed this to be at the right distance each time aamcknig 
 		Vector vector = getPointAsVectorAtDistance(endPoint);
 		//TODO(reatkin2): I changed this to be at the right distance each time aamcknig 
@@ -192,4 +194,9 @@ public class RadialVectors {
 	public void normalize() {
 		multiplyRadius(1.0 / distance);
 	}
+
+	public double getStepTheta() {
+		return stepTheta;
+	}
+
 }
