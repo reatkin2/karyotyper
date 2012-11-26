@@ -20,7 +20,104 @@ public class MirrorSplit {
 	public MirrorSplit(MedialAxisGraph graph) {
 		this.medialAxisGraph = graph;
 	}
+	public LinkedList<Point> projectApproach(Rectangle bounds, LinkedList<CutStartPoint> startPoints){
+		double avgWidth = -1;
+		final double percentChromoWidthToCheckOutTo = 1.07;
+		final double minCromoWidthPercent = .6;
+		double oneThirdWidth=0.666;
+		boolean firstMarking = true;
+		Vertex nextPoint;
+		Vector nextVector = null;
+		Vector projectionAvg = null;
+		int projectionCount = 0;
+		LinkedList<OrthogonalLine> orthoList = new LinkedList<OrthogonalLine>();
+		LinkedList<Point> cutList = new LinkedList<Point>();
+		//TODO(aamcknig): find out why first two start points are the same
+		for (int i = 0; i < startPoints.size(); i++) {
+			nextPoint = startPoints.get(i).getStartPoint();
+			nextVector = null;
+			firstMarking = true;
+			OrthogonalLine tempOrtho = null;
+			OrthogonalLine lastOrtho = null;
+			boolean enteringCross=false;
+			boolean exitingCross=false;
+			int inCrossCount=0;
+			int stableCount = 0;
+			double angle=-1;
+			while (firstMarking
+					|| stableCount<3) {
+				firstMarking = false;
+				boolean widthReached = false;
+				boolean marked = false;
+				if(enteringCross){
+					if(exitingCross){
+						if(inCrossCount==0){
+							enteringCross=false;
+							exitingCross=false;
+						}
+						else{
+							inCrossCount--;
+						}
+					}
+					else{
+						inCrossCount++;
+					}
+				}
+				// Possible options check angle between orthoUpper lower
+				// use this to
+				tempOrtho = this.getShortestDistance(bounds, new Point(-1, -1),
+						nextPoint.getPoint(), this.medialAxisGraph.getChromoWidth(),
+						this.medialAxisGraph.getDistanceMap());
+				if(tempOrtho!=null){
+					angle = this.angleBetween(tempOrtho);
+					cutList.add(tempOrtho.getCenterPoint());
+					cutList.add(tempOrtho.getUpperPoint());
+					cutList.add(tempOrtho.getLowerPoint());
+				}
+				if (avgWidth == -1) {
+					avgWidth = tempOrtho.getlength();
+				} else {
+					avgWidth = ((avgWidth * stableCount) + tempOrtho.getlength())
+							/ (stableCount + 1);
+				}
+				stableCount++;
+				widthReached = true;
+				marked = true;
 
+				nextVector = getNextVector(tempOrtho, nextPoint);
+				if (projectionCount == 0) {
+					projectionAvg = nextVector;
+				} else {
+					double xAvg = ((projectionAvg.x * projectionCount) + nextVector.x)
+							/ (projectionCount + 1);
+					double yAvg = ((projectionAvg.y * projectionCount) + nextVector.y)
+							/ (projectionCount + 1);
+					projectionAvg.setLocation(xAvg, yAvg);
+
+				}
+				projectionCount++;
+
+				// TODO(aamcknig): cant use get next point getting the center
+				// between the upper and lower because they are not along the
+				// same line and thus are not going to be the center to project
+				// from this is probably while it currently gets stuck in a loop
+				nextPoint = getNextPoint(nextPoint.getPoint(), tempOrtho.getUpperPoint(),
+						tempOrtho.getLowerPoint(), nextVector);
+				orthoList.addFirst(tempOrtho);
+//				System.out.println("top: " + tempOrtho.getUpperPoint() + " center: "
+//						+ tempOrtho.getCenterPoint() + " bottom: " + tempOrtho.getLowerPoint());
+//				System.out.println("Current point along Chromosomes: "
+//						+ nextPoint.getPoint().toString() + " projectedPoint:  "
+//						+ nextPoint.getChildren().get(0).getPoint());
+				lastOrtho = tempOrtho;
+			}
+		}
+		return cutList;
+	}
+	//// TODO(aamcknig): the projection average is not effective alone, when
+	// when crossing the cross you must project the entire path using projectionAvg and to generate path
+	//before moving forward, not generating a path one increment at a time which doesnt take advantage
+	// of double rational projectionAvg
 	// TODO(aamcknig): right a method to project to end point
 	// and project both sides of the end point till crosses current
 	public LinkedList<Point> markSplit(Rectangle bounds, LinkedList<CutStartPoint> startPoints) {
@@ -28,6 +125,7 @@ public class MirrorSplit {
 		int stableCount = 0;
 		final double percentChromoWidthToCheckOutTo = 1.07;
 		final double minCromoWidthPercent = .6;
+		double oneThirdWidth=0.666;
 		boolean firstMarking = true;
 		Vertex nextPoint;
 		Vector nextVector = null;
@@ -92,7 +190,12 @@ public class MirrorSplit {
 							this.medialAxisGraph.getDistanceMap());
 					if (tempOrtho!=null&&tempOrtho.isTwoLines()) {
 						angle = this.angleBetween(tempOrtho);
-						if (angle > 3.082 && angle < 3.2) {
+						if(tempOrtho.getLowerInt()>avgWidth*oneThirdWidth&&tempOrtho.getUpperInt()>avgWidth*oneThirdWidth){
+							enteringCross=true;
+							inCrossCount++;
+						}
+
+						else if (angle > 3.082 && angle < 3.2) {
 							tempOrtho = this.getShortestDistance(bounds, new Point(-1, -1),
 									nextPoint.getPoint(), this.medialAxisGraph.getChromoWidth(),
 									this.medialAxisGraph.getDistanceMap());
@@ -145,22 +248,45 @@ public class MirrorSplit {
 						double distanceLowerToStart = tempOrtho.getLowerPoint().distance(
 								startPoints.get(i).getStartPoint().getPoint());
 
-						if (tempOrtho.isTwoLines() {
+						if (tempOrtho.isTwoLines()) {
 							//TODO(aamcknig):fixe the problem with not checking if the length of 
 							// a side is longer than the average width, forcing the whole thing to the side
-						
-							// pick the farthest from start point
-							// startPoints.get(i).getStartPoint()
-							if (distanceUpperToStart < distanceLowerToStart) {
+							if(tempOrtho.getLowerInt()==-1||tempOrtho.getUpperInt()==-1){
+								try {
+									throw new Exception("distance -1 when there is two lines");
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
+							}
+							if(tempOrtho.getUpperInt()>avgWidth*oneThirdWidth){
 								tempOrtho.setUpperPoint(this.recenterForUpper(tempOrtho, avgWidth));
 								if (bounds.contains(tempOrtho.getUpperPoint())) {
 									cutList.add(tempOrtho.getUpperPoint());
 								}
 
-							} else {
+							}
+							else if(tempOrtho.getLowerInt()>avgWidth*oneThirdWidth){
 								tempOrtho.setLowerPoint(this.recenterForLower(tempOrtho, avgWidth));
 								if (bounds.contains(tempOrtho.getLowerPoint())) {
 									cutList.add(tempOrtho.getLowerPoint());
+								}
+
+							}
+							// pick the farthest from start point
+							// startPoints.get(i).getStartPoint()
+							else{
+								if (distanceUpperToStart < distanceLowerToStart) {
+									tempOrtho.setUpperPoint(this.recenterForUpper(tempOrtho, avgWidth));
+									if (bounds.contains(tempOrtho.getUpperPoint())) {
+										cutList.add(tempOrtho.getUpperPoint());
+									}
+	
+								} else {
+									tempOrtho.setLowerPoint(this.recenterForLower(tempOrtho, avgWidth));
+									if (bounds.contains(tempOrtho.getLowerPoint())) {
+										cutList.add(tempOrtho.getLowerPoint());
+									}
 								}
 							}
 						} else {
@@ -478,7 +604,8 @@ public class MirrorSplit {
 					if (leftVector[j] == -1) {
 						leftVector[j] = i;
 						leftPoints[j] = pointList.get(middle + j);
-						if (shortestSideLeft.x == -1) {
+						if (shortestSideLeft.x == -1||pointList.get(middle + j).distance(centerPoint) < (centerPoint
+								.distance(shortestSideLeft))) {
 							shortestSideLeft = pointList.get(middle + j);
 							if (tempOrthoHalf != null && tempOrthoHalf.getLowerInt() != -1) {
 								tempOrthoHalf = new OrthogonalLine(centerPoint, leftPoints[j],
@@ -487,24 +614,6 @@ public class MirrorSplit {
 							} else {
 								tempOrthoHalf = new OrthogonalLine(centerPoint, leftPoints[j],
 										pointList.get(middle - j), leftVector[j], -1, j);
-							}
-						} else if (pointList.get(middle + j).distance(centerPoint) < (centerPoint
-								.distance(shortestSideLeft))) {
-							shortestSideLeft = pointList.get(middle + j);
-							if (tempOrthoHalf != null) {
-								if (tempOrthoHalf.getLowerInt() != -1) {
-									tempOrthoHalf = new OrthogonalLine(centerPoint, leftPoints[j],
-											tempOrthoHalf.getLowerPoint(), leftVector[j],
-											tempOrthoHalf.getLowerInt(), j);
-
-								} else {
-									tempOrthoHalf = new OrthogonalLine(centerPoint, leftPoints[j],
-											pointList.get(middle - j), leftVector[j], -1, j);
-								}
-							} else {
-								tempOrthoHalf = new OrthogonalLine(centerPoint,
-										pointList.get(middle + j), pointList.get(middle - j),
-										leftVector[j], -1, j);
 							}
 						}
 					}
@@ -515,36 +624,20 @@ public class MirrorSplit {
 					if (rightVector[j] == -1) {
 						rightVector[j] = i;
 						rightPoints[j] = pointList.get(middle - j);
-						if (shortestSideRight.x == -1) {
+						if (shortestSideRight.x == -1||pointList.get(middle - j).distance(centerPoint) < (centerPoint
+								.distance(shortestSideRight))) {
+							
 							shortestSideRight = pointList.get(middle - j);
 							if (tempOrthoHalf != null && tempOrthoHalf.getUpperInt() != -1) {
 								tempOrthoHalf = new OrthogonalLine(centerPoint,
 										tempOrthoHalf.getUpperPoint(), rightPoints[j],
-										tempOrthoHalf.getLowerInt(), rightVector[j], j);
+										tempOrthoHalf.getUpperInt(), rightVector[j], j);
 							} else {
 								tempOrthoHalf = new OrthogonalLine(centerPoint,
 										pointList.get(middle + j), rightPoints[j], -1,
 										rightVector[j], j);
 							}
-						} else if (pointList.get(middle - j).distance(centerPoint) < (centerPoint
-								.distance(shortestSideRight))) {
-							shortestSideRight = pointList.get(middle - j);
-							if (tempOrthoHalf != null) {
-								if (tempOrthoHalf.getUpperInt() != -1) {
-									tempOrthoHalf = new OrthogonalLine(centerPoint,
-											tempOrthoHalf.getUpperPoint(), rightPoints[j],
-											tempOrthoHalf.getUpperInt(), rightVector[j], j);
-								} else {
-									tempOrthoHalf = new OrthogonalLine(centerPoint,
-											pointList.get(middle + j), rightPoints[j], -1,
-											rightVector[j], j);
-								}
-							} else {
-								tempOrthoHalf = new OrthogonalLine(centerPoint,
-										pointList.get(middle + j), rightPoints[j], -1,
-										rightVector[j], j);
-							}
-
+							
 						}
 					}
 				}
