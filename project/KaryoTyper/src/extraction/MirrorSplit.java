@@ -35,24 +35,46 @@ public class MirrorSplit {
 		int projectionCount = 0;
 		LinkedList<OrthogonalLine> orthoList = new LinkedList<OrthogonalLine>();
 		LinkedList<Point> cutList = new LinkedList<Point>();
+		//TODO(aamcknig): find out why first two start points are the same
 		for (int i = 0; i < startPoints.size(); i++) {
 			nextPoint = startPoints.get(i).getStartPoint();
 			nextVector = null;
 			firstMarking = true;
 			OrthogonalLine tempOrtho = null;
 			OrthogonalLine lastOrtho = null;
+			boolean enteringCross=false;
+			boolean exitingCross=false;
+			int inCrossCount=0;
+			double angle=-1;
 			while (firstMarking
 					|| !isProjectionEnd(bounds, this.medialAxisGraph.getDistanceMap(), nextPoint,
 							nextVector)) {
 				firstMarking = false;
 				boolean widthReached = false;
 				boolean marked = false;
+				if(enteringCross){
+					if(exitingCross){
+						if(inCrossCount==0){
+							enteringCross=false;
+							exitingCross=false;
+						}
+						else{
+							inCrossCount--;
+						}
+					}
+					else{
+						inCrossCount++;
+					}
+				}
 				// Possible options check angle between orthoUpper lower
 				// use this to
 				if (stableCount < 3) {
 					tempOrtho = this.getShortestDistance(bounds, new Point(-1, -1),
 							nextPoint.getPoint(), this.medialAxisGraph.getChromoWidth(),
 							this.medialAxisGraph.getDistanceMap());
+					if(tempOrtho!=null){
+						angle = this.angleBetween(tempOrtho);
+					}
 					if (avgWidth == -1) {
 						avgWidth = tempOrtho.getlength();
 					} else {
@@ -69,20 +91,50 @@ public class MirrorSplit {
 							this.medialAxisGraph.getChromoWidth(),
 							this.medialAxisGraph.getDistanceMap());
 					if (tempOrtho!=null&&tempOrtho.isTwoLines()) {
-						double angle = this.angleBetween(tempOrtho);
+						angle = this.angleBetween(tempOrtho);
 						if (angle > 3.082 && angle < 3.2) {
 							tempOrtho = this.getShortestDistance(bounds, new Point(-1, -1),
 									nextPoint.getPoint(), this.medialAxisGraph.getChromoWidth(),
 									this.medialAxisGraph.getDistanceMap());
+							if(tempOrtho!=null){
+								angle = this.angleBetween(tempOrtho);
+							}
 							stableCount++;
 							widthReached = true;
 							marked = true;
 						}
+						else if(angle>=3.2&&inCrossCount==0){
+							enteringCross=true;
+							inCrossCount++;
+						}
+						else if(enteringCross && inCrossCount>2){
+							exitingCross=true;
+							inCrossCount--;
+						}
+					}
+					else if(tempOrtho!=null&&lastOrtho!=null&& !enteringCross){//if only one side is touching edge
+						if(tempOrtho.getLowerInt()!=-1){
+							if(lastOrtho.getLowerInt()!=-1){
+								if(lastOrtho.getLowerPoint().equals(tempOrtho.getLowerPoint())){
+									enteringCross=true;
+									inCrossCount++;
+								}
+							}
+						}
+						else{
+							if(lastOrtho.getUpperInt()!=-1){
+								if(lastOrtho.getUpperPoint().equals(tempOrtho.getUpperPoint())){
+									enteringCross=true;
+									inCrossCount++;
+								}
+							}
+
+						}
 					}
 				}
 				// }
-				if (tempOrtho != null) {
-					lastOrtho = tempOrtho;
+				if (tempOrtho != null&&(!enteringCross||exitingCross)) {
+
 					// if we got both sides
 					if (!widthReached) {
 						// if we got both lines stick to the one farthest from the intersection
@@ -93,7 +145,10 @@ public class MirrorSplit {
 						double distanceLowerToStart = tempOrtho.getLowerPoint().distance(
 								startPoints.get(i).getStartPoint().getPoint());
 
-						if (tempOrtho.isTwoLines()) {
+						if (tempOrtho.isTwoLines() {
+							//TODO(aamcknig):fixe the problem with not checking if the length of 
+							// a side is longer than the average width, forcing the whole thing to the side
+						
 							// pick the farthest from start point
 							// startPoints.get(i).getStartPoint()
 							if (distanceUpperToStart < distanceLowerToStart) {
@@ -128,19 +183,42 @@ public class MirrorSplit {
 				}
 				if (!marked) {
 					// mark both sides for cut
-					tempOrtho = new OrthogonalLine(nextPoint.getPoint(), new Point(
-							(int) Math.round(lastOrtho.getUpperPoint().x + nextVector.x),
-							(int) Math.round(lastOrtho.getUpperPoint().y + nextVector.y)),
-							new Point((int) Math.round(lastOrtho.getLowerPoint().x + nextVector.x),
-									(int) Math.round(lastOrtho.getLowerPoint().y + nextVector.y)),
-							lastOrtho.getUpperInt(), lastOrtho.getLowerInt(), lastOrtho.getIndex());
-					if (bounds.contains(tempOrtho.getLowerPoint())) {
-						cutList.add(tempOrtho.getLowerPoint());
+					if(!enteringCross&&inCrossCount==0){
+						enteringCross=true;
 					}
-					if (bounds.contains(tempOrtho.getUpperPoint())) {
-						cutList.add(tempOrtho.getUpperPoint());
+					if(lastOrtho!=null){
+						tempOrtho = new OrthogonalLine(nextPoint.getPoint(), new Point(
+								(int) Math.round(lastOrtho.getUpperPoint().x + projectionAvg.x),
+								(int) Math.round(lastOrtho.getUpperPoint().y + projectionAvg.y)),
+								new Point((int) Math.round(lastOrtho.getLowerPoint().x + projectionAvg.x),
+										(int) Math.round(lastOrtho.getLowerPoint().y + projectionAvg.y)),
+								lastOrtho.getUpperInt(), lastOrtho.getLowerInt(), lastOrtho.getIndex());
+
+						if (bounds.contains(tempOrtho.getLowerPoint())) {
+							cutList.add(tempOrtho.getLowerPoint());
+						}
+						if (bounds.contains(tempOrtho.getUpperPoint())) {
+							cutList.add(tempOrtho.getUpperPoint());
+						}
+						marked = true;
 					}
-					marked = true;
+					else if(tempOrtho!=null){
+						if (bounds.contains(tempOrtho.getLowerPoint())) {
+							cutList.add(tempOrtho.getLowerPoint());
+						}
+						if (bounds.contains(tempOrtho.getUpperPoint())) {
+							cutList.add(tempOrtho.getUpperPoint());
+						}
+					}
+					else{
+						try {
+							throw new Exception("lastOrtho and tempOrtho both null");
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+							System.out.println(e);
+						}
+					}
 
 				}
 				// center and move foward
@@ -169,6 +247,7 @@ public class MirrorSplit {
 //				System.out.println("Current point along Chromosomes: "
 //						+ nextPoint.getPoint().toString() + " projectedPoint:  "
 //						+ nextPoint.getChildren().get(0).getPoint());
+				lastOrtho = tempOrtho;
 			}
 			LinkedList<Point> tempCut=finishTip(bounds,nextPoint, projectionAvg,
 					this.medialAxisGraph.getChromoWidth(),
@@ -233,7 +312,7 @@ public class MirrorSplit {
 
 			}
 		}
-		for (int i = 0; i < middle; i++) {
+		for (int i = 1; i < middle; i++) {
 			if (leftVector[i] == -1) {
 				if (rightVector[i] != -1) {
 					Vector tempVect = this.getVector(currPoint.getPoint(), rightPoints[i]);
@@ -581,6 +660,7 @@ public class MirrorSplit {
 	public LinkedList<CutStartPoint> getStartPoints(LinkedList<Vertex> graph,
 			LinkedList<Vertex> intersections) {
 		LinkedList<CutStartPoint> startPoints = new LinkedList<CutStartPoint>();
+				//TODO(aamcknig):find out why first 3 startpoints are the same
 		for (int i = 0; i < intersections.size(); i++) {
 			for (int j = 0; j < intersections.get(i).getChildren().size(); j++) {
 				LinkedList<Vertex> segment = new LinkedList<Vertex>();
@@ -589,14 +669,23 @@ public class MirrorSplit {
 				if (segment != null) {
 					Vertex start = new Vertex(segment.get(segment.size() - 3).getPoint(), 0);
 					start.addChild(segment.get(segment.size() - 4));
-					startPoints.add(new CutStartPoint(start, intersections.get(i)));
+					if(!containsVertex(startPoints,start)){
+						startPoints.add(new CutStartPoint(start, intersections.get(i)));
+					}
 				}
 
 			}
 		}
 		return startPoints;
 	}
-
+	public boolean containsVertex(LinkedList<CutStartPoint> points,Vertex vert){
+		for(int i=0;i<points.size();i++){
+			if(points.get(i).getStartPoint().equals(vert)){
+				return true;
+			}
+		}
+		return false;
+	}
 	/**
 	 * this gets a segment that is separated by intersections using recursion starting from the
 	 * vertex in the list at the position pos
