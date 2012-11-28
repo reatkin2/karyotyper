@@ -5,6 +5,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.ScrollPane;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
@@ -114,8 +117,6 @@ public class DemoGui extends JFrame {
 	}
 	public void displayImage(BufferedImage tempBuff){
 		this.imagePane.writeNewImage(tempBuff);
-		this.repaint();
-
 	}
 	public void initButtons(){
 		JPanel buttonPanel=new JPanel();
@@ -143,7 +144,7 @@ public class DemoGui extends JFrame {
 		buttonPanel.add(linearize);
 		buttonPanel.add(reset);		
 		left.add(buttonPanel);
-
+		initButtonActions();
 	}
 	// Create and set up the window.
 	/**
@@ -262,5 +263,89 @@ public class DemoGui extends JFrame {
 			System.out.println(e);
 		}
 	}
+	public void initButtonActions(){
+		extract=new JButton("extract");
+		distanceMap=new JButton("distanceMap");
+		medialAxis=new JButton("medialAxis");
+		cleanMedialAxis=new JButton("cleanMedialAxis");
+		smallSplit=new JButton("smallSplit");
+		orthoLines=new JButton("orthoLines");
+		startPoints=new JButton("startPoints");
+		projections=new JButton("projections");
+		darkBands=new JButton("darkBands");
+		linearize=new JButton("linearize");
+		reset=new JButton("reset");
+		
+		extract.addMouseListener(new MouseListener() {
+        	 
+            public void mouseClicked(MouseEvent e)
+            {
+            	if(e.equals(extract)){
+            		System.out.println("Extract pressed");
+            	}
+                //Execute when button is pressed
+                System.out.println("You clicked the button");
+            }
 
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+        });  
+		reset.addMouseListener(new MouseListener() {
+       	 
+            public void mouseClicked(MouseEvent e)
+            {
+            	if(e.equals(extract)){
+            		System.out.println("Extract pressed");
+            	}
+                //Execute when button is pressed
+                System.out.println("You clicked the button");
+            }
+
+			@Override
+			public void mouseEntered(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+        });  
+
+	}
 }
