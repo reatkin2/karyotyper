@@ -11,6 +11,7 @@ public class RadialVectors {
 	private Point centerPoint;
 	private double theta;
 	private double distance;
+	private double stepTheta;
 
 	public RadialVectors(Point centerPoint, int numVectors, double distance) {
 		this.centerPoint = centerPoint;
@@ -103,9 +104,11 @@ public class RadialVectors {
 		}
 
 		double localTheta = angle / (numPoints - 1);
-
-		Vector vector = getPointAsVector(endPoint);
-
+		this.stepTheta=localTheta;
+		//TODO(reatkin2): I changed this to be at the right distance each time aamcknig 
+		Vector vector = getPointAsVectorAtDistance(endPoint);
+		//TODO(reatkin2): I changed this to be at the right distance each time aamcknig 
+		
 		for (int i = 1; i <= middle; i++) {
 			Vector vectorP = Vector.rotateVector(vector, localTheta * i);
 			pointsInRange.set(middle + i, getVectorAsPointOnImage(vectorP));
@@ -140,7 +143,11 @@ public class RadialVectors {
 		int yOnImage = (int) Math.round(vector.y + centerPoint.y);
 		return new Point(xOnImage, yOnImage);
 	}
-
+	private Vector getPointAsVectorAtDistance(Point point){
+		Vector tempVector=getPointAsVector(point);
+		tempVector=Vector.multiply(Vector.normalize(tempVector),this.distance);
+		return tempVector;
+	}
 	private Vector getPointAsVector(Point point) {
 		double xComp = point.x - centerPoint.x;
 		double yComp = point.y - centerPoint.y;
@@ -237,5 +244,9 @@ public class RadialVectors {
 		}
 		
 		return pointsStr;
+	}
+	
+	public double getStepTheta() {
+		return stepTheta;
 	}
 }

@@ -106,7 +106,7 @@ public class Vector extends Point2D.Double {
 	 * @param endVector
 	 * @return
 	 */
-	public static double getAngle(Vector startVector, Vector endVector) {
+	public static double getDirectionalAngle(Vector startVector, Vector endVector) {
 		double magV1 = Vector.magnitude(startVector);
 		double magV2 = Vector.magnitude(endVector);
 		double dotProd = Vector.dotProduct(startVector, endVector);
@@ -118,6 +118,13 @@ public class Vector extends Point2D.Double {
 		}
 		
 		return angle;
+	}
+
+	public static double angleBetween(Vector a,Vector b){
+		a=Vector.normalize(a);
+		b=Vector.normalize(b);
+		double dotproduct = Vector.dotProduct(a, b);
+		return Math.acos(dotproduct);
 	}
 
 }

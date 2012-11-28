@@ -109,6 +109,36 @@ public class VectorTest extends TestCase {
 		assertEquals(v1.x, newX);
 		assertEquals(v1.y, newY);
 	}
+	public void testAngleBetween(){
+		Vector v1 = new Vector(3, 0);
+		Vector v2 = new Vector(0, 4);
+		
+		double angle=Vector.angleBetween(v1, v2);
+		
+		assertTrue(angle>1.57&&angle<1.58);
+		
+		v1 = new Vector(3, 3);
+		v2 = new Vector(0, 4);
+		
+		angle=Vector.angleBetween(v1, v2);
+		
+		assertTrue(angle>.784&&angle<.786);
+		
+		v1 = new Vector(3, 0);
+		v2 = new Vector(-5, .2);
+		
+		angle=Vector.angleBetween(v1, v2);
+		
+		assertTrue(angle>3.1&&angle<3.11);
+
+		v1 = new Vector(3, 0);
+		v2 = new Vector(-5, -.2);
+		
+		angle=Vector.angleBetween(v1, v2);
+		
+		assertTrue(angle>3.1&&angle<3.11);
+
+	}
 
 	/**
 	 * Test method for {@link basic_objects.Vector#getVectorBetweenTwoPoints(Point, Point)}
@@ -143,14 +173,14 @@ public class VectorTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link basic_objects.Vector#getAngle(Vector, Vector)}.
+	 * Test method for {@link basic_objects.Vector#getDirectionalAngle(Vector, Vector)}.
 	 */
 	public void testGetAngle() {
 		Vector v1 = new Vector(2, 1);
 		double testAngle = Math.PI / 4;
 		Vector v2 = Vector.rotateVector(v1, testAngle);
 
-		double actualAngle = Vector.getAngle(v1, v2);
+		double actualAngle = Vector.getDirectionalAngle(v1, v2);
 
 		int roundedTestAngle = (int) Math.round(testAngle * 100000);
 		int roundedActualAngle = (int) Math.round(actualAngle * 100000);
@@ -159,7 +189,7 @@ public class VectorTest extends TestCase {
 
 		testAngle = 5 * Math.PI / 4;
 		Vector v3 = Vector.rotateVector(v1, testAngle);
-		actualAngle = Vector.getAngle(v1, v3);
+		actualAngle = Vector.getDirectionalAngle(v1, v3);
 		assertEquals(testAngle, actualAngle);
 
 	}
