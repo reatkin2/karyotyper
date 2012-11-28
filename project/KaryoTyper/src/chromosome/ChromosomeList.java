@@ -107,7 +107,7 @@ public class ChromosomeList {
 					startPnts.add(startPoints.get(j).getStartPoint().getPoint());
 				}
 
-				startPnts=mirror.projectApproach(tempCluster.getBounds(), startPoints);
+				startPnts=mirror.markSplit(tempCluster.getBounds(), startPoints);
 
 				writeTargetImage("/shapeData/Keep/", tempCluster,
 							tempCluster.getPaintPoints(), Color.RED, startPnts, Color.BLUE);
