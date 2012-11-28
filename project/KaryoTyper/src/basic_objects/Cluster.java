@@ -6,6 +6,7 @@ package basic_objects;
  * Created on December 14, 2004, 7:09 PM
  */
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.LinkedList;
 
 /**
@@ -333,5 +334,7 @@ public class Cluster {
 		}
 		return truePoints;
 	}
-
+	public Rectangle getBounds(){
+		return new Rectangle(0,0,this.getSize().x,this.getSize().y);
+	}
 }

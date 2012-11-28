@@ -282,14 +282,14 @@ public class Extractor {
 		}
 		while (!tempClusterList.isEmpty()) {
 			ChromosomeCluster tempPop = tempClusterList.pop();
-			System.out.println();
-			System.out.println("Loc: " + tempPop.getImageLocation().x + ","
-					+ tempPop.getImageLocation().y);
-			System.out.println("pixelC: " + tempPop.getPixelCount());
-			System.out.println(tempPop.getTitle());
+//			System.out.println();
+//			System.out.println("Loc: " + tempPop.getImageLocation().x + ","
+//					+ tempPop.getImageLocation().y);
+//			System.out.println("pixelC: " + tempPop.getPixelCount());
+//			System.out.println(tempPop.getTitle());
 		}
-		System.out.println("FirstPass: " + this.firstPassCount + "   BackGroundChunksRemoved: "
-				+ clusterNum);
+//		System.out.println("FirstPass: " + this.firstPassCount + "   BackGroundChunksRemoved: "
+//				+ clusterNum);
 
 		return clusterNum;
 
@@ -351,8 +351,8 @@ public class Extractor {
 			}
 		}
 
-		System.out.println("FirstPass: " + this.firstPassCount + "   BackGroundChunksRemoved: "
-				+ clusterNum);
+//		System.out.println("FirstPass: " + this.firstPassCount + "   BackGroundChunksRemoved: "
+//				+ clusterNum);
 
 		return tempBandList;
 
@@ -395,16 +395,16 @@ public class Extractor {
 								}
 							}
 						}
-						System.out.println("Image: " + temp.getTitle() + " Count: "
-								+ temp.getClusterNimageID());
+//						System.out.println("Image: " + temp.getTitle() + " Count: "
+//								+ temp.getClusterNimageID());
 					}
 				}
 			}
 		}
-		System.out.println("FirstPass: " + this.firstPassCount);
+//		System.out.println("FirstPass: " + this.firstPassCount);
 		double avgChromosomewidth = img.calcFinalAverage();
 
-		System.out.println("Width: " + avgChromosomewidth);
+//		System.out.println("Width: " + avgChromosomewidth);
 		return clusterNum;// targetNimgCount;
 	}
 	/**
@@ -448,8 +448,8 @@ public class Extractor {
 								}
 							}
 						}
-						System.out.println("Image: " + temp.getTitle() + " Count: "
-								+ temp.getClusterNimageID());
+//						System.out.println("Image: " + temp.getTitle() + " Count: "
+//								+ temp.getClusterNimageID());
 					}
 				}
 			}

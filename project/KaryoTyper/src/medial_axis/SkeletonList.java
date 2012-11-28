@@ -98,4 +98,6 @@ public class SkeletonList {
 	public LinkedList<PointList> getList() {
 		return skeleton;
 	}
+
+
 }
