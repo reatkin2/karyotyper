@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -39,27 +40,26 @@ public class DemoGui extends JFrame {
 	private static final long serialVersionUID = 1L;
 	public int imgCounter;
 	public int targetsFound;
-	public static JLabel currentStatus;
+	public static JLabel currentStatusLabel;
 	private long start;
-	public JPanel upper; 
-	public JPanel lower; 
-	public JPanel left;
-	public JPanel right;
-	public JLabel imgCount;
-	public JButton extract;
-	public JButton distanceMap;
-	public JButton medialAxis;
-	public JButton cleanMedialAxis;
-	public JButton smallSplit;
-	public JButton orthoLines;
-	public JButton startPoints;
-	public JButton projections;
-	public JButton darkBands;
-	public JButton linearize;
-	public JButton	reset;
-	public ImagesPanel imagePane;
-	public JScrollPane scroll;
-
+	public JPanel upperPanel;
+	public JPanel lowerPanel;
+	public JPanel leftPanel;
+	public JPanel rightPanel;
+	public JLabel imgCountLable;
+	public JButton extractButton;
+	public JButton distanceMapButton;
+	public JButton medialAxisButton;
+	public JButton cleanMedialAxisButton;
+	public JButton smallSplitButton;
+	public JButton orthoLinesButton;
+	public JButton startPointsButton;
+	public JButton projectionsButton;
+	public JButton darkBandsButton;
+	public JButton linearizeButton;
+	public JButton resetButton;
+	public ImagesPanel imagePanel;
+	public JScrollPane scrollPane;
 
 	public DemoGui(String string) {
 		super(string);
@@ -69,31 +69,32 @@ public class DemoGui extends JFrame {
 		targetsFound = 0;
 		initGui();
 	}
-	public void initGui(){
+
+	public void initGui() {
 		this.setLayout(new BorderLayout());
-		upper = new JPanel();
-		lower = new JPanel();
-		left = new JPanel();
-		right = new JPanel();
+		upperPanel = new JPanel();
+		lowerPanel = new JPanel();
+		leftPanel = new JPanel();
+		rightPanel = new JPanel();
 		this.setLocation(20, 20);
 		Dimension minSize = new Dimension(800, 600);
 		Dimension leftMinSize = new Dimension(60, 600);
-		//Dimension rightMinSize = new Dimension(740, 600);
-		
-		left.setMinimumSize(leftMinSize);
-		left.setBackground(Color.red);
-		right.setBackground(Color.GREEN);
-		//right.setMinimumSize(rightMinSize);
+		// Dimension rightMinSize = new Dimension(740, 600);
+
+		leftPanel.setMinimumSize(leftMinSize);
+		leftPanel.setBackground(Color.red);
+		rightPanel.setBackground(Color.GREEN);
+		// right.setMinimumSize(rightMinSize);
 
 		this.setMinimumSize(minSize);
-		imgCount = new JLabel("Currently No Images In Directory");
-		DemoGui.currentStatus = new JLabel("Chroalan");
-		DemoGui.currentStatus.setForeground(Color.RED);
-		upper.add(DemoGui.currentStatus);
-		lower.add(imgCount);
-		this.add(upper,BorderLayout.NORTH);
-		this.add(left,BorderLayout.WEST);
-		//this.add(right,BorderLayout.CENTER);
+		imgCountLable = new JLabel("Currently No Images In Directory");
+		DemoGui.currentStatusLabel = new JLabel("Chroalan");
+		DemoGui.currentStatusLabel.setForeground(Color.RED);
+		upperPanel.add(DemoGui.currentStatusLabel);
+		lowerPanel.add(imgCountLable);
+		this.add(upperPanel, BorderLayout.NORTH);
+		this.add(leftPanel, BorderLayout.WEST);
+		// this.add(right,BorderLayout.CENTER);
 		this.setVisible(true);
 		// this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -108,44 +109,49 @@ public class DemoGui extends JFrame {
 		initButtons();
 		initImageArea();
 	}
-	public void initImageArea(){
-		imagePane=new ImagesPanel();
-		scroll = new JScrollPane(imagePane,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-		scroll.setViewportView(imagePane);
-		this.add(scroll,BorderLayout.CENTER);
-		
+
+	public void initImageArea() {
+		imagePanel = new ImagesPanel();
+		scrollPane = new JScrollPane(imagePanel, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+		scrollPane.setViewportView(imagePanel);
+		this.add(scrollPane, BorderLayout.CENTER);
+
 	}
-	public void displayImage(BufferedImage tempBuff){
-		this.imagePane.writeNewImage(tempBuff);
+
+	public void displayImage(BufferedImage tempBuff) {
+		this.imagePanel.writeNewImage(tempBuff);
 	}
-	public void initButtons(){
-		JPanel buttonPanel=new JPanel();
-		buttonPanel.setLayout(new BoxLayout(buttonPanel,BoxLayout.Y_AXIS));
-		extract=new JButton("extract");
-		distanceMap=new JButton("distanceMap");
-		medialAxis=new JButton("medialAxis");
-		cleanMedialAxis=new JButton("cleanMedialAxis");
-		smallSplit=new JButton("smallSplit");
-		orthoLines=new JButton("orthoLines");
-		startPoints=new JButton("startPoints");
-		projections=new JButton("projections");
-		darkBands=new JButton("darkBands");
-		linearize=new JButton("linearize");
-		reset=new JButton("reset");
-		buttonPanel.add(extract);
-		buttonPanel.add(distanceMap);
-		buttonPanel.add(medialAxis);
-		buttonPanel.add(cleanMedialAxis);
-		buttonPanel.add(smallSplit);
-		buttonPanel.add(orthoLines);
-		buttonPanel.add(startPoints);
-		buttonPanel.add(projections);
-		buttonPanel.add(darkBands);
-		buttonPanel.add(linearize);
-		buttonPanel.add(reset);		
-		left.add(buttonPanel);
+
+	public void initButtons() {
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+		extractButton = new JButton("extract");
+		distanceMapButton = new JButton("distanceMap");
+		medialAxisButton = new JButton("medialAxis");
+		cleanMedialAxisButton = new JButton("cleanMedialAxis");
+		smallSplitButton = new JButton("smallSplit");
+		orthoLinesButton = new JButton("orthoLines");
+		startPointsButton = new JButton("startPoints");
+		projectionsButton = new JButton("projections");
+		darkBandsButton = new JButton("darkBands");
+		linearizeButton = new JButton("linearize");
+		resetButton = new JButton("reset");
+		buttonPanel.add(extractButton);
+		buttonPanel.add(distanceMapButton);
+		buttonPanel.add(medialAxisButton);
+		buttonPanel.add(cleanMedialAxisButton);
+		buttonPanel.add(smallSplitButton);
+		buttonPanel.add(orthoLinesButton);
+		buttonPanel.add(startPointsButton);
+		buttonPanel.add(projectionsButton);
+		buttonPanel.add(darkBandsButton);
+		buttonPanel.add(linearizeButton);
+		buttonPanel.add(resetButton);
+		leftPanel.add(buttonPanel);
 		initButtonActions();
 	}
+
 	// Create and set up the window.
 	/**
 	 * @param args
@@ -169,67 +175,73 @@ public class DemoGui extends JFrame {
 				GeneticSlideImage image = new GeneticSlideImage(filename);
 				frame.displayImage(image.getImg());
 			}
-				
+
 			while (!DemoGui.closing) {
-//				// System.out.println(args[i]+"---------nextFilestarts Here---------------");
-//				// put images in the que and return next file in the path from string args
-//				filename = images.getNextFile(args[0]);
-//				if (filename != null) {
-//					if (!DemoGui.currentStatus.getText().contains("Finishing")) {
-//						DemoGui.currentStatus
-//								.setText("Finding Chromosomes in slide image: " + filename);
-//					}
-//					Extractor extractor = new Extractor();
-//					// use the current image in the que and create a slideImage
-//					GeneticSlideImage image = new GeneticSlideImage(filename);
-//					// extract the background from the image
-//					extractor.removeBackground(image);
-//					// get clusters from the image and keep a count of how many
-//					frame.targetsFound += extractor.findClusters(image);
-//					// pass the list of clusters on to slidelist
-//					ChromosomeList slideList1 = new ChromosomeList(extractor.getClusterList(), image);
-//
-//					for(int i=0;i<slideList1.getChromosomeList().size();i++){
-//						LinkedList<PointList> cutList=ClusterSplitter.getSplitPoints(slideList1.getChromosomeList().get(i), (int) Math.round(image.getChromoWidth()/3));
-//						if(!cutList.isEmpty()){
-//							int newChromosomes=extractor.splitClusters(slideList1.getChromosomeList().get(i), cutList, image);
-//							if(newChromosomes>1){
-//								slideList1.getChromosomeList().remove(i);
-//							}
-//						}
-//					}
-//					ChromosomeList splitList=new ChromosomeList(extractor.getSplitList(),image);
-//					splitList.calcMedialAxis(image);
-//					for(int i=0;i<splitList.getChromosomeList().size();i++){
-//						MedialAxisGraph tempGraph=splitList.getChromosomeList().get(i).getMedialAxisGraph();
-//						MirrorSplit mirror=new MirrorSplit(tempGraph);
-//						splitList.getChromosomeList().get(i).setPaintPoints(mirror.getAllProblemDistances(splitList.getChromosomeList().get(i).getBounds(), 
-//								tempGraph.getAxisGraph(), image.getChromoWidth(), tempGraph.getDistanceMap()));
-//					}
-//					frame.imgCount.setText("Writing Splits" + splitList.size() + " images. ");
-//					splitList.printProblemAxisWithMedialAxis(image,false);
-//					
-//					// test for split lines to shapdata/keep
-//					//slideList1.splitNWrite(image);
-//					slideList1.calcMedialAxis(image);
-//					for(int i=0;i<slideList1.getChromosomeList().size();i++){
-//						MedialAxisGraph tempGraph=slideList1.getChromosomeList().get(i).getMedialAxisGraph();
-//						MirrorSplit mirror=new MirrorSplit(tempGraph);
-//						slideList1.getChromosomeList().get(i).setPaintPoints(mirror.getAllProblemDistances(slideList1.getChromosomeList().get(i).getBounds(), 
-//								tempGraph.getAxisGraph(), image.getChromoWidth(), tempGraph.getDistanceMap()));
-//					}
-//					frame.imgCount.setText("Writing " + slideList1.size() + " images. ");
-//					slideList1.printProblemAxisWithMedialAxis(image,false);
-//
-//					frame.imgCount.setText(frame.targetsFound + " Chromosomes found in "
-//							+ (++frame.imgCounter) + " slides read so far.");
-//					if (!DemoGui.currentStatus.getText().contains("Finishing")) {
-//						DemoGui.currentStatus.setText("Waiting for images");
-//					} else {
-//						DemoGui.currentStatus.setText("Finished looking at img"
-//								+ filename + " shutting down.");
-//					}
-//				}
+				// // System.out.println(args[i]+"---------nextFilestarts Here---------------");
+				// // put images in the que and return next file in the path from string args
+				// filename = images.getNextFile(args[0]);
+				// if (filename != null) {
+				// if (!DemoGui.currentStatus.getText().contains("Finishing")) {
+				// DemoGui.currentStatus
+				// .setText("Finding Chromosomes in slide image: " + filename);
+				// }
+				// Extractor extractor = new Extractor();
+				// // use the current image in the que and create a slideImage
+				// GeneticSlideImage image = new GeneticSlideImage(filename);
+				// // extract the background from the image
+				// extractor.removeBackground(image);
+				// // get clusters from the image and keep a count of how many
+				// frame.targetsFound += extractor.findClusters(image);
+				// // pass the list of clusters on to slidelist
+				// ChromosomeList slideList1 = new ChromosomeList(extractor.getClusterList(),
+				// image);
+				//
+				// for(int i=0;i<slideList1.getChromosomeList().size();i++){
+				// LinkedList<PointList>
+				// cutList=ClusterSplitter.getSplitPoints(slideList1.getChromosomeList().get(i),
+				// (int) Math.round(image.getChromoWidth()/3));
+				// if(!cutList.isEmpty()){
+				// int newChromosomes=extractor.splitClusters(slideList1.getChromosomeList().get(i),
+				// cutList, image);
+				// if(newChromosomes>1){
+				// slideList1.getChromosomeList().remove(i);
+				// }
+				// }
+				// }
+				// ChromosomeList splitList=new ChromosomeList(extractor.getSplitList(),image);
+				// splitList.calcMedialAxis(image);
+				// for(int i=0;i<splitList.getChromosomeList().size();i++){
+				// MedialAxisGraph
+				// tempGraph=splitList.getChromosomeList().get(i).getMedialAxisGraph();
+				// MirrorSplit mirror=new MirrorSplit(tempGraph);
+				// splitList.getChromosomeList().get(i).setPaintPoints(mirror.getAllProblemDistances(splitList.getChromosomeList().get(i).getBounds(),
+				// tempGraph.getAxisGraph(), image.getChromoWidth(), tempGraph.getDistanceMap()));
+				// }
+				// frame.imgCount.setText("Writing Splits" + splitList.size() + " images. ");
+				// splitList.printProblemAxisWithMedialAxis(image,false);
+				//
+				// // test for split lines to shapdata/keep
+				// //slideList1.splitNWrite(image);
+				// slideList1.calcMedialAxis(image);
+				// for(int i=0;i<slideList1.getChromosomeList().size();i++){
+				// MedialAxisGraph
+				// tempGraph=slideList1.getChromosomeList().get(i).getMedialAxisGraph();
+				// MirrorSplit mirror=new MirrorSplit(tempGraph);
+				// slideList1.getChromosomeList().get(i).setPaintPoints(mirror.getAllProblemDistances(slideList1.getChromosomeList().get(i).getBounds(),
+				// tempGraph.getAxisGraph(), image.getChromoWidth(), tempGraph.getDistanceMap()));
+				// }
+				// frame.imgCount.setText("Writing " + slideList1.size() + " images. ");
+				// slideList1.printProblemAxisWithMedialAxis(image,false);
+				//
+				// frame.imgCount.setText(frame.targetsFound + " Chromosomes found in "
+				// + (++frame.imgCounter) + " slides read so far.");
+				// if (!DemoGui.currentStatus.getText().contains("Finishing")) {
+				// DemoGui.currentStatus.setText("Waiting for images");
+				// } else {
+				// DemoGui.currentStatus.setText("Finished looking at img"
+				// + filename + " shutting down.");
+				// }
+				// }
 				try {
 					Thread.sleep(10);
 				} catch (InterruptedException e) {
@@ -245,8 +257,7 @@ public class DemoGui extends JFrame {
 
 	protected static void exitProcedure() {
 		DemoGui.closing = true;
-		DemoGui.currentStatus
-				.setText("Finishing current image search and shutting down.");
+		DemoGui.currentStatusLabel.setText("Finishing current image search and shutting down.");
 	}
 
 	public void exit() {
@@ -263,89 +274,171 @@ public class DemoGui extends JFrame {
 			System.out.println(e);
 		}
 	}
-	public void initButtonActions(){
-		extract=new JButton("extract");
-		distanceMap=new JButton("distanceMap");
-		medialAxis=new JButton("medialAxis");
-		cleanMedialAxis=new JButton("cleanMedialAxis");
-		smallSplit=new JButton("smallSplit");
-		orthoLines=new JButton("orthoLines");
-		startPoints=new JButton("startPoints");
-		projections=new JButton("projections");
-		darkBands=new JButton("darkBands");
-		linearize=new JButton("linearize");
-		reset=new JButton("reset");
-		
-		extract.addMouseListener(new MouseListener() {
-        	 
-            public void mouseClicked(MouseEvent e)
-            {
-            	if(e.equals(extract)){
-            		System.out.println("Extract pressed");
-            	}
-                //Execute when button is pressed
-                System.out.println("You clicked the button");
-            }
+
+	public void initButtonActions() {
+		extractButton.addActionListener(new ActionListener() {
 
 			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
+			public void actionPerformed(ActionEvent evt) {
+				extractButtonActionPerformed(evt);
+
 			}
 
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
+		});
+
+		distanceMapButton.addActionListener(new ActionListener() {
 
 			@Override
-			public void mousePressed(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
+			public void actionPerformed(ActionEvent evt) {
+				distanceMapButtonActionPerformed(evt);
+
 			}
 
-			@Override
-			public void mouseReleased(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-        });  
-		reset.addMouseListener(new MouseListener() {
-       	 
-            public void mouseClicked(MouseEvent e)
-            {
-            	if(e.equals(extract)){
-            		System.out.println("Extract pressed");
-            	}
-                //Execute when button is pressed
-                System.out.println("You clicked the button");
-            }
+		});
+
+		medialAxisButton.addActionListener(new ActionListener() {
 
 			@Override
-			public void mouseEntered(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
+			public void actionPerformed(ActionEvent evt) {
+				medialAxisButtonActionPerformed(evt);
+
 			}
 
-			@Override
-			public void mouseExited(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
+		});
+
+		cleanMedialAxisButton.addActionListener(new ActionListener() {
 
 			@Override
-			public void mousePressed(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
+			public void actionPerformed(ActionEvent evt) {
+				cleanMedialAxisButtonActionPerformed(evt);
+
 			}
 
+		});
+
+		smallSplitButton.addActionListener(new ActionListener() {
+
 			@Override
-			public void mouseReleased(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				
+			public void actionPerformed(ActionEvent evt) {
+				smallSplitButtonActionPerformed(evt);
+
 			}
-        });  
+
+		});
+
+		orthoLinesButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				orthoLinesButtonActionPerformed(evt);
+
+			}
+
+		});
+
+		startPointsButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				startPointsButtonActionPerformed(evt);
+
+			}
+
+		});
+
+		projectionsButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				projectionsButtonActionPerformed(evt);
+
+			}
+
+		});
+
+		darkBandsButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				darkBandsButtonActionPerformed(evt);
+
+			}
+
+		});
+
+		linearizeButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				linearizeButtonActionPerformed(evt);
+
+			}
+
+		});
+
+		resetButton.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				resetButtonActionPerformed(evt);
+
+			}
+
+		});
+	}
+
+	protected void resetButtonActionPerformed(ActionEvent evt) {
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void linearizeButtonActionPerformed(ActionEvent evt) {
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void darkBandsButtonActionPerformed(ActionEvent evt) {
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void projectionsButtonActionPerformed(ActionEvent evt) {
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void startPointsButtonActionPerformed(ActionEvent evt) {
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void orthoLinesButtonActionPerformed(ActionEvent evt) {
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void smallSplitButtonActionPerformed(ActionEvent evt) {
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void cleanMedialAxisButtonActionPerformed(ActionEvent evt) {
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void medialAxisButtonActionPerformed(ActionEvent evt) {
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void distanceMapButtonActionPerformed(ActionEvent evt) {
+		// TODO Auto-generated method stub
+
+	}
+
+	protected void extractButtonActionPerformed(ActionEvent evt) {
+		// TODO Auto-generated method stub
 
 	}
 }

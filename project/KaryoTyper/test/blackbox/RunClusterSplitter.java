@@ -1,4 +1,4 @@
-package testing.blackbox;
+package blackbox;
 
 import java.util.LinkedList;
 
