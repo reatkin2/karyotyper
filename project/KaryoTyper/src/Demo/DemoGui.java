@@ -7,6 +7,7 @@ import java.awt.FlowLayout;
 import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -26,6 +27,7 @@ import javax.swing.Scrollable;
 import medial_axis.MedialAxisGraph;
 import runner.ImageQueue;
 import basic_objects.PointList;
+import chromosome.ChromosomeCluster;
 import chromosome.ChromosomeList;
 import chromosome.GeneticSlideImage;
 import extraction.ClusterSplitter;
@@ -60,6 +62,11 @@ public class DemoGui extends JFrame {
 	public JButton resetButton;
 	public ImagesPanel imagePanel;
 	public JScrollPane scrollPane;
+	public LinkedList<GeneticSlideImage> slideList;
+	public LinkedList<BufferedImage> slideImageList;
+	public LinkedList<ChromosomeCluster> chromoList;
+	public LinkedList<ChromosomeCluster> displayedList;
+	public int currSlide;
 
 	public DemoGui(String string) {
 		super(string);
@@ -67,6 +74,11 @@ public class DemoGui extends JFrame {
 		start = System.currentTimeMillis();
 		imgCounter = 0;
 		targetsFound = 0;
+		slideList = new LinkedList<GeneticSlideImage>();
+		slideImageList=null;
+		currSlide=-1;
+		chromoList = null;
+		displayedList=null;
 		initGui();
 	}
 
@@ -119,8 +131,9 @@ public class DemoGui extends JFrame {
 
 	}
 
-	public void displayImage(BufferedImage tempBuff) {
-		this.imagePanel.writeNewImage(tempBuff);
+	public void displayImage(LinkedList<BufferedImage> imageList) {
+		this.imagePanel.writeNewImage(imageList);
+		this.repaint();
 	}
 
 	public void initButtons() {
@@ -170,31 +183,20 @@ public class DemoGui extends JFrame {
 			// initialize the extractor
 			// System.out.println(args[i]+"---------nextFilestarts Here---------------");
 			// put images in the que and return next file in the path from string args
-			filename = images.getNextFile(args[0]);
-			if (filename != null) {
-				GeneticSlideImage image = new GeneticSlideImage(filename);
-				frame.displayImage(image.getImg());
-			}
+			frame.slideImageList=new LinkedList<BufferedImage>();
 
 			while (!DemoGui.closing) {
-				// // System.out.println(args[i]+"---------nextFilestarts Here---------------");
-				// // put images in the que and return next file in the path from string args
-				// filename = images.getNextFile(args[0]);
-				// if (filename != null) {
-				// if (!DemoGui.currentStatus.getText().contains("Finishing")) {
-				// DemoGui.currentStatus
-				// .setText("Finding Chromosomes in slide image: " + filename);
-				// }
-				// Extractor extractor = new Extractor();
-				// // use the current image in the que and create a slideImage
-				// GeneticSlideImage image = new GeneticSlideImage(filename);
-				// // extract the background from the image
-				// extractor.removeBackground(image);
-				// // get clusters from the image and keep a count of how many
-				// frame.targetsFound += extractor.findClusters(image);
-				// // pass the list of clusters on to slidelist
-				// ChromosomeList slideList1 = new ChromosomeList(extractor.getClusterList(),
-				// image);
+				// System.out.println(args[i]+"---------nextFilestarts Here---------------");
+				// put images in the que and return next file in the path from string args
+				filename = images.getNextFile(args[0]);
+				if (filename != null) {
+					// use the current image in the que and create a slideImage
+					frame.slideList.add(new GeneticSlideImage(filename));
+					frame.slideImageList.add(frame.slideList.getLast().getImg());
+					frame.displayImage(frame.slideImageList);
+
+				}
+
 				//
 				// for(int i=0;i<slideList1.getChromosomeList().size();i++){
 				// LinkedList<PointList>
@@ -385,11 +387,14 @@ public class DemoGui extends JFrame {
 			}
 
 		});
+
 	}
 
 	protected void resetButtonActionPerformed(ActionEvent evt) {
-		// TODO Auto-generated method stub
-
+		this.chromoList=null;
+		if(this.slideImageList!=null){
+			this.displayImage(this.slideImageList);
+		}
 	}
 
 	protected void linearizeButtonActionPerformed(ActionEvent evt) {
@@ -423,13 +428,53 @@ public class DemoGui extends JFrame {
 	}
 
 	protected void cleanMedialAxisButtonActionPerformed(ActionEvent evt) {
-		// TODO Auto-generated method stub
+		if(this.displayedList!=null){
+			LinkedList<BufferedImage> imageList = new LinkedList<BufferedImage>();
+			LinkedList<ChromosomeCluster> tempList=new LinkedList<ChromosomeCluster>();
+			for(int i=0;i<this.displayedList.size();i++){
+				if(this.imagePanel.isSelected(i)){
+					ChromosomeCluster tempCluster=this.displayedList.get(i);
+					int slideNum=this.getSlide(tempCluster);
+					if(slideNum>-1){
+						tempList.add(tempCluster);
+						tempCluster.createMedialAxisGraph(this.slideList.get(slideNum));
+						imageList.add(this.slideList.get(slideNum).getSubImage(
+								tempCluster, tempCluster.getMedialAxisGraph().getMedialAxisPoints(), Color.PINK));
+					}
+				}
+			}
+			this.displayedList=tempList;
+			this.displayImage(imageList);
+
+		}
+		else{
+			DemoGui.currentStatusLabel.setText("First extract chromosomes from an image");
+		}
 
 	}
 
 	protected void medialAxisButtonActionPerformed(ActionEvent evt) {
-		// TODO Auto-generated method stub
+		if(this.displayedList!=null){
+			LinkedList<BufferedImage> imageList = new LinkedList<BufferedImage>();
+			LinkedList<ChromosomeCluster> tempList=new LinkedList<ChromosomeCluster>();
+			for(int i=0;i<this.displayedList.size();i++){
+				if(this.imagePanel.isSelected(i)){
+					ChromosomeCluster tempCluster=this.displayedList.get(i);
+					int slideNum=this.getSlide(tempCluster);
+					if(slideNum>-1){
+						tempList.add(tempCluster);
+						imageList.add(this.slideList.get(slideNum).getSubImage(
+								tempCluster, tempCluster.getMedialAxisGraph().getMedialAxisPoints(), Color.RED));
+					}
+				}
+			}
+			this.displayedList=tempList;
+			this.displayImage(imageList);
 
+		}
+		else{
+			DemoGui.currentStatusLabel.setText("First extract chromosomes from an image");
+		}
 	}
 
 	protected void distanceMapButtonActionPerformed(ActionEvent evt) {
@@ -438,7 +483,43 @@ public class DemoGui extends JFrame {
 	}
 
 	protected void extractButtonActionPerformed(ActionEvent evt) {
-		// TODO Auto-generated method stub
+		if (this.slideList!=null) {
+			LinkedList<BufferedImage> imageList = new LinkedList<BufferedImage>();
+			for(int j=0;j<this.slideList.size();j++){
+				if(this.imagePanel.isSelected(j)){
+					Extractor extractor = new Extractor();
+					// extract the background from the image
+					extractor.removeBackground(this.slideList.get(j));
+					// get clusters from the image and keep a count of how many
+					this.targetsFound += extractor.findClusters(this.slideList.get(j));
+					// pass the list of clusters on to slidelist
+					if(this.chromoList!=null&&this.chromoList.size()>0){
+						ChromosomeList tempList = new ChromosomeList(extractor.getClusterList(),
+								this.slideList.get(j));
+						this.chromoList.addAll(tempList.getChromosomeList());
+					}
+					else{
+						this.chromoList = extractor.getClusterList();
+					}
+					for (int i = 0; i < this.chromoList.size(); i++) {
+						imageList.add(this.slideList.get(j).getSubImage(
+								this.chromoList.get(i), null, null));
+					}
+				}
+			}
+			this.displayedList=new LinkedList<ChromosomeCluster>(this.chromoList);
+			this.displayImage(imageList);
+		}
 
+	}
+	public int getSlide(ChromosomeCluster tempCluster){
+		if(this.slideList!=null){
+			for(int i=0;i<this.slideList.size();i++){
+				if(this.slideList.get(i).getImageName().contains(tempCluster.getTitle())){
+					return i;
+				}
+			}
+		}
+		return -1;
 	}
 }
