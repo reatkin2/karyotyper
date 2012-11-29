@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -26,6 +27,7 @@ import javax.swing.Scrollable;
 
 import medial_axis.MedialAxisGraph;
 import runner.ImageQueue;
+import basic_objects.CutStartPoint;
 import basic_objects.PointList;
 import chromosome.ChromosomeCluster;
 import chromosome.ChromosomeList;
@@ -75,10 +77,10 @@ public class DemoGui extends JFrame {
 		imgCounter = 0;
 		targetsFound = 0;
 		slideList = new LinkedList<GeneticSlideImage>();
-		slideImageList=null;
-		currSlide=-1;
+		slideImageList = null;
+		currSlide = -1;
 		chromoList = null;
-		displayedList=null;
+		displayedList = null;
 		initGui();
 	}
 
@@ -183,7 +185,7 @@ public class DemoGui extends JFrame {
 			// initialize the extractor
 			// System.out.println(args[i]+"---------nextFilestarts Here---------------");
 			// put images in the que and return next file in the path from string args
-			frame.slideImageList=new LinkedList<BufferedImage>();
+			frame.slideImageList = new LinkedList<BufferedImage>();
 
 			while (!DemoGui.closing) {
 				// System.out.println(args[i]+"---------nextFilestarts Here---------------");
@@ -391,8 +393,8 @@ public class DemoGui extends JFrame {
 	}
 
 	protected void resetButtonActionPerformed(ActionEvent evt) {
-		this.chromoList=null;
-		if(this.slideImageList!=null){
+		this.chromoList = null;
+		if (this.slideImageList != null) {
 			this.displayImage(this.slideImageList);
 		}
 	}
@@ -408,12 +410,79 @@ public class DemoGui extends JFrame {
 	}
 
 	protected void projectionsButtonActionPerformed(ActionEvent evt) {
-		// TODO Auto-generated method stub
+		if (this.displayedList != null) {
+			LinkedList<BufferedImage> imageList = new LinkedList<BufferedImage>();
+			LinkedList<ChromosomeCluster> tempList = new LinkedList<ChromosomeCluster>();
+			for (int i = 0; i < this.displayedList.size(); i++) {
+				if (this.imagePanel.isSelected(i)) {
+					ChromosomeCluster tempCluster = this.displayedList.get(i);
+					int slideNum = this.getSlide(tempCluster);
+					if (slideNum > -1) {
+						tempList.add(tempCluster);
+						tempCluster.createMedialAxisGraph(this.slideList.get(slideNum));
+						MirrorSplit splitter = new MirrorSplit(tempCluster.getMedialAxisGraph());
+						tempCluster.setPaintPoints(splitter.getAllProblemDistances(tempCluster
+								.getBounds(), tempCluster.getMedialAxisGraph().getAxisGraph(),
+								this.slideList.get(slideNum).getChromoWidth(), tempCluster
+										.getMedialAxisGraph().getDistanceMap()));
+						LinkedList<CutStartPoint> startPoints = splitter.getStartPoints(
+								tempCluster.getMedialAxisGraph().getAxisGraph(),
+								tempCluster.getMedialAxisGraph().getIntersections(
+										tempCluster.getMedialAxisGraph().getAxisGraph()));
+						LinkedList<Point> startPnt = splitter.projectApproach(tempCluster.getBounds(), startPoints);
+						imageList.add(this.slideList.get(slideNum).getSubImage(tempCluster,
+								tempCluster.getPaintPoints(),Color.RED,startPnt, Color.BLUE));
+					}
+				}
+			}
+			if (!imageList.isEmpty()) {
+				this.displayedList = tempList;
+				this.displayImage(imageList);
+			}
+
+		} else {
+			DemoGui.currentStatusLabel.setText("First extract chromosomes from an image");
+		}
 
 	}
 
 	protected void startPointsButtonActionPerformed(ActionEvent evt) {
-		// TODO Auto-generated method stub
+		if (this.displayedList != null) {
+			LinkedList<BufferedImage> imageList = new LinkedList<BufferedImage>();
+			LinkedList<ChromosomeCluster> tempList = new LinkedList<ChromosomeCluster>();
+			for (int i = 0; i < this.displayedList.size(); i++) {
+				if (this.imagePanel.isSelected(i)) {
+					ChromosomeCluster tempCluster = this.displayedList.get(i);
+					int slideNum = this.getSlide(tempCluster);
+					if (slideNum > -1) {
+						tempList.add(tempCluster);
+						tempCluster.createMedialAxisGraph(this.slideList.get(slideNum));
+						MirrorSplit splitter = new MirrorSplit(tempCluster.getMedialAxisGraph());
+						tempCluster.setPaintPoints(splitter.getAllProblemDistances(tempCluster
+								.getBounds(), tempCluster.getMedialAxisGraph().getAxisGraph(),
+								this.slideList.get(slideNum).getChromoWidth(), tempCluster
+										.getMedialAxisGraph().getDistanceMap()));
+						LinkedList<CutStartPoint> startPoints = splitter.getStartPoints(
+								tempCluster.getMedialAxisGraph().getAxisGraph(),
+								tempCluster.getMedialAxisGraph().getIntersections(
+										tempCluster.getMedialAxisGraph().getAxisGraph()));
+						LinkedList<Point> startPnt = new LinkedList<Point>();
+						for (int j = 0; j < startPoints.size(); j++) {
+							startPnt.add(startPoints.get(j).getStartPoint().getPoint());
+						}
+						imageList.add(this.slideList.get(slideNum).getSubImage(tempCluster,
+								tempCluster.getPaintPoints(),Color.RED,startPnt, Color.BLUE));
+					}
+				}
+			}
+			if (!imageList.isEmpty()) {
+				this.displayedList = tempList;
+				this.displayImage(imageList);
+			}
+
+		} else {
+			DemoGui.currentStatusLabel.setText("First extract chromosomes from an image");
+		}
 
 	}
 
@@ -423,99 +492,166 @@ public class DemoGui extends JFrame {
 	}
 
 	protected void smallSplitButtonActionPerformed(ActionEvent evt) {
-		// TODO Auto-generated method stub
+		if (this.displayedList != null) {
+			LinkedList<BufferedImage> imageList = new LinkedList<BufferedImage>();
+			LinkedList<ChromosomeCluster> tempList = new LinkedList<ChromosomeCluster>();
+			Extractor extractor = new Extractor();
+			for (int i = 0; i < this.displayedList.size(); i++) {
+				if (this.imagePanel.isSelected(i)) {
+					ChromosomeCluster tempCluster = this.displayedList.get(i);
+					int slideNum = this.getSlide(tempCluster);
+					if (slideNum > -1) {
+						LinkedList<PointList> cutList = ClusterSplitter
+								.getSplitPoints(tempCluster, (int) Math.round((this.slideList
+										.get(slideNum)).getChromoWidth() / 3));
+						if (!cutList.isEmpty()) {
+							extractor.splitClusters(tempCluster, cutList,
+									this.slideList.get(slideNum));
+							LinkedList<ChromosomeCluster> splitList = extractor.getSplitList();
+							if (splitList != null) {
+								for (int j = 0; j < splitList.size(); j++) {
+									tempList.add(splitList.get(j));
+									imageList.add(this.slideList.get(slideNum).getSubImage(
+											splitList.get(j), null, null));
+								}
+							} else {
+								imageList.add(this.slideList.get(slideNum).getSubImage(tempCluster,
+										null, null));
+							}
+						} else {
+							imageList.add(this.slideList.get(slideNum).getSubImage(tempCluster,
+									null, null));
+						}
+
+					}
+				}
+			}
+			if (!imageList.isEmpty()) {
+				this.displayedList = tempList;
+				this.displayImage(imageList);
+			}
+
+		} else {
+			DemoGui.currentStatusLabel.setText("First extract chromosomes from an image");
+		}
 
 	}
 
 	protected void cleanMedialAxisButtonActionPerformed(ActionEvent evt) {
-		if(this.displayedList!=null){
+		if (this.displayedList != null) {
 			LinkedList<BufferedImage> imageList = new LinkedList<BufferedImage>();
-			LinkedList<ChromosomeCluster> tempList=new LinkedList<ChromosomeCluster>();
-			for(int i=0;i<this.displayedList.size();i++){
-				if(this.imagePanel.isSelected(i)){
-					ChromosomeCluster tempCluster=this.displayedList.get(i);
-					int slideNum=this.getSlide(tempCluster);
-					if(slideNum>-1){
+			LinkedList<ChromosomeCluster> tempList = new LinkedList<ChromosomeCluster>();
+			for (int i = 0; i < this.displayedList.size(); i++) {
+				if (this.imagePanel.isSelected(i)) {
+					ChromosomeCluster tempCluster = this.displayedList.get(i);
+					int slideNum = this.getSlide(tempCluster);
+					if (slideNum > -1) {
 						tempList.add(tempCluster);
 						tempCluster.createMedialAxisGraph(this.slideList.get(slideNum));
-						imageList.add(this.slideList.get(slideNum).getSubImage(
-								tempCluster, tempCluster.getMedialAxisGraph().getMedialAxisPoints(), Color.PINK));
+						imageList
+								.add(this.slideList.get(slideNum).getSubImage(tempCluster,
+										tempCluster.getMedialAxisGraph().getMedialAxisPoints(),
+										Color.PINK));
 					}
 				}
 			}
-			this.displayedList=tempList;
-			this.displayImage(imageList);
+			if (!imageList.isEmpty()) {
+				this.displayedList = tempList;
+				this.displayImage(imageList);
+			}
 
-		}
-		else{
+		} else {
 			DemoGui.currentStatusLabel.setText("First extract chromosomes from an image");
 		}
 
 	}
 
 	protected void medialAxisButtonActionPerformed(ActionEvent evt) {
-		if(this.displayedList!=null){
+		if (this.displayedList != null) {
 			LinkedList<BufferedImage> imageList = new LinkedList<BufferedImage>();
-			LinkedList<ChromosomeCluster> tempList=new LinkedList<ChromosomeCluster>();
-			for(int i=0;i<this.displayedList.size();i++){
-				if(this.imagePanel.isSelected(i)){
-					ChromosomeCluster tempCluster=this.displayedList.get(i);
-					int slideNum=this.getSlide(tempCluster);
-					if(slideNum>-1){
+			LinkedList<ChromosomeCluster> tempList = new LinkedList<ChromosomeCluster>();
+			for (int i = 0; i < this.displayedList.size(); i++) {
+				if (this.imagePanel.isSelected(i)) {
+					ChromosomeCluster tempCluster = this.displayedList.get(i);
+					int slideNum = this.getSlide(tempCluster);
+					if (slideNum > -1) {
 						tempList.add(tempCluster);
-						imageList.add(this.slideList.get(slideNum).getSubImage(
-								tempCluster, tempCluster.getMedialAxisGraph().getMedialAxisPoints(), Color.RED));
+						imageList.add(this.slideList.get(slideNum).getSubImage(tempCluster,
+								tempCluster.getMedialAxisGraph().getMedialAxisPoints(), Color.RED));
 					}
 				}
 			}
-			this.displayedList=tempList;
-			this.displayImage(imageList);
+			if (!imageList.isEmpty()) {
+				this.displayedList = tempList;
+				this.displayImage(imageList);
+			}
 
-		}
-		else{
+		} else {
 			DemoGui.currentStatusLabel.setText("First extract chromosomes from an image");
 		}
 	}
 
 	protected void distanceMapButtonActionPerformed(ActionEvent evt) {
-		// TODO Auto-generated method stub
+		if (this.displayedList != null) {
+			LinkedList<BufferedImage> imageList = new LinkedList<BufferedImage>();
+			LinkedList<ChromosomeCluster> tempList = new LinkedList<ChromosomeCluster>();
+			for (int i = 0; i < this.displayedList.size(); i++) {
+				if (this.imagePanel.isSelected(i)) {
+					ChromosomeCluster tempCluster = this.displayedList.get(i);
+					int slideNum = this.getSlide(tempCluster);
+					if (slideNum > -1) {
+						tempList.add(tempCluster);
+						imageList.add(this.slideList.get(slideNum).getISOcline(
+								tempCluster.getMedialAxisGraph().getDistanceMap()));
+					}
+				}
+			}
+			if (!imageList.isEmpty()) {
+				this.displayedList = tempList;
+				this.displayImage(imageList);
+			}
 
+		} else {
+			DemoGui.currentStatusLabel.setText("First extract chromosomes from an image");
+		}
 	}
 
 	protected void extractButtonActionPerformed(ActionEvent evt) {
-		if (this.slideList!=null) {
+		if (this.slideList != null) {
 			LinkedList<BufferedImage> imageList = new LinkedList<BufferedImage>();
-			for(int j=0;j<this.slideList.size();j++){
-				if(this.imagePanel.isSelected(j)){
+			for (int j = 0; j < this.slideList.size(); j++) {
+				if (this.imagePanel.isSelected(j)) {
 					Extractor extractor = new Extractor();
 					// extract the background from the image
 					extractor.removeBackground(this.slideList.get(j));
 					// get clusters from the image and keep a count of how many
 					this.targetsFound += extractor.findClusters(this.slideList.get(j));
 					// pass the list of clusters on to slidelist
-					if(this.chromoList!=null&&this.chromoList.size()>0){
+					if (this.chromoList != null && this.chromoList.size() > 0) {
 						ChromosomeList tempList = new ChromosomeList(extractor.getClusterList(),
 								this.slideList.get(j));
 						this.chromoList.addAll(tempList.getChromosomeList());
-					}
-					else{
+					} else {
 						this.chromoList = extractor.getClusterList();
 					}
 					for (int i = 0; i < this.chromoList.size(); i++) {
-						imageList.add(this.slideList.get(j).getSubImage(
-								this.chromoList.get(i), null, null));
+						imageList.add(this.slideList.get(j).getSubImage(this.chromoList.get(i),
+								null, null));
 					}
 				}
 			}
-			this.displayedList=new LinkedList<ChromosomeCluster>(this.chromoList);
-			this.displayImage(imageList);
+			if (!imageList.isEmpty()) {
+				this.displayedList = this.chromoList;
+				this.displayImage(imageList);
+			}
 		}
 
 	}
-	public int getSlide(ChromosomeCluster tempCluster){
-		if(this.slideList!=null){
-			for(int i=0;i<this.slideList.size();i++){
-				if(this.slideList.get(i).getImageName().contains(tempCluster.getTitle())){
+
+	public int getSlide(ChromosomeCluster tempCluster) {
+		if (this.slideList != null) {
+			for (int i = 0; i < this.slideList.size(); i++) {
+				if (this.slideList.get(i).getImageName().contains(tempCluster.getTitle())) {
 					return i;
 				}
 			}
