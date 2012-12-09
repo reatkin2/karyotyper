@@ -13,14 +13,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import runner.ImageQueue;
-
 import basic_objects.PointList;
-
 import chromosome.ChromosomeList;
 import chromosome.GeneticSlideImage;
 import extraction.ClusterSplitter;
 import extraction.Extractor;
-public class RunGetDarkBands extends JFrame {
+
+public class RunSplitBandsAxis  extends JFrame {
 	/**
 	 * 
 	 */
@@ -31,9 +30,9 @@ public class RunGetDarkBands extends JFrame {
 	public static JLabel currentStatus;
 	private long start;
 
-	public RunGetDarkBands(String string) {
+	public RunSplitBandsAxis(String string) {
 		super(string);
-		RunGetDarkBands.closing = false;
+		RunSplitBandsAxis.closing = false;
 		start = System.currentTimeMillis();
 		imgCounter = 0;
 		targetsFound = 0;
@@ -52,7 +51,7 @@ public class RunGetDarkBands extends JFrame {
 			System.out.println(args[0]);
 
 			// int imgCounter=0;
-			RunGetDarkBands frame = new RunGetDarkBands("chromosome Getter GUI");
+			RunSplitBandsAxis frame = new RunSplitBandsAxis("chromosome Getter GUI");
 			frame.setLayout(new FlowLayout());
 			JPanel upper = new JPanel();
 			JPanel lower = new JPanel();
@@ -60,11 +59,11 @@ public class RunGetDarkBands extends JFrame {
 			Dimension minSize = new Dimension(400, 200);
 			frame.setMinimumSize(minSize);
 			JLabel imgCount = new JLabel("Currently No Images In Directory");
-			RunGetDarkBands.currentStatus = new JLabel("Waiting for images");
-			RunGetDarkBands.currentStatus.setForeground(Color.RED);
+			RunSplitBandsAxis.currentStatus = new JLabel("Waiting for images");
+			RunSplitBandsAxis.currentStatus.setForeground(Color.RED);
 			frame.add(upper);
 			frame.add(lower);
-			upper.add(RunGetDarkBands.currentStatus);
+			upper.add(RunSplitBandsAxis.currentStatus);
 			lower.add(imgCount);
 			frame.setVisible(true);
 			// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -81,13 +80,13 @@ public class RunGetDarkBands extends JFrame {
 			// initialize the que
 			ImageQueue images = new ImageQueue();
 			// initialize the extractor
-			while (!RunGetDarkBands.closing) {
+			while (!RunSplitBandsAxis.closing) {
 				// System.out.println(args[i]+"---------nextFilestarts Here---------------");
 				// put images in the que and return next file in the path from string args
 				filename = images.getNextFile(args[0]);
 				if (filename != null) {
-					if (!RunGetDarkBands.currentStatus.getText().contains("Finishing")) {
-						RunGetDarkBands.currentStatus
+					if (!RunSplitBandsAxis.currentStatus.getText().contains("Finishing")) {
+						RunSplitBandsAxis.currentStatus
 								.setText("Finding Chromosomes in slide image: " + filename);
 					}
 					Extractor extractor = new Extractor();
@@ -98,25 +97,39 @@ public class RunGetDarkBands extends JFrame {
 					// get clusters from the image and keep a count of how many
 					frame.targetsFound += extractor.findClusters(image);
 					// pass the list of clusters on to slidelist
-					ChromosomeList slideList1 = new ChromosomeList(extractor.getClusterList(), image);		
-					// print out the slidelist
-					imgCount.setText("Calculating Medial Axis for: " + slideList1.size()
-							+ " Clusters.");
-					//slideList1.calcMedialAxis(image);
-					imgCount.setText("Writing " + slideList1.size() + " images. ");
+					ChromosomeList slideList1 = new ChromosomeList(extractor.getClusterList(), image);
+					for(int i=0;i<slideList1.getChromosomeList().size();i++){
+						LinkedList<PointList> cutList=ClusterSplitter.getSplitPoints(slideList1.getChromosomeList().get(i), (int) Math.round(image.getChromoWidth()/3));
+						if(!cutList.isEmpty()){
+							int newChromosomes=extractor.splitClusters(slideList1.getChromosomeList().get(i), cutList, image);
+							if(newChromosomes>1){
+								slideList1.getChromosomeList().remove(i);
+							}
+						}
+					}
+					ChromosomeList splitList=new ChromosomeList(extractor.getSplitList(),image);
+					splitList.calcMedialAxis(image);
+					for(int i=0;i<splitList.getChromosomeList().size();i++){
+						splitList.getChromosomeList().get(i).setDarkBands(extractor.getBlackBands(image,splitList.getChromosomeList().get(i) ));
+					}
+					imgCount.setText("Writing Splits" + splitList.size() + " images. ");
+					splitList.printDarkBandsWithMedialAxis(image,false);
+					
+					// test for split lines to shapdata/keep
+					//slideList1.splitNWrite(image);
+					slideList1.calcMedialAxis(image);
 					for(int i=0;i<slideList1.getChromosomeList().size();i++){
 							slideList1.getChromosomeList().get(i).setDarkBands(extractor.getBlackBands(image,slideList1.getChromosomeList().get(i) ));
 					}
-					slideList1.printDarkBands(image,false);
-					// test for split lines to shapdata/keep
-					//slideList1.splitNWrite(image);
+					imgCount.setText("Writing " + slideList1.size() + " images. ");
+					slideList1.printDarkBandsWithMedialAxis(image,false);
 
 					imgCount.setText(frame.targetsFound + " Chromosomes found in "
 							+ (++frame.imgCounter) + " slides read so far.");
-					if (!RunGetDarkBands.currentStatus.getText().contains("Finishing")) {
-						RunGetDarkBands.currentStatus.setText("Waiting for images");
+					if (!RunSplitBandsAxis.currentStatus.getText().contains("Finishing")) {
+						RunSplitBandsAxis.currentStatus.setText("Waiting for images");
 					} else {
-						RunGetDarkBands.currentStatus.setText("Finished looking at img"
+						RunSplitBandsAxis.currentStatus.setText("Finished looking at img"
 								+ filename + " shutting down.");
 					}
 				}
@@ -134,8 +147,8 @@ public class RunGetDarkBands extends JFrame {
 	}
 
 	protected static void exitProcedure() {
-		RunGetDarkBands.closing = true;
-		RunGetDarkBands.currentStatus
+		RunSplitBandsAxis.closing = true;
+		RunSplitBandsAxis.currentStatus
 				.setText("Finishing current image search and shutting down.");
 	}
 

@@ -38,7 +38,8 @@ public class RunClusterSplitter {
 		ChromosomeList splitList=new ChromosomeList(extractor.getSplitList(),image);
 		splitList.calcMedialAxis(image);
 		splitList.printSplits(image);
-		
+		slideList.calcMedialAxis(image);
+
 		slideList.printChromosomes(image);
 	}
 	

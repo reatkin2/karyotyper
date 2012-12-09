@@ -42,8 +42,8 @@ public class VectorTest extends TestCase {
 		double xComp = vector.x;
 		double yComp = vector.y;
 		
-		assertEquals(xComp, 1);
-		assertEquals(yComp, 0);
+		assertEquals(1.0, xComp);
+		assertEquals(0.0, yComp);
 	}
 
 	/**
@@ -51,11 +51,11 @@ public class VectorTest extends TestCase {
 	 */
 	public void testRotateVectorDouble() {
 		vector.rotateVector(Math.PI/4);
-		double newX = Math.sqrt(2)/2;
-		double newY = Math.sqrt(2)/2;
+		double testX = Math.sqrt(2)/2;
+		double testY = Math.sqrt(2)/2;
 		
-		assertEquals(vector.x, newX);
-		assertEquals(vector.y, newY);
+		assertEquals(testX, vector.x);
+		assertEquals(testY, vector.y);
 	}
 
 	/**

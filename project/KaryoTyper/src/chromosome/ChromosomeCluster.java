@@ -16,6 +16,7 @@ public class ChromosomeCluster extends Cluster {
 	private ChromosomeCluster next;
 	private MedialAxisGraph medialAxisGraph;
 	private LinkedList<ChromosomeCluster> darkBands;
+	private LinkedList<Point> paintPoints;
 
 
 	public ChromosomeCluster(int ChromosomeNum) {
@@ -29,8 +30,8 @@ public class ChromosomeCluster extends Cluster {
 		initChromosomeCluster();
 	}
 
-	public ChromosomeCluster(short[][] map, int xPoint, int yPoint, int shapeColorID) {
-		super(map, xPoint, yPoint, shapeColorID);
+	public ChromosomeCluster(short[][] map, int xPoint, int yPoint, int shapeColorID,Point canvasStart) {
+		super(map, xPoint, yPoint, shapeColorID,canvasStart);
 		initChromosomeCluster();
 
 	}
@@ -59,6 +60,14 @@ public class ChromosomeCluster extends Cluster {
 	public void createMedialAxisGraph(GeneticSlideImage image) {
 		this.medialAxisGraph.createAxisGraph( image.getChromoWidth());
 		// this.medialAxisGraph.buildGraph(this.medialAxisGraph.getMedialAxisPoints(),this.medialAxisGraph.getDistanceMap());
+	}
+
+	public LinkedList<Point> getPaintPoints() {
+		return paintPoints;
+	}
+
+	public void setPaintPoints(LinkedList<Point> paintPoints) {
+		this.paintPoints = paintPoints;
 	}
 
 	public MedialAxisGraph getMedialAxisGraph() {

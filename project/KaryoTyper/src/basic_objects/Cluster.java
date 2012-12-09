@@ -6,6 +6,7 @@ package basic_objects;
  * Created on December 14, 2004, 7:09 PM
  */
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.LinkedList;
 
 /**
@@ -39,12 +40,13 @@ public class Cluster {
 	public Cluster(Point size) {
 		clusterX = new boolean[size.x][size.y];
 		initCluster();
+		this.clusterSize=size;
 	}
 
-	public Cluster(short[][] map, int xPoint, int yPoint, int clusterColorID) {
+	public Cluster(short[][] map, int xPoint, int yPoint, int clusterColorID,Point canvasStart) {
 		clusterX = new boolean[map.length][map[0].length];
 		initCluster();
-		setCluster(map, xPoint, yPoint, clusterColorID);
+		setCluster(map, new Point(xPoint, yPoint), clusterColorID,canvasStart);
 	}
 
 	private void initCluster() {
@@ -80,17 +82,17 @@ public class Cluster {
 	 * @param clusterColorID
 	 *            the number marked all over the 2d array of shorts that represents the cluster
 	 */
-	public void setCluster(short[][] map, int xPoint, int yPoint, int clusterColorID) {
+	public void setCluster(short[][] map, Point imgPoint, int clusterColorID,Point canvasStart) {
 		int firstCol = -1;
 		int firstRow = -1;
 		int bottomRow = -1;
 		int farthestRight = -1;
 		initCluster();
-		int yRefPoint = yPoint;
-		int xRefPoint = xPoint;
+		int yRefPoint = imgPoint.y;
+		int xRefPoint = imgPoint.x;
 		if (clusterColorID == 0) {
-			yRefPoint -= (int) (map[0].length / 2);
-			xRefPoint -= (int) (map.length / 2);
+			yRefPoint -= canvasStart.y;
+			xRefPoint -= canvasStart.x;
 		}
 		// find the first column and row that contain anything
 		for (int i = 0; i < map[0].length; i++) {
@@ -104,7 +106,7 @@ public class Cluster {
 						farthestRight = k;
 					}
 
-					if (firstCol > k) {
+					if (firstCol > k||firstCol==-1) {
 						firstCol = k;
 						setImageLocation(new Point(xRefPoint + k, imageLocation.y));
 					}
@@ -118,21 +120,18 @@ public class Cluster {
 
 			}
 		}
-
-		for (int i = firstRow; i < map[0].length; i++) { // put map into Cluster
-			for (int k = firstCol; k < map.length; k++) {
-				if (i - firstRow < clusterX.length && k - firstCol < clusterX[0].length) {
-					if (i - firstRow >= 0 && k - firstCol >= 0) {
-						if (map[k][i] == clusterColorID) {
-							clusterX[k - firstCol][i - firstRow] = true;
-						}
-					}
+		this.clusterX=new boolean [farthestRight+1-firstCol][bottomRow+1-firstRow];
+		this.clusterSize=new Point(farthestRight+1-firstCol,bottomRow+1-firstRow);
+		for (int i = firstRow; i <= bottomRow; i++) { // put map into Cluster
+			for (int k = firstCol; k <= farthestRight; k++) {
+				if (map[k][i] == clusterColorID) {
+					clusterX[k - firstCol][i - firstRow] = true;
 				}
 
 			}
 		}
 		// firstPixel.setLocation(firstPixel.x-firstCol,firstPixel.y-firstRow);
-		this.clusterSize = new Point(calcSize());
+		//this.clusterSize = new Point(calcSize());
 
 	}
 
@@ -222,30 +221,15 @@ public class Cluster {
 		clusterSize.x = x;
 		clusterSize.y = y;
 	}
-
-	/**
-	 * used to reduce the box that holds the cluster to the smallest possible box that can hold the
-	 * cluster by finding smallest width and height cluster will fit in
-	 * 
-	 * @return a point that the x represents the width and y repesents the height
-	 */
-	private Point calcSize() {
-		Point size = new Point(0, 0);
-		for (int j = 0; j < clusterX[0].length; j++) {
-			for (int i = 0; i < clusterX.length; i++) {
-				if (clusterX[i][j] == true) {
-					if (i > size.x) {
-						size.x = i;
-					}
-					if (j > size.y) {
-						size.y = j;
-					}
-				}
+	public void outCanvas(short[][] canvas){
+		for (int j = 0; j < canvas[0].length; j++) {
+			for (int i = 0; i < canvas.length; i++) {
+				System.out.print(canvas[i][j]);
 			}
+			System.out.println();
 		}
-		size.y++;
-		size.x++;
-		return size;
+			
+
 	}
 
 	public Cluster getNext() {
@@ -350,5 +334,7 @@ public class Cluster {
 		}
 		return truePoints;
 	}
-
+	public Rectangle getBounds(){
+		return new Rectangle(0,0,this.getSize().x,this.getSize().y);
+	}
 }

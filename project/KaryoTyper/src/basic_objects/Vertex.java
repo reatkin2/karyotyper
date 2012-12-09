@@ -18,6 +18,8 @@ public class Vertex {
 	private double orthogonalSlope;
 	private boolean noOrthoSlope;
 	private double orthogonalYIntercept;
+	private boolean centered;
+
 	/**
 	 * Used when walking the axis graph so that back edges are avoided. Must be reset to false
 	 * before walking again.
@@ -33,6 +35,7 @@ public class Vertex {
 		wasIntersection = false;
 		hasBeenChecked = false;
 		tangentIsCalculated = false;
+		centered = false;
 	}
 
 	public void addChild(Vertex nextChild) {
@@ -442,7 +445,14 @@ public class Vertex {
 		return true;
 	}
 	
-	
+	public boolean isCentered() {
+		return centered;
+	}
+
+	public void setCentered(boolean centered) {
+		this.centered = centered;
+	}
+
 	
 	
 }

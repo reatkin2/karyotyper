@@ -58,7 +58,7 @@ private boolean[][] pixelFound;
 						.println("Starting file: " + filename.substring(filename.indexOf("imag")));
 			}
 			img = ImageIO.read(new File(filename));
-			System.out.println("Image Height: " + img.getHeight() + " Width: " + img.getWidth());
+			//System.out.println("Image Height: " + img.getHeight() + " Width: " + img.getWidth());
 		} catch (IOException e) {
 			System.out.println(e);
 		}
@@ -69,6 +69,23 @@ private boolean[][] pixelFound;
 		this.graphScale();
 		// TODO(aamcknig): make this run on linear regressed function and not a static number
 		this.backgroundThreshold = this.computeBackgroundThreshold();
+	}
+	public GeneticSlideImage(BufferedImage buffImage) {
+		intensityHistogram = new int[256];
+		edgeHistogram = new int[256];
+		img = null;
+		for (int i = 0; i < intensityHistogram.length; i++) {
+			intensityHistogram[i] = 0;
+		}
+		img = buffImage;
+		chromoWidth = -1;
+		chromosomeWidth = new LinkedList<Double>();
+		searchArea=new SearchArea(this);
+		this.computeHistogram();
+		this.graphScale();
+		// TODO(aamcknig): make this run on linear regressed function and not a static number
+		this.backgroundThreshold = this.computeBackgroundThreshold();
+
 	}
 
 	public int getImgHeight() {
@@ -146,7 +163,7 @@ public GrayBuffer getSubImage(Cluster chromosomeCluster){
 				else {
 					tempImg.setRGB(i - targetCluster.getImageLocation().x,
 							j - targetCluster.getImageLocation().y,
-							((Color.WHITE).getRGB() & Color.TRANSLUCENT));
+							((Color.WHITE).getRGB()));
 				}
 			}
 
@@ -191,7 +208,7 @@ public GrayBuffer getSubImage(Cluster chromosomeCluster){
 							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
 				else {
 					tempImg.setRGB(i - targetCluster.getImageLocation().x,
-							j - targetCluster.getImageLocation().y, ((Color.WHITE).getRGB() & Color.TRANSLUCENT));
+							j - targetCluster.getImageLocation().y, ((Color.WHITE).getRGB()));
 				}
 			}
 
@@ -236,7 +253,7 @@ public GrayBuffer getSubImage(Cluster chromosomeCluster){
 							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
 				else {
 					tempImg.setRGB(i - targetCluster.getImageLocation().x,
-							j - targetCluster.getImageLocation().y, ((Color.WHITE).getRGB() & Color.TRANSLUCENT));
+							j - targetCluster.getImageLocation().y, ((Color.WHITE).getRGB()));
 				}
 			}
 

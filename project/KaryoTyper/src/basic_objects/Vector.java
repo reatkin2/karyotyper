@@ -28,8 +28,8 @@ public class Vector extends Point2D.Double {
 	 */
 	public void rotateVector(double theta) {
 		double tempX = x * Math.cos(theta) - y * Math.sin(theta);
+		y = x * Math.cos(theta) + y * Math.sin(theta);
 		x = tempX;
-		y = tempX * Math.cos(theta) + y * Math.sin(theta);
 	}
 
 	/**
@@ -43,7 +43,7 @@ public class Vector extends Point2D.Double {
 	 */
 	public static Vector rotateVector(Vector vector, double theta) {
 		double newX = vector.x * Math.cos(theta) - vector.y * Math.sin(theta);
-		double newY = vector.x * Math.cos(theta) + vector.y * Math.sin(theta);
+		double newY = vector.x * Math.sin(theta) + vector.y * Math.cos(theta);
 
 		return new Vector(newX, newY);
 	}
@@ -63,6 +63,15 @@ public class Vector extends Point2D.Double {
 	
 	public static Vector add(Vector v1, Vector v2) {
 		return new Vector(v1.x + v2.x, v1.y + v2.y);
+	}
+	
+	public static Vector multiply(Vector v, double scalar) {
+		Vector prodVector = new Vector(v.x * scalar, v.y * scalar);
+		return prodVector;
+	}
+	
+	public static Vector multiply(double scalar, Vector v) {
+		return multiply(v, scalar);
 	}
 
 }

@@ -30,7 +30,7 @@ public class SymmetryTests {
 	 */
 	public void tangentTest() {
 		String imagePath = "C:\\Users\\Robert\\Desktop\\SchoolWork\\CSC492\\repo"
-				+ "\\project\\KaryoTyper\\testImages\\testImage.png";
+				+ "\\project\\KaryoTyper\\testImages\\testImage1.png";
 		int tanLineLengths = 10;
 
 		ChromosomeCluster cluster = TestShape.getCluster(imagePath);

@@ -1,4 +1,4 @@
-package testing;
+package color;
 
 import java.awt.Color;
 
