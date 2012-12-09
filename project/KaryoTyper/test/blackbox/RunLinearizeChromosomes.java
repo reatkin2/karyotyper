@@ -1,29 +1,33 @@
-package testing.blackbox;
+package blackbox;
 
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
-import java.util.LinkedList;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import runner.ImageQueue;
-
-import basic_objects.PointList;
-
+import characterize.Characterizer;
+import characterize.GrayBuffer;
+import chromosome.ChromosomeCluster;
 import chromosome.ChromosomeList;
 import chromosome.GeneticSlideImage;
-import extraction.ClusterSplitter;
 import extraction.Extractor;
-public class RunGetDarkBands extends JFrame {
+
+public class RunLinearizeChromosomes extends JFrame {
 	/**
-	 * 
-	 */
+			 * 
+			 */
 	private static boolean closing;// =false;
 	private static final long serialVersionUID = 1L;
 	public int imgCounter;
@@ -31,9 +35,9 @@ public class RunGetDarkBands extends JFrame {
 	public static JLabel currentStatus;
 	private long start;
 
-	public RunGetDarkBands(String string) {
+	public RunLinearizeChromosomes(String string) {
 		super(string);
-		RunGetDarkBands.closing = false;
+		RunLinearizeChromosomes.closing = false;
 		start = System.currentTimeMillis();
 		imgCounter = 0;
 		targetsFound = 0;
@@ -52,7 +56,7 @@ public class RunGetDarkBands extends JFrame {
 			System.out.println(args[0]);
 
 			// int imgCounter=0;
-			RunGetDarkBands frame = new RunGetDarkBands("chromosome Getter GUI");
+			RunLinearizeChromosomes frame = new RunLinearizeChromosomes("chromosome Getter GUI");
 			frame.setLayout(new FlowLayout());
 			JPanel upper = new JPanel();
 			JPanel lower = new JPanel();
@@ -60,11 +64,11 @@ public class RunGetDarkBands extends JFrame {
 			Dimension minSize = new Dimension(400, 200);
 			frame.setMinimumSize(minSize);
 			JLabel imgCount = new JLabel("Currently No Images In Directory");
-			RunGetDarkBands.currentStatus = new JLabel("Waiting for images");
-			RunGetDarkBands.currentStatus.setForeground(Color.RED);
+			RunLinearizeChromosomes.currentStatus = new JLabel("Waiting for images");
+			RunLinearizeChromosomes.currentStatus.setForeground(Color.RED);
 			frame.add(upper);
 			frame.add(lower);
-			upper.add(RunGetDarkBands.currentStatus);
+			upper.add(RunLinearizeChromosomes.currentStatus);
 			lower.add(imgCount);
 			frame.setVisible(true);
 			// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -81,13 +85,13 @@ public class RunGetDarkBands extends JFrame {
 			// initialize the que
 			ImageQueue images = new ImageQueue();
 			// initialize the extractor
-			while (!RunGetDarkBands.closing) {
+			while (!RunLinearizeChromosomes.closing) {
 				// System.out.println(args[i]+"---------nextFilestarts Here---------------");
 				// put images in the que and return next file in the path from string args
 				filename = images.getNextFile(args[0]);
 				if (filename != null) {
-					if (!RunGetDarkBands.currentStatus.getText().contains("Finishing")) {
-						RunGetDarkBands.currentStatus
+					if (!RunLinearizeChromosomes.currentStatus.getText().contains("Finishing")) {
+						RunLinearizeChromosomes.currentStatus
 								.setText("Finding Chromosomes in slide image: " + filename);
 					}
 					Extractor extractor = new Extractor();
@@ -98,25 +102,75 @@ public class RunGetDarkBands extends JFrame {
 					// get clusters from the image and keep a count of how many
 					frame.targetsFound += extractor.findClusters(image);
 					// pass the list of clusters on to slidelist
-					ChromosomeList slideList1 = new ChromosomeList(extractor.getClusterList(), image);		
+					ChromosomeList slideList1 = new ChromosomeList(extractor.getClusterList(),
+							image);
 					// print out the slidelist
 					imgCount.setText("Calculating Medial Axis for: " + slideList1.size()
 							+ " Clusters.");
-					//slideList1.calcMedialAxis(image);
-					imgCount.setText("Writing " + slideList1.size() + " images. ");
-					for(int i=0;i<slideList1.getChromosomeList().size();i++){
-							slideList1.getChromosomeList().get(i).setDarkBands(extractor.getBlackBands(image,slideList1.getChromosomeList().get(i) ));
+					slideList1.calcMedialAxis(image);
+					for (int i = 0; i < slideList1.size(); i++) {
+						ChromosomeCluster tempChromo = slideList1.getChromosomeList().get(i);
+						ArrayList<Point> orderedMedialAxis = tempChromo.getMedialAxisGraph()
+								.getOrderedMedialAxis();
+						if (orderedMedialAxis != null) {
+							GrayBuffer tempBuffer = image.getSubImage(tempChromo);
+
+							GrayBuffer linearizedChrom = Characterizer.linearizeChromosome(
+									tempBuffer, orderedMedialAxis);
+
+							try {
+								String currentPath = (new File(".")).getCanonicalPath();
+								String imageName = new File(tempChromo.getTitle()).getName();
+
+								String outputName = imageName.substring(0, imageName.indexOf('.'))
+										+ "_" + (tempChromo.getClusterNimageID()) + ".png";
+								String medialAxisName = imageName.substring(0,
+										imageName.indexOf('.'))
+										+ "_" + (tempChromo.getClusterNimageID()) + ".medial.json";
+
+								String outputPath = currentPath + File.separator + "shapeData"
+										+ File.separator + "Linearized" + File.separator
+										+ outputName;
+								String medialAxisPath = currentPath + File.separator + "shapeData"
+										+ File.separator + "Linearized" + File.separator
+										+ medialAxisName;
+
+								File outputFile = new File(outputPath);
+								ImageIO.write(linearizedChrom.getAsBufferedImage(), "png",
+										outputFile);
+
+								File medialAxisFile = new File(medialAxisPath);
+								PrintStream medialAxisOutput = new PrintStream(medialAxisFile);
+
+								// Output as JSON
+								medialAxisOutput.print('[');
+								boolean is_first = true;
+								for (Point pt : orderedMedialAxis) {
+									if (is_first) {
+										is_first = false;
+									} else {
+										medialAxisOutput.print(',');
+									}
+									medialAxisOutput.print(String.format("[%s, %s]", pt.x, pt.y));
+								}
+								medialAxisOutput.print(']');
+								medialAxisOutput.flush();
+								medialAxisOutput.close();
+							} catch (IOException e) {
+								System.out.println(e);
+							}
+						}
 					}
-					slideList1.printDarkBands(image,false);
+					imgCount.setText("Writing " + slideList1.size() + " images. ");
 					// test for split lines to shapdata/keep
-					//slideList1.splitNWrite(image);
+					// slideList1.splitNWrite(image);
 
 					imgCount.setText(frame.targetsFound + " Chromosomes found in "
 							+ (++frame.imgCounter) + " slides read so far.");
-					if (!RunGetDarkBands.currentStatus.getText().contains("Finishing")) {
-						RunGetDarkBands.currentStatus.setText("Waiting for images");
+					if (!RunLinearizeChromosomes.currentStatus.getText().contains("Finishing")) {
+						RunLinearizeChromosomes.currentStatus.setText("Waiting for images");
 					} else {
-						RunGetDarkBands.currentStatus.setText("Finished looking at img"
+						RunLinearizeChromosomes.currentStatus.setText("Finished looking at img"
 								+ filename + " shutting down.");
 					}
 				}
@@ -134,8 +188,8 @@ public class RunGetDarkBands extends JFrame {
 	}
 
 	protected static void exitProcedure() {
-		RunGetDarkBands.closing = true;
-		RunGetDarkBands.currentStatus
+		RunLinearizeChromosomes.closing = true;
+		RunLinearizeChromosomes.currentStatus
 				.setText("Finishing current image search and shutting down.");
 	}
 

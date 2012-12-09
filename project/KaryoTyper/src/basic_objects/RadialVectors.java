@@ -11,6 +11,7 @@ public class RadialVectors {
 	private Point centerPoint;
 	private double theta;
 	private double distance;
+	private double stepTheta;
 
 	public RadialVectors(Point centerPoint, int numVectors, double distance) {
 		this.centerPoint = centerPoint;
@@ -103,9 +104,11 @@ public class RadialVectors {
 		}
 
 		double localTheta = angle / (numPoints - 1);
-
-		Vector vector = getPointAsVector(endPoint);
-
+		this.stepTheta=localTheta;
+		//TODO(reatkin2): I changed this to be at the right distance each time aamcknig 
+		Vector vector = getPointAsVectorAtDistance(endPoint);
+		//TODO(reatkin2): I changed this to be at the right distance each time aamcknig 
+		
 		for (int i = 1; i <= middle; i++) {
 			Vector vectorP = Vector.rotateVector(vector, localTheta * i);
 			pointsInRange.set(middle + i, getVectorAsPointOnImage(vectorP));
@@ -132,8 +135,6 @@ public class RadialVectors {
 	public ArrayList<Vector> getVectorsInRange(Vector middleVector, double angle, int numVectors) {
 		ArrayList<Vector> vectorsInRange = new ArrayList<Vector>(numVectors);
 
-		
-		
 		return vectorsInRange;
 	}
 
@@ -142,7 +143,11 @@ public class RadialVectors {
 		int yOnImage = (int) Math.round(vector.y + centerPoint.y);
 		return new Point(xOnImage, yOnImage);
 	}
-
+	private Vector getPointAsVectorAtDistance(Point point){
+		Vector tempVector=getPointAsVector(point);
+		tempVector=Vector.multiply(Vector.normalize(tempVector),this.distance);
+		return tempVector;
+	}
 	private Vector getPointAsVector(Point point) {
 		double xComp = point.x - centerPoint.x;
 		double yComp = point.y - centerPoint.y;
@@ -176,6 +181,34 @@ public class RadialVectors {
 		return point;
 	}
 
+	public Point getPointAtIndexAndDistance(int index, double distance) {
+		Vector vector = vectorList.get(index);
+		double multiplier = distance / this.distance;
+		vector.x *= multiplier;
+		vector.y *= multiplier;
+
+		return getVectorAsPointOnImage(vector);
+	}
+	
+	/**
+	 * Based on a specified point in the list, returns the rotated point at the
+	 * specified distance.
+	 * 
+	 * @param index
+	 * @param angle
+	 * @param distance
+	 * @return
+	 */
+	public Point getRotatedPointAtDistance(int index, double angle, double distance) {
+		Vector vector = vectorList.get(index);
+		vector = Vector.rotateVector(vector, angle);
+		double multiplier = distance/ this.distance;
+		vector.x *= multiplier;
+		vector.y *= multiplier;
+		
+		return getVectorAsPointOnImage(vector);
+	}
+
 	public void multiplyRadius(double multiple) {
 		distance *= multiple;
 		for (Vector v : vectorList) {
@@ -186,5 +219,34 @@ public class RadialVectors {
 
 	public void normalize() {
 		multiplyRadius(1.0 / distance);
+	}
+
+	public String toString() {
+		String radialVectorStr = "Center point: (" + centerPoint.x + ", " + centerPoint.y + ")\n";
+		radialVectorStr += "Theta: " + theta + "\n";
+		radialVectorStr += "Distance: " + distance + "\n";
+		
+		for (Vector v : vectorList) {
+			radialVectorStr += "(" + v.x + ", " + v.y + ")\n";
+		}
+		
+		return radialVectorStr;
+	}
+	
+	public String pointsToString() {
+		ArrayList<Point> pointList = getVectorsAsPointsOnImage();
+		String pointsStr = "Center point: (" + centerPoint.x + ", " + centerPoint.y + ")\n";
+		pointsStr += "Theta: " + theta + "\n";
+		pointsStr += "Distance: " + distance + "\n";
+		
+		for (Point p : pointList) {
+			pointsStr += "(" + p.x + ", " + p.y + ")\n";
+		}
+		
+		return pointsStr;
+	}
+	
+	public double getStepTheta() {
+		return stepTheta;
 	}
 }

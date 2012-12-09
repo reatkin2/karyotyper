@@ -3,6 +3,8 @@
  */
 package basic_objects;
 
+import java.io.File;
+
 import characterization.ChromosomeBand;
 import idiogram.IdiogramMap;
 import junit.framework.TestCase;
@@ -13,11 +15,14 @@ import junit.framework.TestCase;
  */
 public class IdiogramMapTest extends TestCase {
 
+	private IdiogramMap map;
+	
 	/**
 	 * @param name
 	 */
 	public IdiogramMapTest(String name) {
 		super(name);
+		map = new IdiogramMap(new File(".\\ChromosomeIdiogramSheet.csv"));
 	}
 
 	/* (non-Javadoc)
@@ -33,31 +38,19 @@ public class IdiogramMapTest extends TestCase {
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
-
-	/**
-	 * Test method for {@link idiogram.IdiogramMap#IdiogramMap()}.
-	 */
-	public void testIdiogramMap() {
-		IdiogramMap map = new IdiogramMap();
-		
-		System.out.println(map.toString());
-		
-		fail("Not yet implemented");
-	}
 	
 	/**
 	 * Test method for {@link idiogram.IdiogramMap#get(Idiogram)}.
 	 */
 	public void testGet() {
-		IdiogramMap map = new IdiogramMap();
-		
-		Chromosome chromosome = new Chromosome(10);
-		chromosome.add(new ChromosomeBand(ChromosomeBand.Type.WHITE, 21));
-		chromosome.add(new ChromosomeBand(ChromosomeBand.Type.BLACK, 10));
-		
-		int number = map.get(chromosome);
-		
-		assertEquals(number, 11);
+//		Chromosome chromosome = new Chromosome(10);
+//		chromosome.add(new ChromosomeBand(ChromosomeBand.Type.WHITE, 21));
+//		chromosome.add(new ChromosomeBand(ChromosomeBand.Type.BLACK, 10));
+//		
+//		int number = map.get(chromosome);
+//		
+//		assertEquals(number, 11);
+		fail("Waiting for decision on implementation.");
 	}
 
 }

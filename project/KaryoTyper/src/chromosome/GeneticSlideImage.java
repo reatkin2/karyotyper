@@ -27,6 +27,7 @@ public class GeneticSlideImage {
 
 	private String comments;
 	private BufferedImage img;
+
 	private int[] intensityHistogram;
 
 	private int[] edgeHistogram;
@@ -87,6 +88,9 @@ public class GeneticSlideImage {
 		// TODO(aamcknig): make this run on linear regressed function and not a static number
 		this.backgroundThreshold = this.computeBackgroundThreshold();
 
+	}
+	public BufferedImage getImg() {
+		return img;
 	}
 
 	public int getImgHeight() {

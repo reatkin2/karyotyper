@@ -1,4 +1,4 @@
-package testing.blackbox;
+package blackbox;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;

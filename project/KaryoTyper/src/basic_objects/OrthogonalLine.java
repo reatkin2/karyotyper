@@ -20,22 +20,14 @@ public class OrthogonalLine {
 		twoLines=false;
 		index=indexFoundAt;
 	}
-	public OrthogonalLine(Point start,Point upperP,int upper,int indexFoundAt){
-		startPoint=start;
-		this.upperDistance=upper;
-		this.lowerDistance=-1;
-		this.upperPoint=upperP;
-		this.lowerPoint=null;
-		twoLines=false;
-		index=indexFoundAt;
-	}
+
 
 	public double getlength(){
 		return this.upperPoint.distance(this.lowerPoint);
 	}
 	public OrthogonalLine(){
 
-		twoLines=true;
+		twoLines=false;
 	}
 	public int getIndex() {
 		return index;
