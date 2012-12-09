@@ -380,7 +380,7 @@ public class Characterizer {
 
 		return result;
 	}
-	
+
 	public static ArrayList<ArrayList<Point2D>> segmentPath(ArrayList<Point2D> path) {
 		ArrayList<ArrayList<Point2D>> result = new ArrayList<ArrayList<Point2D>>();
 		return result;
@@ -390,7 +390,8 @@ public class Characterizer {
 	 * Take a curved chromosome and linearize it, keeping all chromosome features clear and
 	 * equivalent to pre-linearization.
 	 * 
-	 * @param chromBuffer A pixel-buffer representing 
+	 * @param chromBuffer
+	 *            A pixel-buffer representing
 	 * @param chromMidline
 	 * @return
 	 */

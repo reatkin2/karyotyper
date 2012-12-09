@@ -99,7 +99,7 @@ public class RunMedialAxis extends JFrame {
 						// print out the slidelist
 						imgCount.setText("Calculating Medial Axis for: " + slideList1.size()
 								+ " Clusters.");
-						slideList1.calcMedialAxis(image);
+						//slideList1.calcMedialAxis(image);
 						imgCount.setText("Writing " + slideList1.size() + " images. ");
 						slideList1.printChromosomes(image);
 						// test for split lines to shapdata/keep
