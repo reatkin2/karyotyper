@@ -8,6 +8,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
@@ -120,15 +121,41 @@ public class RunLinearizeChromosomes extends JFrame {
 							try {
 								String currentPath = (new File(".")).getCanonicalPath();
 								String imageName = new File(tempChromo.getTitle()).getName();
+
 								String outputName = imageName.substring(0, imageName.indexOf('.'))
 										+ "_" + (tempChromo.getClusterNimageID()) + ".png";
+								String medialAxisName = imageName.substring(0,
+										imageName.indexOf('.'))
+										+ "_" + (tempChromo.getClusterNimageID()) + ".medial.json";
 
 								String outputPath = currentPath + File.separator + "shapeData"
 										+ File.separator + "Linearized" + File.separator
 										+ outputName;
+								String medialAxisPath = currentPath + File.separator + "shapeData"
+										+ File.separator + "Linearized" + File.separator
+										+ medialAxisName;
+
 								File outputFile = new File(outputPath);
 								ImageIO.write(linearizedChrom.getAsBufferedImage(), "png",
 										outputFile);
+
+								File medialAxisFile = new File(medialAxisPath);
+								PrintStream medialAxisOutput = new PrintStream(medialAxisFile);
+
+								// Output as JSON
+								medialAxisOutput.print('[');
+								boolean is_first = true;
+								for (Point pt : orderedMedialAxis) {
+									if (is_first) {
+										is_first = false;
+									} else {
+										medialAxisOutput.print(',');
+									}
+									medialAxisOutput.print(String.format("[%s, %s]", pt.x, pt.y));
+								}
+								medialAxisOutput.print(']');
+								medialAxisOutput.flush();
+								medialAxisOutput.close();
 							} catch (IOException e) {
 								System.out.println(e);
 							}
