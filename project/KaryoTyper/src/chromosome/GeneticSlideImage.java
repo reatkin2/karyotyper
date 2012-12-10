@@ -36,12 +36,12 @@ public class GeneticSlideImage {
 	private int backgroundThreshold;
 	private String imageName;
 	private SearchArea searchArea;
-/*
- * pixelFound is a memory versus time in get matching pixel spotNext stores a 2D array of what
- * pixels should be added to the ones to check next without searching the foundList of next ones
- * to be checked
- */
-private boolean[][] pixelFound;
+	/*
+	 * pixelFound is a memory versus time in get matching pixel spotNext stores a 2D array of what
+	 * pixels should be added to the ones to check next without searching the foundList of next ones
+	 * to be checked
+	 */
+	private boolean[][] pixelFound;
 
 	public GeneticSlideImage(String filename) {
 		intensityHistogram = new int[256];
@@ -59,18 +59,19 @@ private boolean[][] pixelFound;
 						.println("Starting file: " + filename.substring(filename.indexOf("imag")));
 			}
 			img = ImageIO.read(new File(filename));
-			//System.out.println("Image Height: " + img.getHeight() + " Width: " + img.getWidth());
+			// System.out.println("Image Height: " + img.getHeight() + " Width: " + img.getWidth());
 		} catch (IOException e) {
 			System.out.println(e);
 		}
 		chromoWidth = -1;
 		chromosomeWidth = new LinkedList<Double>();
-		searchArea=new SearchArea(this);
+		searchArea = new SearchArea(this);
 		this.computeHistogram();
 		this.graphScale();
 		// TODO(aamcknig): make this run on linear regressed function and not a static number
 		this.backgroundThreshold = this.computeBackgroundThreshold();
 	}
+
 	public GeneticSlideImage(BufferedImage buffImage) {
 		intensityHistogram = new int[256];
 		edgeHistogram = new int[256];
@@ -81,7 +82,7 @@ private boolean[][] pixelFound;
 		img = buffImage;
 		chromoWidth = -1;
 		chromosomeWidth = new LinkedList<Double>();
-		searchArea=new SearchArea(this);
+		searchArea = new SearchArea(this);
 		this.computeHistogram();
 		this.graphScale();
 		// TODO(aamcknig): make this run on linear regressed function and not a static number
@@ -116,28 +117,26 @@ private boolean[][] pixelFound;
 		return intensityHistogram.clone();
 	}
 
-
-public GrayBuffer getSubImage(Cluster chromosomeCluster){
-	GrayBuffer tempImg = new GrayBuffer(chromosomeCluster.getSize().x,
-			chromosomeCluster.getSize().y);
-	for (int i = chromosomeCluster.getImageLocation().x; i < (chromosomeCluster.getImageLocation().x + chromosomeCluster
-			.getSize().x); i++) {
-		for (int j = chromosomeCluster.getImageLocation().y; j < (chromosomeCluster.getImageLocation().y + chromosomeCluster
-				.getSize().y); j++) {
-			if (chromosomeCluster.getValue(i - chromosomeCluster.getImageLocation().x, j
-					- chromosomeCluster.getImageLocation().y)){
-				tempImg.set(i - chromosomeCluster.getImageLocation().x,
-						j - chromosomeCluster.getImageLocation().y,
-						PixelColor.colorToGrayscale(this.getColorAt(i, j)));
-			}
-			else {
-				tempImg.set(i - chromosomeCluster.getImageLocation().x,
-						j - chromosomeCluster.getImageLocation().y, -1);
+	public GrayBuffer getSubImage(Cluster chromosomeCluster) {
+		GrayBuffer tempImg = new GrayBuffer(chromosomeCluster.getSize().x,
+				chromosomeCluster.getSize().y);
+		for (int i = chromosomeCluster.getImageLocation().x; i < (chromosomeCluster
+				.getImageLocation().x + chromosomeCluster.getSize().x); i++) {
+			for (int j = chromosomeCluster.getImageLocation().y; j < (chromosomeCluster
+					.getImageLocation().y + chromosomeCluster.getSize().y); j++) {
+				if (chromosomeCluster.getValue(i - chromosomeCluster.getImageLocation().x, j
+						- chromosomeCluster.getImageLocation().y)) {
+					tempImg.set(i - chromosomeCluster.getImageLocation().x,
+							j - chromosomeCluster.getImageLocation().y,
+							PixelColor.colorToGrayscale(this.getColorAt(i, j)));
+				} else {
+					tempImg.set(i - chromosomeCluster.getImageLocation().x,
+							j - chromosomeCluster.getImageLocation().y, -1);
+				}
 			}
 		}
+		return tempImg;
 	}
-	return tempImg;
-}
 
 	/**
 	 * This returns a bufferedImage of the square cluster area with the original image of the
@@ -166,8 +165,7 @@ public GrayBuffer getSubImage(Cluster chromosomeCluster){
 							j - targetCluster.getImageLocation().y, img.getRGB(i, j));
 				else {
 					tempImg.setRGB(i - targetCluster.getImageLocation().x,
-							j - targetCluster.getImageLocation().y,
-							((Color.WHITE).getRGB()));
+							j - targetCluster.getImageLocation().y, ((Color.WHITE).getRGB()));
 				}
 			}
 
@@ -175,9 +173,9 @@ public GrayBuffer getSubImage(Cluster chromosomeCluster){
 
 		if (pointList != null && !pointList.isEmpty()) {
 			for (int i = 0; i < pointList.size(); i++) {
-				if(pointList.get(i).x>=0&&pointList.get(i).y>=0
-						&&pointList.get(i).x<targetCluster.getSize().x
-						&&pointList.get(i).y<targetCluster.getSize().y){
+				if (pointList.get(i).x >= 0 && pointList.get(i).y >= 0
+						&& pointList.get(i).x < targetCluster.getSize().x
+						&& pointList.get(i).y < targetCluster.getSize().y) {
 					tempImg.setRGB(pointList.get(i).x, pointList.get(i).y, (drawColor).getRGB());
 				}
 			}
@@ -500,6 +498,5 @@ public GrayBuffer getSubImage(Cluster chromosomeCluster){
 	public void setSearchArea(SearchArea searchArea) {
 		this.searchArea = searchArea;
 	}
-
 
 }
