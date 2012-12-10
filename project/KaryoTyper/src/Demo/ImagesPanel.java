@@ -33,11 +33,6 @@ public class ImagesPanel extends JPanel{
 
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				// TODO Auto-generated method stub
-				Point panelLocation=new Point(arg0.getLocationOnScreen().x-arg0.getComponent().getLocationOnScreen().x,
-						arg0.getLocationOnScreen().y-arg0.getComponent().getLocationOnScreen().y);
-				markSelected(panelLocation);
-				System.out.println("mouse clicked in image panel "+panelLocation.toString());
 			}
 
 			@Override
@@ -55,7 +50,10 @@ public class ImagesPanel extends JPanel{
 			@Override
 			public void mousePressed(MouseEvent arg0) {
 				// TODO Auto-generated method stub
-				
+				Point panelLocation=new Point(arg0.getLocationOnScreen().x-arg0.getComponent().getLocationOnScreen().x,
+						arg0.getLocationOnScreen().y-arg0.getComponent().getLocationOnScreen().y);
+				markSelected(panelLocation);
+				System.out.println("mouse clicked in image panel "+panelLocation.toString());
 			}
 
 			@Override

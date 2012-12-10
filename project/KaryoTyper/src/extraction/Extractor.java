@@ -435,7 +435,8 @@ public class Extractor {
 						//TODO(aamcknig):figure out what is broke with output images
 						//temp = new ChromosomeCluster(temp);
 						temp.setClusterNimageID(splitCount);
-						temp.setTitle(myCluster.getTitle().substring(0,myCluster.getTitle().indexOf('.'))+"_"+myCluster.getClusterNimageID()+"_.");
+						//temp.setTitle(myCluster.getTitle().substring(0,myCluster.getTitle().indexOf('.'))+"_"+myCluster.getClusterNimageID()+"_.");
+						temp.setTitle(myCluster.getTitle());
 						splitCount++;
 						tempClusters.add(temp);
 						temp.createSkeleton();

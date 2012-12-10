@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.ScrollPane;
 import java.awt.event.ActionEvent;
@@ -15,8 +16,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
+import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -29,6 +32,8 @@ import medial_axis.MedialAxisGraph;
 import runner.ImageQueue;
 import basic_objects.CutStartPoint;
 import basic_objects.PointList;
+import characterize.Characterizer;
+import characterize.GrayBuffer;
 import chromosome.ChromosomeCluster;
 import chromosome.ChromosomeList;
 import chromosome.GeneticSlideImage;
@@ -140,7 +145,7 @@ public class DemoGui extends JFrame {
 
 	public void initButtons() {
 		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+		buttonPanel.setLayout(new GridLayout(10, 1));
 		extractButton = new JButton("extract");
 		distanceMapButton = new JButton("distanceMap");
 		medialAxisButton = new JButton("medialAxis");
@@ -157,7 +162,6 @@ public class DemoGui extends JFrame {
 		buttonPanel.add(medialAxisButton);
 		buttonPanel.add(cleanMedialAxisButton);
 		buttonPanel.add(smallSplitButton);
-		buttonPanel.add(orthoLinesButton);
 		buttonPanel.add(startPointsButton);
 		buttonPanel.add(projectionsButton);
 		buttonPanel.add(darkBandsButton);
@@ -330,16 +334,6 @@ public class DemoGui extends JFrame {
 
 		});
 
-		orthoLinesButton.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent evt) {
-				orthoLinesButtonActionPerformed(evt);
-
-			}
-
-		});
-
 		startPointsButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -400,12 +394,62 @@ public class DemoGui extends JFrame {
 	}
 
 	protected void linearizeButtonActionPerformed(ActionEvent evt) {
-		// TODO Auto-generated method stub
+
+		if (this.displayedList != null) {
+			LinkedList<BufferedImage> imageList = new LinkedList<BufferedImage>();
+			LinkedList<ChromosomeCluster> tempList = new LinkedList<ChromosomeCluster>();
+			for (int i = 0; i < this.displayedList.size(); i++) {
+				if (this.imagePanel.isSelected(i)) {
+					ChromosomeCluster tempCluster = this.displayedList.get(i);
+					int slideNum = this.getSlide(tempCluster);
+					if (slideNum > -1) {
+						tempCluster.createMedialAxisGraph(this.slideList.get(slideNum));
+						BufferedImage tempImage = linerizeCluster(tempCluster,
+								this.slideList.get(slideNum));
+						if (tempImage != null) {
+							tempList.add(tempCluster);
+							imageList.add(tempImage);
+						}
+					}
+				}
+			}
+			if (!imageList.isEmpty()) {
+				this.displayedList = tempList;
+				this.displayImage(imageList);
+			}
+
+		} else {
+			DemoGui.currentStatusLabel.setText("First extract chromosomes from an image");
+		}
 
 	}
 
 	protected void darkBandsButtonActionPerformed(ActionEvent evt) {
-		// TODO Auto-generated method stub
+		if (this.displayedList != null) {
+			LinkedList<BufferedImage> imageList = new LinkedList<BufferedImage>();
+			LinkedList<ChromosomeCluster> tempList = new LinkedList<ChromosomeCluster>();
+			Extractor extractor = new Extractor();
+			for (int i = 0; i < this.displayedList.size(); i++) {
+				if (this.imagePanel.isSelected(i)) {
+					ChromosomeCluster tempCluster = this.displayedList.get(i);
+					int slideNum = this.getSlide(tempCluster);
+					if (slideNum > -1) {
+						tempList.add(tempCluster);
+						tempCluster.setDarkBands(extractor.getBlackBands(
+								this.slideList.get(slideNum), tempCluster));
+						imageList.add(this.slideList.get(slideNum).getSubImage(tempCluster,
+								tempCluster.getDarkBandPoints(), Color.YELLOW));
+					}
+				}
+			}
+			if (!imageList.isEmpty()) {
+				this.displayedList = tempList;
+				this.displayImage(imageList);
+			}
+
+		} else {
+			DemoGui.currentStatusLabel.setText("First extract chromosomes from an image");
+		}
 
 	}
 
@@ -429,9 +473,10 @@ public class DemoGui extends JFrame {
 								tempCluster.getMedialAxisGraph().getAxisGraph(),
 								tempCluster.getMedialAxisGraph().getIntersections(
 										tempCluster.getMedialAxisGraph().getAxisGraph()));
-						LinkedList<Point> startPnt = splitter.projectApproach(tempCluster.getBounds(), startPoints);
+						LinkedList<Point> startPnt = splitter.projectApproach(
+								tempCluster.getBounds(), startPoints);
 						imageList.add(this.slideList.get(slideNum).getSubImage(tempCluster,
-								tempCluster.getPaintPoints(),Color.RED,startPnt, Color.BLUE));
+								tempCluster.getPaintPoints(), Color.RED, startPnt, Color.BLUE));
 					}
 				}
 			}
@@ -471,7 +516,7 @@ public class DemoGui extends JFrame {
 							startPnt.add(startPoints.get(j).getStartPoint().getPoint());
 						}
 						imageList.add(this.slideList.get(slideNum).getSubImage(tempCluster,
-								tempCluster.getPaintPoints(),Color.RED,startPnt, Color.BLUE));
+								tempCluster.getPaintPoints(), Color.RED, startPnt, Color.BLUE));
 					}
 				}
 			}
@@ -486,21 +531,17 @@ public class DemoGui extends JFrame {
 
 	}
 
-	protected void orthoLinesButtonActionPerformed(ActionEvent evt) {
-		// TODO Auto-generated method stub
-
-	}
-
+	// TODO(aamcknig): fix cluster title change after split
 	protected void smallSplitButtonActionPerformed(ActionEvent evt) {
 		if (this.displayedList != null) {
 			LinkedList<BufferedImage> imageList = new LinkedList<BufferedImage>();
 			LinkedList<ChromosomeCluster> tempList = new LinkedList<ChromosomeCluster>();
-			Extractor extractor = new Extractor();
 			for (int i = 0; i < this.displayedList.size(); i++) {
 				if (this.imagePanel.isSelected(i)) {
 					ChromosomeCluster tempCluster = this.displayedList.get(i);
 					int slideNum = this.getSlide(tempCluster);
 					if (slideNum > -1) {
+						Extractor extractor = new Extractor();
 						LinkedList<PointList> cutList = ClusterSplitter
 								.getSplitPoints(tempCluster, (int) Math.round((this.slideList
 										.get(slideNum)).getChromoWidth() / 3));
@@ -657,5 +698,18 @@ public class DemoGui extends JFrame {
 			}
 		}
 		return -1;
+	}
+
+	public BufferedImage linerizeCluster(ChromosomeCluster tempCluster, GeneticSlideImage image) {
+		ArrayList<Point> orderedMedialAxis = tempCluster.getMedialAxisGraph()
+				.getOrderedMedialAxis();
+		if (orderedMedialAxis != null) {
+			GrayBuffer tempBuffer = image.getSubImage(tempCluster);
+
+			GrayBuffer linearizedChrom = Characterizer.linearizeChromosome(tempBuffer,
+					orderedMedialAxis);
+			return linearizedChrom.getAsBufferedImage();
+		}
+		return null;
 	}
 }
