@@ -121,11 +121,11 @@ public class RadialVectorsTest extends TestCase {
 		
 		ArrayList<Vector> testVectors = new ArrayList<Vector>(5);
 		double angle = Math.PI/8.0;
-		testVectors.add(new Vector(Math.cos(-2*angle), Math.sin(-2*angle)));
-		testVectors.add(new Vector(Math.cos(-1*angle), Math.sin(-1*angle)));
+		testVectors.add(new Vector(DISTANCE * Math.cos(-2*angle), DISTANCE * Math.sin(-2*angle)));
+		testVectors.add(new Vector(DISTANCE * Math.cos(-1*angle), DISTANCE * Math.sin(-1*angle)));
 		testVectors.add(new Vector(1,0));
-		testVectors.add(new Vector(Math.cos(angle), Math.sin(angle)));
-		testVectors.add(new Vector(Math.cos(2*angle), Math.sin(2*angle)));
+		testVectors.add(new Vector(DISTANCE * Math.cos(angle), DISTANCE * Math.sin(angle)));
+		testVectors.add(new Vector(DISTANCE * Math.cos(2*angle), DISTANCE * Math.sin(2*angle)));
 		
 		for (int i = 0 ; i < 5; i++) {
 			int testPointX = (int)Math.round(testVectors.get(i).x + CENTER_POINT.x);
