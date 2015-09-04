@@ -1,0 +1,23 @@
+# These are all output from running or editing
+*.pyc
+*.swp
+*.jpg
+*.png
+*.class
+bin/*
+GrayScale.txt
+EdgeScale.txt
+diffProblem.txt
+diffProblem.diff
+.metadata
+.classpath
+
+# Class Diagrams
+*.ucls
+
+# Required repo for input
+shapeData/
+
+# In case a nested SVN repo is here
+.svn/
+tags
