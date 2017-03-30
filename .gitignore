@@ -21,3 +21,8 @@ shapeData/
 # In case a nested SVN repo is here
 .svn/
 tags
+
+# inteliJ file type
+*.iml
+# inteliJ directory
+.idea/
